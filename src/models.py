@@ -3,7 +3,6 @@ from sqlalchemy import Column, Integer, String, Float
 
 Base = declarative_base()
 
-
 class TableTracking(Base):
     __tablename__ = 'table_tracking'
 

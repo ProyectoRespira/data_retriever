@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, MetaData, Table
 from src.database import config
-####### NOT WORKING - CAN'T CONNECT TO REMOTE SERVER ########
+####### NOT WORKING - CAN'T CONNECT TO REMOTE SERVER 4 TESTING ########
 
 def create_missing_tables():
     # Load database configuration
