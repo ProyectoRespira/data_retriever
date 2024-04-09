@@ -2,14 +2,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, VARCHAR
 
 BasePostgres = declarative_base()
-BaseMySQL = declarative_base() # perhaps use automap_base ?
-
-# class TableTracking(Base):
-#     __tablename__ = 'table_tracking'
-
-#     id = Column(Integer, primary_key=True)
-#     table_name = Column(String, unique=True)
-#     last_mirrored_id = Column(Integer)
 
 
 class Stations(BasePostgres): # Same as Django
@@ -45,35 +37,22 @@ class StationReadings(BasePostgres): # Same as Django
     aqi_pm10 = Column(Float)
 
 
-class StationsReadingsRaw(BasePostgres): # Copy of Raw Data from Origin DB
+class StationsReadingsRaw(BasePostgres): # Copy of Raw Data from Origin DB 
     __tablename__ = 'station_readings_raw'
 
     id = Column(Integer, primary_key=True)
     measurement_id = Column(Integer)
     station_id = Column(Integer, ForeignKey('stations.id'))
-    fecha = Column(String)
-    hora = Column(String)
-    mp2_5 = Column(Float)
-    mp1 = Column(Float)
-    mp10 = Column(Float)
-    temperatura = Column(Float)
-    humedad = Column(Float)
-    presion = Column(Float)
-    bateria = Column(Float)
-
-class EstacionX(BaseMySQL): # Origin DB - perhaps use automap_base?
-    __abstract__ = True
-
-    id = Column(Integer, primary_key=True)
-    fecha = Column(VARCHAR)
+    fecha = Column(VARCHAR) # All data from Origin DB comes as VARCHAR
     hora = Column(VARCHAR)
-    mp1 = Column(VARCHAR)
     mp2_5 = Column(VARCHAR)
+    mp1 = Column(VARCHAR)
     mp10 = Column(VARCHAR)
     temperatura = Column(VARCHAR)
     humedad = Column(VARCHAR)
     presion = Column(VARCHAR)
     bateria = Column(VARCHAR)
+
 
 
 
