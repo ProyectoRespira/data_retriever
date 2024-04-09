@@ -2,40 +2,47 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from src.models import TableTracking
 
-from src.config import config
+import os
+from dotenv import load_dotenv
 
-# PostgreSQL connection details
-POSTGRES_CONFIG = config(section='postgresql')
+try:
+    load_dotenv()
+except:
+    raise "Error loading .env file"
 
-# MySQL connection details
-MYSQL_CONFIG = config(section='mysql')
 
-# Access individual parameters
-POSTGRES_HOST = POSTGRES_CONFIG['host']
-POSTGRES_USER = POSTGRES_CONFIG['user']
-POSTGRES_PASSWORD = POSTGRES_CONFIG['password']
-POSTGRES_DATABASE = POSTGRES_CONFIG['database']
+def create_postgres():
+    POSTGRES_USER = os.getenv('POSTGRES_USER')
+    POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
+    POSTGRES_DATABASE = os.getenv('POSTGRES_DATABASE')
+    POSTGRES_HOST = os.getenv('POSTGRES_HOST')
+    
+    postgres_engine = create_engine(f'postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}/{POSTGRES_DATABASE}')
 
-MYSQL_HOST = MYSQL_CONFIG['host']
-MYSQL_USER = MYSQL_CONFIG['user']
-MYSQL_PASSWORD = MYSQL_CONFIG['password']
-MYSQL_DATABASE = MYSQL_CONFIG['database']
-MYSQL_TABLES = MYSQL_CONFIG['tables']
+    return postgres_engine
 
-# Create SQLAlchemy engines for PostgreSQL and MySQL
-postgres_engine = create_engine(f'postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}/{POSTGRES_DATABASE}')
-mysql_engine = create_engine(f'mysql+mysqlconnector://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}/{MYSQL_DATABASE}')
 
-# Create session makers for PostgreSQL and MySQL
-Session = sessionmaker(bind=postgres_engine)
+def create_mysql():
+    MYSQL_HOST = os.getenv('MYSQL_HOST')
+    MYSQL_USER = os.getenv('MYSQL_USER')
+    MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD')
+    MYSQL_DATABASE = os.getenv('MYSQL_DATABASE')
+    MYSQL_TABLES = os.getenv('MYSQL_TABLES')
 
-def create_postgres_session():
-    Session.configure(bind=postgres_engine)
+    mysql_engine = create_engine(f'mysql+mysqlconnector://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}/{MYSQL_DATABASE}')
+
+    return mysql_engine
+
+
+def create_postgres_session(postgres_engine):
+    Session = sessionmaker(bind=postgres_engine)
     return Session()
 
-def create_mysql_session():
-    Session.configure(bind=mysql_engine)
+
+def create_mysql_session(mysql_engine):
+    Session = sessionmaker(bind=mysql_engine)
     return Session()
+
 
 def get_last_mirrored_id(table_name):
     # Create a session for PostgreSQL
