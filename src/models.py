@@ -2,7 +2,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, VARCHAR
 
 BasePostgres = declarative_base()
-BaseMySQL = declarative_base()
+BaseMySQL = declarative_base() # perhaps use automap_base ?
 
 # class TableTracking(Base):
 #     __tablename__ = 'table_tracking'
@@ -61,7 +61,7 @@ class StationsReadingsRaw(BasePostgres): # Copy of Raw Data from Origin DB
     presion = Column(Float)
     bateria = Column(Float)
 
-class EstacionX(BaseMySQL): # Origin DB
+class EstacionX(BaseMySQL): # Origin DB - perhaps use automap_base?
     __abstract__ = True
 
     id = Column(Integer, primary_key=True)
