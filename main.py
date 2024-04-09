@@ -1,9 +1,8 @@
-from src.mirror import start_mirror_process
-from src.initialize_db import create_missing_tables
+from src.mirror import retrieve_data
 
 def main():
-    create_missing_tables()
-    start_mirror_process()
+    
+    retrieve_data()
 
 if __name__ == "__main__":
     main()

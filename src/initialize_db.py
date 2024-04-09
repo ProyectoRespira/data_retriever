@@ -1,7 +1,5 @@
 from src.models import BasePostgres
-from src.database import create_postgres
+from sqlalchemy import create_engine
 
-def create_postgres_tables():
-    engine = create_postgres()
-
-    BasePostgres.metadata.create_all(engine)
+def create_postgres_tables(postgres_engine):
+    BasePostgres.metadata.create_all(postgres_engine)
