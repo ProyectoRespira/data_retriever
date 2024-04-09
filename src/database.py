@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 try:
     load_dotenv()
 except:
-    raise "Error loading .env file"
+    raise "Error loading .env file right now"
 
 
 def create_postgres():
