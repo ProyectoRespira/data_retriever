@@ -33,12 +33,12 @@ def create_mysql():
     return mysql_engine
 
 
-def create_postgres_session(postgres_engine = create_postgres()):
+def create_postgres_session(postgres_engine):
     Session = sessionmaker(bind=postgres_engine)
     return Session()
 
 
-def create_mysql_session(mysql_engine = create_mysql()):
+def create_mysql_session(mysql_engine):
     Session = sessionmaker(bind=mysql_engine)
     return Session()
 
