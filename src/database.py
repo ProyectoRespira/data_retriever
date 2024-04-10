@@ -1,6 +1,5 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from src.models import TableTracking
 
 import os
 from dotenv import load_dotenv
@@ -43,42 +42,3 @@ def create_mysql_session(mysql_engine):
     Session = sessionmaker(bind=mysql_engine)
     return Session()
 
-
-def get_last_mirrored_id(table_name):
-    # Create a session for PostgreSQL
-    session = create_postgres_session()
-
-    try:
-        # Query the TableTracking table for the last mirrored ID of the specified table
-        record = session.query(TableTracking).filter_by(table_name=table_name).first()
-        if record:
-            return record.last_mirrored_id
-        else:
-            return 0  # Default to 0 if no record found (assuming ID starts from 1)
-    finally:
-        session.close()
-
-def update_last_mirrored_id(table_name, last_mirrored_id):
-    # Create a session for PostgreSQL
-    session = create_postgres_session()
-
-    try:
-        # Query the TableTracking table for the record of the specified table
-        record = session.query(TableTracking).filter_by(table_name=table_name).first()
-        if record:
-            # Update the last mirrored ID
-            record.last_mirrored_id = last_mirrored_id
-        else:
-            # If no record exists, create a new one
-            new_record = TableTracking(table_name=table_name, last_mirrored_id=last_mirrored_id)
-            session.add(new_record)
-
-        session.commit()
-    except Exception as e:
-        session.rollback()
-        raise e
-    finally:
-        session.close()
-
-def get_tables(tables = MYSQL_TABLES):
-    return tables

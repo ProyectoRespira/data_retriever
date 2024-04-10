@@ -1,34 +1,109 @@
-from sqlalchemy import create_engine, MetaData, Table
-from src.database import config
-####### NOT WORKING - CAN'T CONNECT TO REMOTE SERVER 4 TESTING ########
+from src.models import BasePostgres, Stations
+from sqlalchemy.exc import IntegrityError
+from src.database import create_postgres_session
 
-def create_missing_tables():
-    # Load database configuration
-    postgres_config = config(section='postgresql')
-    mysql_config = config(section='mysql')
+stations_data = [
+    {
+        "id": 1,
+        "name": "Campus de la UNA",
+        "latitude": "-25.33360102213910",
+        "longitude": "-57.5139365997165", 
+        "region": "CENTRAL"
+    },
+    {
+        "id": 2,
+        "name": "Zona Multiplaza",
+        "latitude": "-25.32014521770180",
+        "longitude": "-57.56050041876730", 
+        "region": "ASUNCION"
+    },
+    {
+        "id": 3,
+        "name": "Acceso Sur",
+        "latitude": "-25.34024024382230",
+        "longitude": "-57.58431466296320",
+        "region": "CENTRAL"
+    },
+    {
+        "id": 4,
+        "name": "Primero de Marzo y Perón",
+        "latitude": "-25.32836979255080",
+        "longitude": "-57.62706899084150",
+        "region": "ASUNCION"
+    },
+    {
+        "id": 5,
+        "name": "Villa Morra",
+        "latitude": "-25.29511316679420",
+        "longitude": "-57.57708610966800",
+        "region": "ASUNCION"
+    },
+    {
+        "id": 6,
+        "name": "Barrio Jara",
+        "latitude": "-25.28833455406130",
+        "longitude": "-57.60329900309440",
+        "region": "ASUNCION"
+    },
+    {
+        "id": 7,
+        "name": "San Roque",
+        "latitude": "-25.28936695307490",
+        "longitude": "-57.62515967711810",
+        "region": "ASUNCION"
+    },
+    {
+        "id": 8,
+        "name": "Centro de Asunción",
+        "latitude": "-25.28640403412280",
+        "longitude": "-57.64701121486720",
+        "region": "ASUNCION"
+    },
+    {
+        "id": 9,
+        "name": "Ñu Guasu",
+        "latitude": "-25.26458493433890",
+        "longitude": "-57.54793468862770",
+        "region": "ASUNCION"
+    },
+    {
+        "id": 10,
+        "name": "Botánico",
+        "latitude": "-25.24647398851810",
+        "longitude": "-57.54928501322870",
+        "region": "ASUNCION"
+    }
+]
 
-    # Create SQLAlchemy engines for PostgreSQL and MySQL
-    postgres_engine = create_engine(f"postgresql+psycopg2://{postgres_config['user']}:{postgres_config['password']}@{postgres_config['host']}/{postgres_config['database']}")
-    mysql_engine = create_engine(f"mysql+mysqlconnector://{mysql_config['user']}:{mysql_config['password']}@{mysql_config['host']}/{mysql_config['database']}")
+def create_stations(postgres_session, station_data = stations_data):
+    existing_station_ids = {station.id for station in postgres_session.query(Stations).all()}
+    for station_info in station_data:
+        station_id = station_info.get('id')
+        if station_id not in existing_station_ids:
+            try:
+                new_station = Stations(
+                    id=station_id,
+                    name=station_info['name'],
+                    latitude=station_info['latitude'],
+                    longitude=station_info['longitude'],
+                    region=station_info['region']
+                )
+                postgres_session.add(new_station)
+                postgres_session.commit()
+                print(f"Station '{new_station.name}' created successfully.")
+            except KeyError as e:
+                print(f"Skipping station creation due to missing or invalid data: {e}")
+            except IntegrityError:
+                postgres_session.rollback()
+                print(f"Failed to create station with ID '{station_id}'. It may already exist.")
+        else:
+            print(f"Station with ID '{station_id}' already exists. Skipping creation.")
 
-    # Reflect existing tables in PostgreSQL
-    meta = MetaData()
-    meta.reflect(bind=postgres_engine)
+def create_postgres_tables(postgres_engine):
+    BasePostgres.metadata.create_all(postgres_engine)
+    with create_postgres_session(postgres_engine) as session:
+        create_stations(postgres_session=session)
 
-    existing_postgres_tables = meta.tables.keys()
 
-    # Get table names from MySQL
-    postgres_table_names = postgres_config['tables']
-
-    # Check for missing tables and create them in PostgreSQL
-    for table_name in postgres_table_names:
-        if table_name not in existing_postgres_tables:
-            # Reflect the table structure from MySQL
-            table = Table(table_name, meta, autoload_with=mysql_engine)
-            # Create the table in PostgreSQL
-            table.create(bind=postgres_engine)
-
+        
     
-
-if __name__ == "__main__":
-    create_missing_tables()
