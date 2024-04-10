@@ -41,4 +41,3 @@ def create_postgres_session(postgres_engine):
 def create_mysql_session(mysql_engine):
     Session = sessionmaker(bind=mysql_engine)
     return Session()
-

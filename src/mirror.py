@@ -4,6 +4,7 @@ from src.models import StationsReadingsRaw
 from src.database import create_postgres_session, create_postgres, create_mysql
 from src.initialize_db import create_postgres_tables
 
+
 def get_last_measurement_id(postgres_session, station_id):
     last_measurement = postgres_session.query(StationsReadingsRaw).filter(StationsReadingsRaw.station_id == station_id).order_by(desc(StationsReadingsRaw.measurement_id)).first()
     if last_measurement:
@@ -12,6 +13,7 @@ def get_last_measurement_id(postgres_session, station_id):
     else:
         print('no last measurement yet')
         return 0 # if no records, starts from 1
+
 
 def select_new_records_from_origin_table(mysql_engine, table_name, last_measurement_id):
     metadata = MetaData()
@@ -32,6 +34,7 @@ def select_new_records_from_origin_table(mysql_engine, table_name, last_measurem
     print(f'new data selected from table {table_name}')
     
     return records_as_dicts
+
 
 def insert_new_data_to_target_table(postgres_session, mysql_engine):
     try:
@@ -63,4 +66,3 @@ def retrieve_data():
             insert_new_data_to_target_table(mysql_engine=mysql_engine, postgres_session=postgres_session)
     except Exception as e:
         print("An error occurred:", e)
-    

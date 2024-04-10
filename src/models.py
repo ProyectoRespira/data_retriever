@@ -52,7 +52,3 @@ class StationsReadingsRaw(BasePostgres): # Copy of Raw Data from Origin DB
     humedad = Column(VARCHAR)
     presion = Column(VARCHAR)
     bateria = Column(VARCHAR)
-
-
-
-
