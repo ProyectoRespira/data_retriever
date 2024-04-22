@@ -1,4 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, VARCHAR
 
 BasePostgres = declarative_base()
@@ -24,7 +25,8 @@ class StationReadings(BasePostgres): # Same as Django
     __tablename__ ='station_readings'
 
     id = Column(Integer, primary_key=True)
-    station = Column(Integer, ForeignKey('stations.id'))
+    station = Column(Integer, ForeignKey('stations.id'), name = 'station')
+    station_rel = relationship('Stations')
     date = Column(DateTime)
     pm1 = Column(Float)
     pm2_5 = Column(Float)

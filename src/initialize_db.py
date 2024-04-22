@@ -3,8 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from src.database import create_postgres_session
 import json
 
-
-with open('stations_data.json', 'r') as f:
+with open('src/stations_data.json', 'r') as f:
     stations_data = json.load(f)
 
 
