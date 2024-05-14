@@ -8,7 +8,7 @@ from src.initialize_db import create_postgres_tables
 def get_last_measurement_id(postgres_session, station_id):
     last_measurement = postgres_session.query(StationsReadingsRaw).filter(StationsReadingsRaw.station_id == station_id).order_by(desc(StationsReadingsRaw.measurement_id)).first()
     if last_measurement:
-        print('last measurement id gotten!')
+        print(f'last measurement id gotten! ID = {last_measurement.measurement_id}')
         return last_measurement.measurement_id
     else:
         print('no last measurement yet')
@@ -43,6 +43,7 @@ def insert_new_data_to_target_table(postgres_session, mysql_engine):
             last_measurement_id = get_last_measurement_id(postgres_session, station_id)
             new_records = select_new_records_from_origin_table(mysql_engine, table_name, last_measurement_id)
             print(f'getting new records from table {table_name}...')
+            print(f'number of new records: {len(new_records)}')
             for record in new_records:
                 modified_record = {'measurement_id':record['id'], 'station_id': station_id, **record}
                 del modified_record['id']

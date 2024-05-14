@@ -1,6 +1,7 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, VARCHAR
+from datetime import datetime
 
 BasePostgres = declarative_base()
 
@@ -54,3 +55,18 @@ class StationsReadingsRaw(BasePostgres): # Copy of Raw Data from Origin DB
     humedad = Column(VARCHAR)
     presion = Column(VARCHAR)
     bateria = Column(VARCHAR)
+
+    @property
+    def date(self):
+        try: 
+            return datetime.strptime(self.fecha + ' ' + self.hora, '%d-%m-%Y %H:%M')
+        except:
+            return None
+
+class ExternalFeatures(BasePostgres):
+    __tablename__ = 'external_features'
+    id = Column(Integer, primary_key=True)
+    humidity = Column(Float)
+    wind_speed = Column(Float)
+    wind_dir_cos = Column(Float)
+    wind_dir_sin = Column(Float)

@@ -5,3 +5,4 @@ psycopg2-binary==2.9.9
 configparser==6.0.1
 paramiko==3.4.0
 python-dotenv
+pandas
