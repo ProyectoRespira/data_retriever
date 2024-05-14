@@ -197,6 +197,8 @@ def get_last_transformation_timestamp(session, station_id):
 #     # Commit the changes to the database
 #         session.commit()
 
+
+
 def transform_raw_data(session): # using pandas 
     station_ids = session.query(distinct(StationsReadingsRaw.station_id)).all()
 
