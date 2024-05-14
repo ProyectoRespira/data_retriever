@@ -58,6 +58,8 @@ def insert_new_data_to_target_table(postgres_session, mysql_engine):
 
 
 def retrieve_data():
+    postgres_session = None
+    mysql_engine = None
     try:
         postgres_engine = create_postgres()
         with create_postgres_session(postgres_engine) as postgres_session:
@@ -67,3 +69,11 @@ def retrieve_data():
             insert_new_data_to_target_table(mysql_engine=mysql_engine, postgres_session=postgres_session)
     except Exception as e:
         print("An error occurred:", e)
+    finally:
+        # Close the PostgreSQL session
+        if postgres_session is not None:
+            postgres_session.close()
+        
+        # Close the MySQL engine
+        if mysql_engine is not None:
+            mysql_engine.dispose()

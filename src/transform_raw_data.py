@@ -1,6 +1,6 @@
 from sqlalchemy import func, distinct, and_
 from datetime import datetime, timedelta
-from .models import StationsReadingsRaw, StationReadings, Stations
+from src.models import StationsReadingsRaw, StationReadings, Stations
 from src.database import create_postgres, create_postgres_session
 import pandas as pd
 
@@ -229,7 +229,7 @@ def transform_raw_data(session): # using pandas
                     )
                 )
             raw_readings = raw_readings_query.all()
-            print(raw_readings)
+            print([item.date for item in raw_readings])
 
         if not raw_readings:
             print('No new data for this station.')
@@ -376,10 +376,14 @@ def get_aqi_10(x):
 # Call the function to perform the transformation
 
 def fill_station_readings():
-
-    postgres_engine = create_postgres()
-    with create_postgres_session(postgres_engine) as postgres_session:
-        transform_raw_data(session=postgres_session)
-        # falta: 
-        #calculate_aqi(session=postgres_session)
+    try:
+        postgres_engine = create_postgres()
+        with create_postgres_session(postgres_engine) as postgres_session:
+            transform_raw_data(session=postgres_session)
+            # falta: 
+            #calculate_aqi(session=postgres_session)
+    except Exception as e:
+        print('An error occurred: ', e)
+    finally:
+        postgres_session.close()
 
