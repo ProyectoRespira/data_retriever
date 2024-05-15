@@ -63,10 +63,13 @@ class StationsReadingsRaw(BasePostgres): # Copy of Raw Data from Origin DB
         except:
             return None
 
-class ExternalFeatures(BasePostgres):
-    __tablename__ = 'external_features'
+class MeteostatData(BasePostgres):
+    __tablename__ = 'meteostat_data'
     id = Column(Integer, primary_key=True)
+    date = Column(DateTime)
+    temperature = Column(Float)
     humidity = Column(Float)
+    pressure = Column(Float)
     wind_speed = Column(Float)
     wind_dir_cos = Column(Float)
     wind_dir_sin = Column(Float)
