@@ -16,30 +16,41 @@ def apply_correction_factor(df, station_id, pm, humidity):
     # Its Application to Air Pollution Type Classification in China
     # https://www.frontiersin.org/articles/10.3389/fenvs.2021.692440/full
 
-    
+    # Define correction factors for each station_id
+    correction_factors = {
+        1: 3.9477741393724357,
+        2: 5.773891499911656,
+        3: 2.2191051063687777,
+        4: 3.8382500135208697,
+        5: 39.44025115478353,
+        7: 9.414312741845814,
+        10: 8.133051717401786
+    }
+    print('station id')
+    print(station_id)
+    # Get the correction factor for the given station_id or use default (1.0)
+    correction_factor = correction_factors.get(station_id, 1.0)
+    print('correction factor')
+    print(correction_factor)
+    print('end correction factor ')
+    # Apply correction factor only if the date is on or after 01-01-2024
+    df_filtered = df[df['hour'] >= datetime(2024, 1, 1)]
+    if not df_filtered.empty:
+        # Merge df and humidity DataFrames based on the date column
+        df_merged = pd.merge(df_filtered, humidity, how='inner', left_on='hour', right_on='date')
+        
+        # Apply humidity correction
+        df_merged['C_RH'] = df_merged['humidity'].apply(lambda x: 1 if x < 65 else (0.0121212*x) + 1 if x < 85 else (1 + ((0.2/1.65)/(-1 + 100/min(x, 90)))))
+        df_merged.bfill(inplace=True)
+        # Apply correction factor to pollutant values
+        df_merged[pm] = df_merged[pm] / df_merged['C_RH']
+        
+        # Multiply by correction factor
+        df_merged[pm] *= correction_factor
+        df_merged.dropna(axis=0, how = 'any' )
+    # Return the corrected pollutant values
+    return df_merged[pm]
 
-    if station_id == 1:
-        correction_factor = 3.9477741393724357
-    elif station_id == 2:
-        correction_factor = 5.773891499911656
-    elif station_id == 3:
-        correction_factor = 2.2191051063687777
-    elif station_id == 4:
-        correction_factor = 3.8382500135208697
-    elif station_id == 5:
-        correction_factor = 39.44025115478353
-    elif station_id == 7:
-        correction_factor = 9.414312741845814
-    elif station_id == 10:
-        correction_factor = 8.133051717401786
-    else:
-        correction_factor = 1.0  # Default correction factor if station_id not found
-    
-    # Check if the date is on or after 01-01-2024
-    if df['hour'] >= datetime(2024, 1, 1):
-        return df[pm] * correction_factor
-    else:
-        return df[pm]
     
     
 def get_last_transformation_timestamp(session, station_id):
@@ -201,44 +212,32 @@ def transform_raw_data_sqlalchemy(session):
         session.commit()
 
 
-
-def transform_raw_data_pandas(session): # using pandas 
+def transform_raw_data_pandas(session):
     station_ids = session.query(distinct(StationsReadingsRaw.station_id)).all()
 
     for station_id in station_ids:
         print(f'Populating station_readings table with data from Station {station_id[0]}')
-        
+
         # Check if StationReadings table has any data for the current station
         if session.query(StationReadings).filter_by(station=station_id[0]).count() == 0:
-            # If there is no data for the current station, grab all raw readings for that station
             print('No previous data for this station...')
-            raw_readings = session.query(StationsReadingsRaw).filter(
-                StationsReadingsRaw.station_id == station_id[0]
-            ).all()
-            meteostat_humidity = session.query(MeteostatData.date, MeteostatData.humidity).filter(
-                MeteostatData.date >= '2024'
-            ).all()
+            last_transformation_timestamp = datetime(2024, 1, 1, 0, 0, 0, 0)
         else:
-            # If there is data for the current station, get the timestamp of the last transformation
             print('Getting last transformation timestamp...')
             last_transformation_timestamp = get_last_transformation_timestamp(session=session, station_id=station_id[0])
             print('Last transformation timestamp retrieved!')
             print(last_transformation_timestamp)
-            # Query only the new raw readings for the current station
 
-            raw_readings_query = session.query(StationsReadingsRaw).filter(
-                    and_(
-                        # how can I make this better?
-                        StationsReadingsRaw.fecha != '0-0-2000',
-                        StationsReadingsRaw.hora != ':0',
-                        func.to_timestamp(func.concat(StationsReadingsRaw.fecha, ' ', StationsReadingsRaw.hora), 'DD-MM-YYYY HH24:MI') > last_transformation_timestamp,
-                        StationsReadingsRaw.station_id == station_id[0]
-                    )
-                )
-            raw_readings = raw_readings_query.all()
-            meteostat_humidity = session.query(MeteostatData.date, MeteostatData.humidity).filter(
-                MeteostatData.date > last_transformation_timestamp
-            ).all()
+        # Query only the new raw readings for the current station
+        raw_readings_query = session.query(StationsReadingsRaw).filter(
+            and_(
+                StationsReadingsRaw.fecha != '0-0-2000',
+                StationsReadingsRaw.hora != ':0',
+                func.to_timestamp(func.concat(StationsReadingsRaw.fecha, ' ', StationsReadingsRaw.hora), 'DD-MM-YYYY HH24:MI') > last_transformation_timestamp,
+                StationsReadingsRaw.station_id == station_id[0]
+            )
+        )
+        raw_readings = raw_readings_query.all()
 
         if not raw_readings:
             print('No new data for this station.')
@@ -257,7 +256,7 @@ def transform_raw_data_pandas(session): # using pandas
         # Convert relevant columns to numeric
         numeric_columns = ['mp1', 'mp2_5', 'mp10', 'temperatura', 'humedad', 'presion']
         df[numeric_columns] = df[numeric_columns].apply(pd.to_numeric, errors='coerce')
-        df.fillna(value = -144.2, inplace = True)
+        df.fillna(value=-144.2, inplace=True)
         
         # Group raw readings by hour
         df['hour'] = df['datetime'].dt.floor('h')
@@ -270,14 +269,25 @@ def transform_raw_data_pandas(session): # using pandas
             'presion': 'mean'
         }).reset_index()
 
-        # pm calibration
+        
 
-        df_meteostat = pd.DataFrame([vars(reading) for reading in meteostat_humidity])
-        hourly_readings['mp2_5'] = apply_correction_factor(df=hourly_readings, station_id=station_id, pm='mp2_5', humidity = df_meteostat)
+        # Retrieve Meteostat humidity data
+        meteostat_humidity = session.query(MeteostatData.date, MeteostatData.humidity).filter(
+            MeteostatData.date > last_transformation_timestamp
+        ).all()
 
+        if meteostat_humidity:
+            # Convert Meteostat humidity data to DataFrame
+            df_meteostat = pd.DataFrame([{'date': reading.date, 'humidity': reading.humidity} for reading in meteostat_humidity])
+            
+            # Apply correction factor for pm2.5 and pm10
+            hourly_readings['mp2_5'] = apply_correction_factor(df=hourly_readings, station_id=station_id[0], pm='mp2_5', humidity=df_meteostat)
+            hourly_readings['mp10'] = apply_correction_factor(df=hourly_readings, station_id=station_id[0], pm='mp10', humidity=df_meteostat)
+
+        hourly_readings = hourly_readings.round({'mp1': 2, 'mp2_5': 2, 'mp10': 2, 'temperatura': 2, 'humedad': 2, 'presion': 2})
+        hourly_readings.ffill()
         # Iterate over hourly readings
         for _, row in hourly_readings.iterrows():
-            
             existing_reading = session.query(StationReadings).filter_by(station=station_id[0], date=row['hour']).first()
             
             if existing_reading:
@@ -313,92 +323,97 @@ def transform_raw_data_pandas(session): # using pandas
         print('commited!')
 
 
+
 def calculate_aqi(session):
     # Get distinct station IDs
-    station_ids = session.query(distinct(StationReadings.station)).all()
+    stations = session.query(distinct(StationReadings.station)).all()
 
     # Iterate over each station ID
-    for station_id in station_ids:
-        # Get all readings for the current station
+    for station_id in stations:
+        print(f'calculating AQI for station {station_id[0]}')
+        # Get all readings for the current station where aqi_mp2_5 or aqi_mp10 is null
         raw_readings = session.query(StationReadings).filter(
-            StationReadings.station_id == station_id[0]
+            StationReadings.station == station_id[0],
+            (StationReadings.aqi_pm2_5 == None) | (StationReadings.aqi_pm10 == None)
         ).all()
 
         for reading in raw_readings:
-            # Calculate 24-hour rolling averages
+            # Calculate 24-hour rolling averages if there are enough data
             pm2_5_24h_mean = session.query(func.avg(StationReadings.pm2_5)).filter(
-                StationReadings.station == reading.station_id,
+                StationReadings.station == station_id[0],
                 StationReadings.date >= reading.date - timedelta(hours=24),
                 StationReadings.date <= reading.date
             ).scalar()
 
             pm10_24h_mean = session.query(func.avg(StationReadings.pm10)).filter(
-                StationReadings.station_id == reading.station_id,
+                StationReadings.station == station_id[0],
                 StationReadings.date >= reading.date - timedelta(hours=24),
                 StationReadings.date <= reading.date
             ).scalar()
 
-            # Calculate AQI for pm2_5
-            aqi_pm2_5 = get_aqi_25(pm2_5_24h_mean)
+            # Calculate AQI only if rolling averages are not null
+            if pm2_5_24h_mean is not None and pm10_24h_mean is not None:
+                # Calculate AQI for pm2_5
+                aqi_pm2_5 = get_aqi_25(pm2_5_24h_mean)
 
-            # Calculate AQI for pm10
-            aqi_pm10 = get_aqi_10(pm10_24h_mean)
+                # Calculate AQI for pm10
+                aqi_pm10 = get_aqi_10(pm10_24h_mean)
 
-            # Update the reading with calculated AQI values
-            reading.aqi_pm2_5 = aqi_pm2_5
-            reading.aqi_pm10 = aqi_pm10
+                # Update the reading with calculated AQI values
+                reading.aqi_pm2_5 = aqi_pm2_5
+                reading.aqi_pm10 = aqi_pm10
 
     # Commit the changes to the database
-    session.commit()
+        session.commit()
+
 
 
 def get_aqi_25(x):
     if x <= 12:
-        return x * 50 / 12 
+        return round(x * 50 / 12, 0)
     elif x <= 35.4 :
-        return 51 + (x - 12.1) * 49 / 23.3
+        return round(51 + (x - 12.1) * 49 / 23.3, 0)
     elif x <= 55.4:
-        return 101 + (x - 35.5) * 49 / 19.9
+        return round(101 + (x - 35.5) * 49 / 19.9, 0)
     elif x <= 150.4:
-        return 151 + (x - 55.5) * 49 / 94.4
+        return round(151 + (x - 55.5) * 49 / 94.4, 0)
     elif x <= 250.4:
-        return 201 + (x - 150.5) * 99 / 99.9
+        return round(201 + (x - 150.5) * 99 / 99.9, 0)
     elif x <= 350.4:
-        return 301 + (x - 250.5) * 99 / 99.9
+        return round(301 + (x - 250.5) * 99 / 99.9, 0)
     elif x > 350.4:
-        return 401 + (x - 350.5) * 99 / 149.9
+        return round(401 + (x - 350.5) * 99 / 149.9, 0)
     else:
         return None
     
 def get_aqi_10(x):
-        if x <= 54:
-            return x * 50/54
-        elif x <= 154:
-            return 51 + (x - 55) * 49 / 99
-        elif x <= 254:
-            return 101 + (x - 155) * 49 / 99
-        elif x <= 354:
-            return 151 + (x - 255)* 49/99
-        elif x <= 424:
-            return 201 + (x - 355) * 99 / 69
-        elif x <= 504:
-            return 301 + (x - 425) * 99 / 79
-        elif x > 504:
-            return 401 + (x - 504) * 99 / 100
-        else:
-            return None
+    if x <= 54:
+        return round(x * 50/54, 0)
+    elif x <= 154:
+        return round(51 + (x - 55) * 49 / 99, 0)
+    elif x <= 254:
+        return round(101 + (x - 155) * 49 / 99, 0)
+    elif x <= 354:
+        return round(151 + (x - 255)* 49/99, 0)
+    elif x <= 424:
+        return round(201 + (x - 355) * 99 / 69, 0)
+    elif x <= 504:
+        return round(301 + (x - 425) * 99 / 79, 0)
+    elif x > 504:
+        return round(401 + (x - 504) * 99 / 100, 0)
+    else:
+        return None
+
 
 # Call the function to perform the transformation
 
 def fill_station_readings():
-    try:
-        postgres_engine = create_postgres()
-        with create_postgres_session(postgres_engine) as postgres_session:
-            transform_raw_data(session=postgres_session)
-            # falta: 
-            # calculate_aqi(session=postgres_session) 
-    except Exception as e:
-        print('An error occurred: ', e)
-    finally:
-        postgres_session.close()
+
+    postgres_engine = create_postgres()
+    with create_postgres_session(postgres_engine) as postgres_session:
+        transform_raw_data_pandas(session=postgres_session)
+
+        calculate_aqi(session=postgres_session) 
+
+    postgres_session.close()
 
