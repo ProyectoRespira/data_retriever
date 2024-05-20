@@ -1,22 +1,30 @@
 from src.mirror import retrieve_data
 from src.meteostat_data import fill_meteostat_data
 from src.transform_raw_data import fill_station_readings
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def main():
     
-    meteostat_data_status = retrieve_data() # retrieve data from FIUNA
-    if meteostat_data_status:
-        fill_data_status = fill_meteostat_data() # retrieve data from Meteostat
-        if fill_data_status:
-            fill_station_status = fill_station_readings() # transform into StationReadings data - for usage in frontend
-            if fill_station_status:
-                return "Station readings filled successfully"
-            else: 
-                return "Error: Fillingg station readings failed"
-        else:
-            return "Error: Filling meteostat data failed"
-    else:
+    retrieve_data_status = None
+    meteostat_data_status = None
+    station_readings_status = None
+
+    retrieve_data_status = retrieve_data()
+    if retrieve_data_status == None:
         return "Error: Retrieving data from FIUNA failed"
+    
+    meteostat_data_status = fill_meteostat_data()
+    if meteostat_data_status == None:
+        return "Error: Filling meteostat data failed"
+    
+    station_readings_status = fill_station_readings()
+    if station_readings_status == None:
+        return "Error: Filling station readings failed"
+    
+    return "Station readings filled successfully"
 
 if __name__ == "__main__":
-    main()
+    message = main()
+    logging.info(message)
