@@ -6,21 +6,17 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def main():
-    
-    retrieve_data_status = None
-    meteostat_data_status = None
-    station_readings_status = None
 
     retrieve_data_status = retrieve_data()
-    if retrieve_data_status == None:
+    if retrieve_data_status is None:
         return "Error: Retrieving data from FIUNA failed"
     
     meteostat_data_status = fill_meteostat_data()
-    if meteostat_data_status == None:
+    if meteostat_data_status is None:
         return "Error: Filling meteostat data failed"
     
     station_readings_status = fill_station_readings()
-    if station_readings_status == None:
+    if station_readings_status is None:
         return "Error: Filling station readings failed"
     
     return "Station readings filled successfully"
