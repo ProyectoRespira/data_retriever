@@ -108,10 +108,8 @@ def get_aqi_25(x):
         return round(201 + (x - 150.5) * 99 / 99.9, 0)
     elif x <= 350.4:
         return round(301 + (x - 250.5) * 99 / 99.9, 0)
-    elif x > 350.4:
-        return round(401 + (x - 350.5) * 99 / 149.9, 0)
     else:
-        return None
+        return round(401 + (x - 350.5) * 99 / 149.9, 0)
 
 def get_aqi_10(x):
     if x <= 54:
@@ -126,10 +124,8 @@ def get_aqi_10(x):
         return round(201 + (x - 355) * 99 / 69, 0)
     elif x <= 504:
         return round(301 + (x - 425) * 99 / 79, 0)
-    elif x > 504:
-        return round(401 + (x - 504) * 99 / 100, 0)
     else:
-        return None
+        return round(401 + (x - 504) * 99 / 100, 0)
 
 def calculate_aqi_for_station(session, station_id):
     raw_readings = session.query(StationReadings).filter(
