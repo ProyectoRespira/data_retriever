@@ -10,6 +10,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def apply_correction_factor(df, station_id, pm, humidity):
+    
     correction_factors = {
         1: 3.9477741393724357,
         2: 5.773891499911656,
@@ -26,12 +27,21 @@ def apply_correction_factor(df, station_id, pm, humidity):
         df_merged = pd.merge(df_filtered, humidity, how='inner', left_on='hour', right_on='date')
         df_merged['C_RH'] = df_merged['humidity'].apply(lambda x: 1 if x < 65 else (0.0121212*x) + 1 if x < 85 else (1 + ((0.2/1.65)/(-1 + 100/min(x, 90)))))
         df_merged.bfill(inplace=True)
+        df_merged.ffill(inplace=True)
         df_merged[pm] = df_merged[pm] / df_merged['C_RH']
         df_merged[pm] *= correction_factor
         df_merged.dropna(axis=0, how='any')
     return df_merged[pm]
 
 def validate_date_hour(date, hour):
+    if date is None:
+        return False
+    if hour is None:
+        return False
+    
+    date = date.strip()
+    hour = hour.strip()
+
     date_pattern = re.compile(r'^\d{1,2}-\d{1,2}-\d{4}$')
     hour_pattern = re.compile(r'^\d{1,2}:\d{2}$')
 
@@ -52,23 +62,28 @@ def get_last_transformation_timestamp(session, station_id):
     return session.query(func.max(StationReadings.date)).filter_by(station=station_id).scalar()
 
 def fetch_raw_readings(session, station_id, last_transformation_timestamp):
-    raw_readings = session.query(StationsReadingsRaw).filter(
-        StationsReadingsRaw.station_id == station_id
-    )
-
-    valid_readings = [
-        reading for reading in raw_readings
-        if validate_date_hour(reading.fecha, reading.hora)
-    ]
-
-    valid_ids = [reading.id for reading in valid_readings]
-
-    return session.query(StationsReadingsRaw).filter(
-        and_(
-            StationsReadingsRaw.id.in_(valid_ids),
-            func.to_timestamp(func.concat(StationsReadingsRaw.fecha, ' ', StationsReadingsRaw.hora), 'DD-MM-YYYY HH24:MI') > last_transformation_timestamp,
+    try:
+        raw_readings = session.query(StationsReadingsRaw).filter(
+            StationsReadingsRaw.station_id == station_id
         )
-    ).all()
+
+        valid_readings = [
+            reading for reading in raw_readings
+            if validate_date_hour(reading.fecha, reading.hora)
+        ]
+
+        valid_ids = [reading.id for reading in valid_readings]
+
+        return session.query(StationsReadingsRaw).filter(
+            and_(
+                StationsReadingsRaw.id.in_(valid_ids),
+                func.to_timestamp(func.concat(StationsReadingsRaw.fecha, ' ', StationsReadingsRaw.hora), 'DD-MM-YYYY HH24:MI') > last_transformation_timestamp,
+            )
+        ).all()
+    
+    except Exception as e:
+        logging.info(f'An error occurred: {e}')
+        return None
 
 def transform_raw_readings_to_df(raw_readings):
     df = pd.DataFrame([vars(reading) for reading in raw_readings])
@@ -185,10 +200,11 @@ def transform_raw_data(session):
     
     for station_id in station_ids:
         station_id = station_id[0]
+        logging.info(f'Starting data transformation for station {station_id}')
         last_transformation_timestamp = get_last_transformation_timestamp(session, station_id)
         if last_transformation_timestamp is None:
             last_transformation_timestamp = datetime(2024, 1, 1, 0, 0, 0, 0)
-
+        logging.info(f'Fetching raw data for station {station_id}, where last_transformation_timestamp = {last_transformation_timestamp}')
         raw_readings = fetch_raw_readings(session, station_id, last_transformation_timestamp)
         if not raw_readings:
             logging.info(f'No new data for station {station_id}')
