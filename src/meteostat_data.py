@@ -3,7 +3,7 @@ from pytz import timezone
 from meteostat import Point, Hourly
 import pandas as pd
 import numpy as np
-from src.models import MeteostatData, StationReadings
+from src.models import ExternalData, StationReadings
 from src.database import create_postgres_session, create_postgres
 from sqlalchemy import func
 import logging
@@ -55,10 +55,10 @@ def get_last_station_readings_timestamp(session):
     return session.query(func.max(StationReadings.date)).scalar()
 
 def get_last_meteostat_timestamp(session):
-    return session.query(func.max(MeteostatData.date)).scalar()
+    return session.query(func.max(ExternalData.date)).scalar()
 
 def determine_time_range(session):
-    if session.query(MeteostatData).count() == 0:
+    if session.query(ExternalData).count() == 0:
         last_stationreadings_timestamp = get_last_station_readings_timestamp(session)
         start_utc = datetime(2019, 1, 1, 0, 0, 0, 0)
         end_utc = convert_to_utc(last_stationreadings_timestamp)

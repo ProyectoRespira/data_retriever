@@ -1,9 +1,10 @@
 from sqlalchemy import func, distinct, and_
 from datetime import datetime, timedelta
-from src.models import StationsReadingsRaw, StationReadings, MeteostatData
+from src.models import StationsReadingsRaw, StationReadings, ExternalData
 from src.database import create_postgres, create_postgres_session
 import pandas as pd
 import numpy as np
+import re
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -30,16 +31,42 @@ def apply_correction_factor(df, station_id, pm, humidity):
         df_merged.dropna(axis=0, how='any')
     return df_merged[pm]
 
+def validate_date_hour(date, hour):
+    date_pattern = re.compile(r'^\d{1,2}-\d{1,2}-\d{4}$')
+    hour_pattern = re.compile(r'^\d{1,2}:\d{2}$')
+
+    if not date_pattern.match(date):
+        return False
+    if not hour_pattern.match(hour):
+        return False
+    try:
+        date_obj = datetime.strptime(date, '%d-%m-%Y')
+        if date_obj.year < 2019:
+            return False
+    except ValueError:
+        return False
+    
+    return True
+
 def get_last_transformation_timestamp(session, station_id):
     return session.query(func.max(StationReadings.date)).filter_by(station=station_id).scalar()
 
 def fetch_raw_readings(session, station_id, last_transformation_timestamp):
+    raw_readings = session.query(StationsReadingsRaw).filter(
+        StationsReadingsRaw.station_id == station_id
+    )
+
+    valid_readings = [
+        reading for reading in raw_readings
+        if validate_date_hour(reading.fecha, reading.hora)
+    ]
+
+    valid_ids = [reading.id for reading in valid_readings]
+
     return session.query(StationsReadingsRaw).filter(
         and_(
-            StationsReadingsRaw.fecha != '0-0-2000', # how can I make this better? 
-            StationsReadingsRaw.hora != ':0',
+            StationsReadingsRaw.id.in_(valid_ids),
             func.to_timestamp(func.concat(StationsReadingsRaw.fecha, ' ', StationsReadingsRaw.hora), 'DD-MM-YYYY HH24:MI') > last_transformation_timestamp,
-            StationsReadingsRaw.station_id == station_id
         )
     ).all()
 
@@ -61,9 +88,10 @@ def transform_raw_readings_to_df(raw_readings):
         'presion': 'mean'
     }).reset_index()
 
+
 def fetch_meteostat_humidity(session, last_transformation_timestamp):
-    meteostat_humidity = session.query(MeteostatData.date, MeteostatData.humidity).filter(
-        MeteostatData.date > last_transformation_timestamp
+    meteostat_humidity = session.query(ExternalData.date, ExternalData.humidity).filter(
+        ExternalData.date > last_transformation_timestamp
     ).all()
     return pd.DataFrame([{'date': reading.date, 'humidity': reading.humidity} for reading in meteostat_humidity])
 
@@ -154,6 +182,7 @@ def calculate_aqi_for_station(session, station_id):
 
 def transform_raw_data(session):
     station_ids = session.query(distinct(StationsReadingsRaw.station_id)).all()
+    
     for station_id in station_ids:
         station_id = station_id[0]
         last_transformation_timestamp = get_last_transformation_timestamp(session, station_id)
