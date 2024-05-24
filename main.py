@@ -8,15 +8,15 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 def main():
 
     retrieve_data_status = retrieve_data()
-    if retrieve_data_status is None:
+    if retrieve_data_status is False:
         return "Error: Retrieving data from FIUNA failed"
     
     meteostat_data_status = fill_meteostat_data()
-    if meteostat_data_status is None:
+    if meteostat_data_status is False:
         return "Error: Filling meteostat data failed"
     
     station_readings_status = fill_station_readings()
-    if station_readings_status is None:
+    if station_readings_status is False:
         return "Error: Filling station readings failed"
     
     return "Station readings filled successfully"
