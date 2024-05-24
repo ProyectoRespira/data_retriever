@@ -1,5 +1,5 @@
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime
 from unittest.mock import MagicMock, patch
 from src.transform_raw_data import (
     apply_correction_factor,
@@ -16,17 +16,14 @@ from src.transform_raw_data import (
     calculate_aqi,
     fill_station_readings
 )
-from src.models import StationsReadingsRaw, StationReadings, ExternalData
+from src.models import StationsReadingsRaw, WeatherData, StationReadings
 import pandas as pd
 
 @pytest.fixture
 def mock_postgres_session(mocker):
     mock_session = mocker.patch('src.transform_raw_data.create_postgres_session')
-    mock_engine = mocker.patch('src.transform_raw_data.create_postgres')
-    
     session_instance = MagicMock()
     mock_session.return_value.__enter__.return_value = session_instance
-    
     return session_instance
 
 @pytest.fixture
@@ -55,10 +52,10 @@ def test_apply_correction_factor(mock_humidity_data):
     assert len(corrected) == 24
 
 def test_validate_date_hour():
-    assert validate_date_hour('01-01-2024', '00:00') == True
-    assert validate_date_hour('01-01-2024', '24:00') == False
-    assert validate_date_hour(None, '00:00') == False
-    assert validate_date_hour('01-01-2024', None) == False
+    assert validate_date_hour('01-01-2024', '00:00')
+    assert not validate_date_hour('01-01-2024', '24:00')
+    assert not validate_date_hour(None, '00:00')
+    assert not validate_date_hour('01-01-2024', None)
 
 def test_get_last_transformation_timestamp(mock_postgres_session):
     mock_postgres_session.query.return_value.filter_by.return_value.scalar.return_value = datetime(2024, 1, 1)
@@ -77,8 +74,8 @@ def test_transform_raw_readings_to_df(mock_raw_readings):
 
 def test_fetch_meteostat_humidity(mock_postgres_session):
     mock_postgres_session.query.return_value.filter.return_value.all.return_value = [
-        ExternalData(date=datetime(2024, 1, 1, 0), humidity=60),
-        ExternalData(date=datetime(2024, 1, 1, 1), humidity=62)
+        WeatherData(date=datetime(2024, 1, 1, 0), humidity=60),
+        WeatherData(date=datetime(2024, 1, 1, 1), humidity=62)
     ]
     result = fetch_meteostat_humidity(mock_postgres_session, datetime(2024, 1, 1))
     assert not result.empty
@@ -134,6 +131,5 @@ def test_fill_station_readings(mocker):
     mocker.patch('src.transform_raw_data.create_postgres_session')
     mocker.patch('src.transform_raw_data.transform_raw_data')
     mocker.patch('src.transform_raw_data.calculate_aqi')
-    
     result = fill_station_readings()
-    assert result == True
+    assert result
