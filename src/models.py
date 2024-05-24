@@ -1,5 +1,7 @@
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, VARCHAR
+from datetime import datetime
 
 BasePostgres = declarative_base()
 
@@ -24,7 +26,8 @@ class StationReadings(BasePostgres): # Same as Django
     __tablename__ ='station_readings'
 
     id = Column(Integer, primary_key=True)
-    station = Column(Integer, ForeignKey('stations.id'))
+    station = Column(Integer, ForeignKey('stations.id'), name = 'station')
+    station_rel = relationship('Stations')
     date = Column(DateTime)
     pm1 = Column(Float)
     pm2_5 = Column(Float)
@@ -52,3 +55,22 @@ class StationsReadingsRaw(BasePostgres): # Copy of Raw Data from Origin DB
     humedad = Column(VARCHAR)
     presion = Column(VARCHAR)
     bateria = Column(VARCHAR)
+
+    @property
+    def date(self):
+        try: 
+            return datetime.strptime(self.fecha + ' ' + self.hora, '%d-%m-%Y %H:%M')
+        except:
+            return None
+
+class WeatherData(BasePostgres):
+    __tablename__ = 'weather_data'
+    id = Column(Integer, primary_key=True)
+    date = Column(DateTime)
+    temperature = Column(Float)
+    humidity = Column(Float)
+    pressure = Column(Float)
+    wind_speed = Column(Float)
+    wind_dir_cos = Column(Float)
+    wind_dir_sin = Column(Float)
+    nowcast_pm25 = Column(Float)

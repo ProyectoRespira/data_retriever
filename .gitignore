@@ -16,4 +16,5 @@ venv.bak/
 database.ini
 *.ini
 
-
+# testing files
+*.ipynb
