@@ -7,3 +7,12 @@ paramiko==3.4.0
 python-dotenv
 pandas
 meteostat
+# pytest libraries
+pytest
+pytest-cov
+pytest-mock
+pytest-sugar
+pytest-html
+# faker
+# hypothesis
+# tox
