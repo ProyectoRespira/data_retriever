@@ -3,7 +3,7 @@ from pytz import timezone
 from meteostat import Point, Hourly
 import pandas as pd
 import numpy as np
-from src.models import ExternalData, StationReadings
+from src.models import WeatherData, StationReadings
 from src.database import create_postgres_session, create_postgres
 from sqlalchemy import func
 import logging
@@ -55,10 +55,10 @@ def get_last_station_readings_timestamp(session):
     return session.query(func.max(StationReadings.date)).scalar()
 
 def get_last_meteostat_timestamp(session):
-    return session.query(func.max(ExternalData.date)).scalar()
+    return session.query(func.max(WeatherData.date)).scalar()
 
 def determine_time_range(session):
-    if session.query(ExternalData).count() == 0:
+    if session.query(WeatherData).count() == 0:
         last_stationreadings_timestamp = get_last_station_readings_timestamp(session)
         start_utc = datetime(2019, 1, 1, 0, 0, 0, 0)
         end_utc = convert_to_utc(last_stationreadings_timestamp)
@@ -70,15 +70,19 @@ def determine_time_range(session):
     return start_utc, end_utc
 
 def fill_meteostat_data():
+    logging.info('Starting fill_meteostat_data...')
+    session = None
+
     try:
         postgres_engine = create_postgres()
         with create_postgres_session(postgres_engine) as session:
             start_utc, end_utc = determine_time_range(session)
-            
+
             if start_utc < end_utc:
                 meteostat_df = get_meteostat_data(start=start_utc, end=end_utc)
-                meteostat_df.to_sql('meteostat_data', session.connection(), if_exists='append', index=False)
+                meteostat_df.to_sql('weather_data', session.connection(), if_exists='append', index=False)
                 session.commit()
+                logging.info('Meteostat data inserted successfully')
                 return True
             else:
                 logging.info('No new meteostat data to insert')
@@ -86,5 +90,8 @@ def fill_meteostat_data():
     except Exception as e:
         logging.error(f"An error occurred: {e}")
         return False
+    finally:
+        if session:
+            session.close()
 
 

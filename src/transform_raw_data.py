@@ -1,6 +1,6 @@
 from sqlalchemy import func, distinct, and_
 from datetime import datetime, timedelta
-from src.models import StationsReadingsRaw, StationReadings, ExternalData
+from src.models import StationsReadingsRaw, StationReadings, WeatherData
 from src.database import create_postgres, create_postgres_session
 import pandas as pd
 import numpy as np
@@ -105,8 +105,8 @@ def transform_raw_readings_to_df(raw_readings):
 
 
 def fetch_meteostat_humidity(session, last_transformation_timestamp):
-    meteostat_humidity = session.query(ExternalData.date, ExternalData.humidity).filter(
-        ExternalData.date > last_transformation_timestamp
+    meteostat_humidity = session.query(WeatherData.date, WeatherData.humidity).filter(
+        WeatherData.date > last_transformation_timestamp
     ).all()
     return pd.DataFrame([{'date': reading.date, 'humidity': reading.humidity} for reading in meteostat_humidity])
 
@@ -229,14 +229,19 @@ def calculate_aqi(session):
         logging.info(f'Calculated AQI for station {station_id[0]}')
 
 def fill_station_readings():
+    logging.info('Starting fill_station_readings...')
+    postgres_session = None
+
     try:
         postgres_engine = create_postgres()
         with create_postgres_session(postgres_engine) as postgres_session:
             transform_raw_data(postgres_session)
             calculate_aqi(postgres_session)
+            logging.info('Station readings processed successfully')
             return True
     except Exception as e:
         logging.error(f"An error occurred: {e}")
         return False
     finally:
-        postgres_session.close()
+        if postgres_session:
+            postgres_session.close()
