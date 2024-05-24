@@ -26,16 +26,19 @@ def select_new_records_from_origin_table(mysql_engine, table_name, last_measurem
     metadata.reflect(bind=mysql_engine)
     table = Table(table_name, metadata, autoload_with=mysql_engine)
     
-    column_names = [column.name.lower() for column in table.columns]
+    column_names = [column.name for column in table.columns]
     column_expressions = [column for column in table.columns]
     query = select(*column_expressions).where(table.c.ID > last_measurement_id)
 
     with mysql_engine.connect() as connection:
         result = connection.execute(query)
+        print(result)
         records_as_dicts = [dict(zip(column_names, row)) for row in result.fetchall()]
+    records_as_dicts_lower = [{key.lower(): value for key, value in record.items()} for record in records_as_dicts]
 
-    logging.info(f'Selected {len(records_as_dicts)} new records from table {table_name}')
-    return records_as_dicts
+    logging.info(f'Selected {len(records_as_dicts_lower)} new records from table {table_name}')
+    #print(records_as_dicts_lower)
+    return records_as_dicts_lower
 
 def prepare_records_for_insertion(station_id, new_records):
     logging.info('Starting prepare_records_for_insertion...')
@@ -65,6 +68,9 @@ def insert_new_data_to_target_table(postgres_session, mysql_engine):
 
 def retrieve_data():
     logging.info('Starting retrieve_data...')
+    postgres_session = None
+    mysql_engine = None
+
     try:
         postgres_engine = create_postgres()
         mysql_engine = create_mysql()
@@ -73,14 +79,16 @@ def retrieve_data():
         with create_postgres_session(postgres_engine) as postgres_session:
             success = insert_new_data_to_target_table(postgres_session, mysql_engine)
             if success:
-                return "Data retrieved and inserted successfully"
+                logging.info("Data retrieved and inserted successfully")
+                return True
             else:
-                return None
+                logging.error("Failed to insert new data to target table")
+                return False
     except Exception as e:
         logging.error(f"An error occurred: {e}")
-        return None
+        return False
     finally:
-        if 'postgres_session' in locals() and postgres_session is not None:
+        if postgres_session:
             postgres_session.close()
-        if 'mysql_engine' in locals() and mysql_engine is not None:
+        if mysql_engine:
             mysql_engine.dispose()
