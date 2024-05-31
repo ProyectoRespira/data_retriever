@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
 from unittest.mock import MagicMock
-from src.meteostat_data import fill_meteostat_data
+from src.extract.meteostat_data import fill_meteostat_data
 from sqlalchemy.orm import Session
 import pandas as pd
 

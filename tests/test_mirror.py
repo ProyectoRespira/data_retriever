@@ -18,15 +18,15 @@ def mock_mysql_engine(mocker):
 @pytest.fixture
 def mock_new_mysql_records():
     return [
-        (1, '01-01-2023', '00:00', '25', '10', '50', '25', '80', '1010', '100'),
-        (2, '01-01-2023', '01:00', '26', '11', '51', '26', '82', '1009', '100')
+        {'id': 1, 'fecha': '01-01-2023', 'hora': '0:00', 'mp1': '10', 'mp2_5': '25', 'mp10': '50', 'temperatura': '25', 'humedad': '80', 'presion': '1010', 'bateria': '96'},
+        {'id': 2, 'fecha': '01-01-2023', 'hora': '1:00', 'mp1': '11', 'mp2_5': '26', 'mp10': '51', 'temperatura': '26 ', 'humedad': '82', 'presion': '1009', 'bateria': '96'}
     ]
 
 @pytest.fixture
 def mock_new_records():
     return [
-        {'id': 1, 'fecha': '01-01-2023', 'hora': '00:00', 'mp2_5': '25', 'mp1': '10', 'mp10': '50', 'temperatura': '25', 'humedad': '80', 'presion': '1010', 'bateria': '100'},
-        {'id': 2, 'fecha': '01-01-2023', 'hora': '01:00', 'mp2_5': '26', 'mp1': '11', 'mp10': '51', 'temperatura': '26', 'humedad': '82', 'presion': '1009', 'bateria': '100'}
+        {'id': 1, 'measurement_id': 1, 'station_id' : 1, 'fecha': '01-01-2023', 'hora': '00:00', 'mp2_5': '25', 'mp1': '10', 'mp10': '50', 'temperatura': '25', 'humedad': '80', 'presion': '1010', 'bateria': '96'},
+        {'id': 2, 'measurement_id': 1, 'station_id' : 1, 'fecha': '01-01-2023', 'hora': '01:00', 'mp2_5': '26', 'mp1': '11', 'mp10': '51', 'temperatura': '26', 'humedad': '82', 'presion': '1009', 'bateria': '96'}
     ]
 
 @pytest.fixture

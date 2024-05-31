@@ -1,6 +1,6 @@
-from src.models import BasePostgres, Stations
+from src.extract.models import BasePostgres, Stations
 from sqlalchemy.exc import IntegrityError
-from src.database import create_postgres_session
+from src.extract.database import create_postgres_session
 import json
 
 with open('src/stations_data.json', 'r') as f:

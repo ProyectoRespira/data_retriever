@@ -1,6 +1,6 @@
-from src.mirror import retrieve_data
-from src.meteostat_data import fill_meteostat_data
-from src.transform_raw_data import fill_station_readings
+from src.extract.mirror import retrieve_data
+from src.extract.meteostat_data import fill_meteostat_data
+from src.transform.transform_raw_data import fill_station_readings
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

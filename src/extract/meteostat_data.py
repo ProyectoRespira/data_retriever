@@ -3,8 +3,8 @@ from pytz import timezone
 from meteostat import Point, Hourly
 import pandas as pd
 import numpy as np
-from src.models import WeatherData, StationReadings
-from src.database import create_postgres_session, create_postgres
+from src.extract.models import WeatherData, StationReadings
+from src.extract.database import create_postgres_session, create_postgres
 from sqlalchemy import func
 import logging
 

@@ -1,7 +1,7 @@
 from sqlalchemy import func, distinct, and_
 from datetime import datetime, timedelta
-from src.models import StationsReadingsRaw, StationReadings, WeatherData
-from src.database import create_postgres, create_postgres_session
+from src.extract.models import StationsReadingsRaw, StationReadings, WeatherData
+from src.extract.database import create_postgres, create_postgres_session
 import pandas as pd
 import numpy as np
 import re

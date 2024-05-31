@@ -14,6 +14,7 @@ class Stations(BasePostgres): # Same as Django
     latitude = Column(Float)
     longitude = Column(Float)
     region = Column(String) 
+    # agregar is_station_on (variable de status)
     
     # About region: in Django it looks like this 
     # region = models.CharField(max_length = 100, 
@@ -55,6 +56,7 @@ class StationsReadingsRaw(BasePostgres): # Copy of Raw Data from Origin DB
     humedad = Column(VARCHAR)
     presion = Column(VARCHAR)
     bateria = Column(VARCHAR)
+    # filled_data flag
 
     @property
     def date(self):

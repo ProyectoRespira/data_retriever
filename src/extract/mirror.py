@@ -1,8 +1,8 @@
 from sqlalchemy import MetaData, Table, desc, select
 from sqlalchemy.exc import SQLAlchemyError
-from src.models import StationsReadingsRaw
-from src.database import create_postgres_session, create_postgres, create_mysql
-from src.initialize_db import create_postgres_tables
+from src.extract.models import StationsReadingsRaw
+from src.extract.database import create_postgres_session, create_postgres, create_mysql
+from src.extract.initialize_db import create_postgres_tables
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

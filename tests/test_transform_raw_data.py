@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
 from unittest.mock import MagicMock, patch
-from src.transform_raw_data import (
+from src.transform.transform_raw_data import (
     apply_correction_factor,
     validate_date_hour,
     get_last_transformation_timestamp,
@@ -16,7 +16,7 @@ from src.transform_raw_data import (
     calculate_aqi,
     fill_station_readings
 )
-from src.models import StationsReadingsRaw, WeatherData, StationReadings
+from src.extract.models import StationsReadingsRaw, WeatherData, StationReadings
 import pandas as pd
 
 @pytest.fixture
