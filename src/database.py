@@ -17,7 +17,6 @@ def create_postgres():
     POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
     POSTGRES_DATABASE = os.getenv('POSTGRES_DATABASE')
     POSTGRES_HOST = os.getenv('POSTGRES_HOST')
-    print(POSTGRES_DATABASE)
     
     postgres_engine = create_engine(f'postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}/{POSTGRES_DATABASE}')
 
