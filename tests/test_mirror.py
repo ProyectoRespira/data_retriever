@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
-from src.mirror import retrieve_data, get_last_measurement_id, select_new_records_from_origin_table, prepare_records_for_insertion, insert_new_data_to_target_table
+from src.extract.mirror import retrieve_data, get_last_measurement_id, select_new_records_from_origin_table, prepare_records_for_insertion, insert_new_data_to_target_table
 from src.models import StationsReadingsRaw
 from sqlalchemy.exc import SQLAlchemyError
 

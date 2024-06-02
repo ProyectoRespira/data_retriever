@@ -1,5 +1,5 @@
 import pytest
-from src.database import create_postgres, create_postgres_session
+from src.extract.database import create_postgres, create_postgres_session
 from src.models import BasePostgres
 
 # Create a PostgreSQL engine for testing
