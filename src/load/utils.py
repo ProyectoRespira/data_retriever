@@ -6,9 +6,11 @@ def insert_station_readings_raw(postgres_session, transformed_fiuna_data):
     logging.info('Starting insert_station_readings_raw...')
     try:
         station_ids = transformed_fiuna_data.keys()
+        print(station_ids)
         for station_id in station_ids: 
             postgres_session.add_all(transformed_fiuna_data[station_id])
-        postgres_session.commit()
+            postgres_session.commit()
+            logging.info(f'{len(transformed_fiuna_data)} records from Station {station_id} inserted.')
         return True
     except Exception as e:
         logging.exception(f"Something bad happened: {e}")
