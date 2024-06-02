@@ -1,25 +1,28 @@
-from src.extract.mirror import retrieve_data
-from src.extract.meteostat_data import fill_meteostat_data
-from src.transform.transform_raw_data import fill_station_readings
+from src.initialize_db import create_postgres_tables
+from src.extract.extract_data import extract_fiuna_data
+from src.transform.transform_data import transform_fiuna_data
+from src.load.load_data import load_station_readings_raw
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def main():
-
-    retrieve_data_status = retrieve_data()
-    if retrieve_data_status is False:
-        return "Error: Retrieving data from FIUNA failed"
+    create_postgres_tables()
     
-    meteostat_data_status = fill_meteostat_data()
-    if meteostat_data_status is False:
-        return "Error: Filling meteostat data failed"
+    fiuna_data, status = extract_fiuna_data()
+    if status is False:
+        return 'Error: Extracting data from FIUNA failed'
     
-    station_readings_status = fill_station_readings()
-    if station_readings_status is False:
-        return "Error: Filling station readings failed"
+    transformed_fiuna_data, status = transform_fiuna_data(fiuna_data)
+    if status is False:
+        return 'Error: Transforming data from FIUNA failed'
     
-    return "Station readings filled successfully"
+    load_status = load_station_readings_raw(transformed_fiuna_data)
+    if load_status is False: 
+        return 'Error: Loading data to StationReadingsRaw failed'
+    
+    return 'Success: Data from FIUNA loaded correctly'
+    
 
 if __name__ == "__main__":
     message = main()
