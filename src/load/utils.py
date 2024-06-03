@@ -1,4 +1,5 @@
 import logging
+from src.models import USAirQualityReadings
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -26,5 +27,26 @@ def insert_weather_data(postgres_session, transformed_meteostat_data):
         return True
     except Exception as e:
         logging.error(f"An error occurred: {e}")
+        postgres_session.rollback()
+        return False
+    
+def insert_airnow_data(postgres_session, transformed_airnow_data):
+    logging.info('Starting insert_airnow_data...')
+    try:
+        readings_list = [
+            USAirQualityReadings(
+                date=data['date'],
+                pm2_5=data['pm2_5'],
+                latitude=data['latitude'],
+                longitude=data['longitude']
+            )
+            for data in (transformed_airnow_data if isinstance(transformed_airnow_data, list) else [transformed_airnow_data])
+        ]
+        postgres_session.add_all(readings_list)
+        postgres_session.commit()
+        logging.info(f'{len(transformed_airnow_data)} records from AirNow inserted.')
+        return True
+    except Exception as e:
+        logging.error(f'An error occurred: {e}')
         postgres_session.rollback()
         return False
