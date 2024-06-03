@@ -95,7 +95,7 @@ def prepare_meteostat_data_for_insertion(data):
 def prepare_airnow_data_for_insertion(data_list):
     try:
         transformed_data = [{
-            'date': datetime.strptime(data['UTC'], "%Y-%m-%dT%H:%M"),
+            'date': convert_to_local_time(datetime.strptime(data['UTC'], "%Y-%m-%dT%H:%M")),
             'pm2_5': data['Value'],
             'latitude': data['Latitude'],
             'longitude': data['Longitude']
