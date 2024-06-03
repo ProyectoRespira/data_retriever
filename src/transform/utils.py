@@ -3,6 +3,7 @@ from src.models import StationsReadingsRaw
 from src.time_utils import convert_to_local_time
 import pandas as pd
 import numpy as np
+from datetime import datetime
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -71,11 +72,11 @@ def prepare_fiuna_records_for_insertion(fiuna_data):
 
 # meteostat data
 
-def prepare_meteostat_data_for_insertion(data):
-    data.index = data.index.map(convert_to_local_time)
+def prepare_meteostat_data_for_insertion(meteostat_data):
+    meteostat_data.index = meteostat_data.index.map(convert_to_local_time)
     meteo_features = ['temp', 'rhum', 'pres', 'wspd', 'wdir']
-    data = data[meteo_features]
-    data.rename(columns={
+    meteostat_data = meteostat_data[meteo_features]
+    meteostat_data.rename(columns={
         'temp': 'temperature',
         'rhum': 'humidity',
         'pres': 'pressure',
@@ -83,9 +84,23 @@ def prepare_meteostat_data_for_insertion(data):
         'wdir': 'wind_dir'
     }, inplace=True)
     
-    data['wind_dir_cos'] = np.cos(2 * np.pi * data.wind_dir / 360)
-    data['wind_dir_sin'] = np.sin(2 * np.pi * data.wind_dir / 360)
-    data.drop('wind_dir', axis=1, inplace=True)
-    data['date'] = data.index
-    return data.round(2)
+    meteostat_data['wind_dir_cos'] = np.cos(2 * np.pi * meteostat_data.wind_dir / 360)
+    meteostat_data['wind_dir_sin'] = np.sin(2 * np.pi * meteostat_data.wind_dir / 360)
+    meteostat_data.drop('wind_dir', axis=1, inplace=True)
+    meteostat_data['date'] = meteostat_data.index
+    return meteostat_data.round(2)
 
+# airnow data
+
+def prepare_airnow_data_for_insertion(data_list):
+    try:
+        transformed_data = [{
+            'date': convert_to_local_time(datetime.strptime(data['UTC'], "%Y-%m-%dT%H:%M")),
+            'pm2_5': data['Value'],
+            'latitude': data['Latitude'],
+            'longitude': data['Longitude']
+        } for data in data_list]
+    except(KeyError, ValueError) as e:
+        raise ValueError(f'Error in data transformation: {e}')
+    
+    return transformed_data

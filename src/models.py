@@ -86,3 +86,12 @@ class WeatherData(BasePostgres):
     wind_dir_cos = Column(Float)
     wind_dir_sin = Column(Float)
     nowcast_pm25 = Column(Float)
+
+class USAirQualityReadings(BasePostgres):
+    __tablename__ = 'airnow_data'
+    id = Column(Integer, primary_key=True)
+    date = Column(DateTime)
+    pm2_5 = Column(Float)
+    latitude = Column(Float)
+    longitude = Column(Float)
+

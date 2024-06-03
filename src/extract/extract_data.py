@@ -1,8 +1,9 @@
 
 from sqlalchemy import distinct
-from src.extract.utils import select_new_records_from_origin_table, get_last_measurement_id, determine_time_range, fetch_meteostat_data
+from src.extract.utils import select_new_records_from_origin_table, get_last_measurement_id, determine_time_range, fetch_meteostat_data, define_airnow_api_url
 from src.database import create_postgres_session, create_postgres, create_mysql
 from src.models import Stations
+import requests
 
 import logging
 
@@ -50,6 +51,26 @@ def extract_meteostat_data():
                 return None, True
     except Exception as e:
         logging.error(f"An error occurred: {e}")
+        return None, False
+    finally:
+        if session:
+            session.close()
+
+def extract_airnow_data():
+    logging.info('Starting extract_airnow_data...')
+    session = None
+    try:
+        postgres_engine = create_postgres()
+        with create_postgres_session(postgres_engine) as session:
+            api_url = define_airnow_api_url(session)
+            response = requests.get(api_url)
+            if response.status_code == 200:
+                logging.info('Data retrieved from AirNow Successfully')
+                return response.json(), True # tuple with response and status
+            else:
+                raise Exception(f'Failed to fetch data: {response.status_code}')
+    except Exception as e:
+        logging.error(f'An error occurred: {e}')
         return None, False
     finally:
         if session:
