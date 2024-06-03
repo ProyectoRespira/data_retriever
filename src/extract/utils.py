@@ -88,7 +88,7 @@ def define_airnow_api_url(session):
     if session.query(USAirQualityReadings).count() == 0:
         last_airnow_timestamp_utc = datetime(2023, 1, 1, 0, 0, 0, 0)
     else:
-        last_airnow_timestamp_localtime = get_last_airnow_timestamp(session)
+        last_airnow_timestamp_localtime = get_last_airnow_timestamp(session) + timedelta(hours=1)
         last_airnow_timestamp_utc = convert_to_utc(last_airnow_timestamp_localtime)
     
     options = {}
