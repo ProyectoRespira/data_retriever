@@ -7,6 +7,7 @@ import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+# fiuna data
 def validate_fiuna_data(fiuna_data):
     if not isinstance(fiuna_data, dict):
         raise ValueError("Input data must be a dictionary")
@@ -39,7 +40,6 @@ def validate_fiuna_data(fiuna_data):
 def prepare_fiuna_records_for_insertion(fiuna_data):
     logging.info('Starting prepare_records_for_insertion...')
 
-    # Create an empty DataFrame to hold all the records
     all_records = []
 
     for station_id, records in fiuna_data.items():
@@ -69,7 +69,7 @@ def prepare_fiuna_records_for_insertion(fiuna_data):
     return prepared_records
 
 
-# meteostat_data.py
+# meteostat data
 
 def prepare_meteostat_data_for_insertion(data):
     data.index = data.index.map(convert_to_local_time)
@@ -88,3 +88,4 @@ def prepare_meteostat_data_for_insertion(data):
     data.drop('wind_dir', axis=1, inplace=True)
     data['date'] = data.index
     return data.round(2)
+
