@@ -22,11 +22,19 @@ data_retriever/
 ├── src/
 │   ├── database.py         # Contains functions to create sessions and engines
 │   ├── initialize_db.py    # Script to initialize the database schema
-│   ├── meteostat_data.py   # Module for fetching, processing and inserting meteostat data into localserver
-│   ├── mirror.py           # Module for mirroring data between remoteserver (MySQL) and localserver (Postgres)
 │   ├── models.py           # Contains database models
 │   ├── stations_data.json  # JSON file containing station data
-│   └── transform_raw_data.py  # Module for transforming raw data and inserting it into localserver
+│   ├── region_data.json    # JSON file containing region data
+│   ├── time_utils.py       # time conversion functions
+│   ├── extract/                # code to extract data from various sources
+│   │   ├── utils.py            
+│   │   └── extract_data.py     # Functions to extract data
+│   ├── transform/              # code to transform incoming data from various sources
+│   │   ├── utils.py            
+│   │   └── transform_data.py   # Functions to transform data
+│   ├── load/                   # code to load transformed data to a postgres database
+│       ├── utils.py            
+│       └── transform_data.py   # Functions to load data
 │
 ├── tests/
 │   ├── conftest.py    
@@ -61,6 +69,8 @@ MYSQL_USER='fer'
 MYSQL_PASSWORD='nanda'
 MYSQL_HOST='localhost'
 MYSQL_DATABASE='estaciones_remote'
+
+AIRNOW_API_KEY='your_secret_airnow_api_key'
 ```
 
 ## Contributing
