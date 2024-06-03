@@ -3,6 +3,7 @@ from src.models import StationsReadingsRaw
 from src.time_utils import convert_to_local_time
 import pandas as pd
 import numpy as np
+from datetime import datetime
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -89,3 +90,17 @@ def prepare_meteostat_data_for_insertion(data):
     data['date'] = data.index
     return data.round(2)
 
+# airnow data
+
+def prepare_airnow_data_for_insertion(data_list):
+    try:
+        transformed_data = [{
+            'date': datetime.strptime(data['UTC'], "%Y-%m-%dT%H:%M"),
+            'pm2_5': data['Value'],
+            'latitude': data['Latitude'],
+            'longitude': data['Longitude']
+        } for data in data_list]
+    except(KeyError, ValueError) as e:
+        raise ValueError(f'Error in data transformation: {e}')
+    
+    return transformed_data

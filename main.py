@@ -1,6 +1,6 @@
 from src.initialize_db import create_postgres_tables
 from src.extract.extract_data import extract_fiuna_data, extract_meteostat_data, extract_airnow_data
-from src.transform.transform_data import transform_fiuna_data, transform_meteostat_data
+from src.transform.transform_data import transform_fiuna_data, transform_meteostat_data, transform_airnow_data
 from src.load.load_data import load_station_readings_raw, load_weather_data
 import logging
 
@@ -42,6 +42,10 @@ def main():
     airnow_data, extract_status = extract_airnow_data()
     if extract_status is False:
         return 'Error: Extracting data from AirNow Failed'
+    
+    transformed_airnow_data, transform_status = transform_airnow_data(airnow_data)
+    if transform_status is False:
+        return 'Error: Transforming data from AirNow failed'
 
     return 'Process finished correctly'
     
