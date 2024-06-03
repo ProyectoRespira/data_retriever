@@ -1,11 +1,13 @@
 from sqlalchemy import MetaData, Table, desc, select
 from sqlalchemy.exc import SQLAlchemyError
-from src.models import StationsReadingsRaw, WeatherData, StationReadings
+from src.models import StationsReadingsRaw, WeatherData, StationReadings, USAirQualityReadings
 from src.time_utils import convert_to_utc
 from datetime import datetime, timedelta
 from pytz import timezone
 from meteostat import Point, Hourly
 from sqlalchemy import func
+import os
+from dotenv import load_dotenv
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -71,3 +73,49 @@ def determine_time_range(session):
     end_utc = datetime.now(timezone('UTC')).replace(tzinfo=None, minute=0, second=0, microsecond=0)
     
     return start_utc, end_utc
+
+
+# airnow data
+def get_last_airnow_timestamp(session):
+    return session.query(func.max(USAirQualityReadings.date)).scalar()
+
+def define_airnow_api_url(session):
+    try:
+        load_dotenv()
+    except:
+        raise "Error loading .env file right now"
+
+    if session.query(USAirQualityReadings).count() == 0:
+        last_airnow_timestamp_utc = datetime(2023, 1, 1, 0, 0, 0, 0)
+    else:
+        last_airnow_timestamp_localtime = get_last_airnow_timestamp(session)
+        last_airnow_timestamp_utc = convert_to_utc(last_airnow_timestamp_localtime)
+    
+    options = {}
+    options["url"] = "https://airnowapi.org/aq/data/"
+    options["start_date"] = last_airnow_timestamp_utc.strftime('%Y-%m-%d')
+    options["start_hour_utc"] = last_airnow_timestamp_utc.strftime('%H')
+    options["end_date"] = datetime.now(timezone('UTC')).strftime('%Y-%m-%d')
+    options["end_hour_utc"] = datetime.now(timezone('UTC')).strftime('%H')
+    options["parameters"] = "pm25"
+    options["bbox"] = "-57.725,-25.384,-57.500,-25.214"
+    options["data_type"] = "c" # options: a (AQI), b (concentrations & AQI), c (concentrations)
+    options["format"] = "application/json" # options: 'text/csv', 'application/json', 'application/vnd.google-earth.kml', 'application/xml'
+    options["api_key"] = os.getenv('AIRNOW_API_KEY')
+    options["verbose"] = 1
+    options["includerawconcentrations"] = 1
+
+    # API request URL
+    request_url = options["url"] \
+                  + "?startdate=" + options["start_date"] \
+                  + "t" + options["start_hour_utc"] \
+                  + "&enddate=" + options["end_date"] \
+                  + "t" + options["end_hour_utc"] \
+                  + "&parameters=" + options["parameters"] \
+                  + "&bbox=" + options["bbox"] \
+                  + "&datatype=" + options["data_type"] \
+                  + "&format=" + options["format"] \
+                  + "&api_key=" + options["api_key"]
+    
+    return request_url
+
