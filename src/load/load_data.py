@@ -1,4 +1,4 @@
-from src.load.utils import insert_station_readings_raw
+from src.load.utils import insert_station_readings_raw, insert_weather_data
 from src.database import create_postgres_session, create_postgres
 import logging
 
@@ -12,3 +12,19 @@ def load_station_readings_raw(transformed_fiuna_data):
     except Exception as e:
         logging.error(f'An error occurred: {e}')
         return False
+
+def load_weather_data(transformed_meteostat_data):
+    try:
+        postgres_session = create_postgres_session(create_postgres())
+        if transformed_meteostat_data is not None:
+            status = insert_weather_data(postgres_session, transformed_meteostat_data)
+            return status
+        else:
+            logging.info('No new meteostat data to insert')
+            return True
+    except Exception as e:
+        logging.error(f'An error occurred: {e}')
+        return False
+    finally:
+        if postgres_session:
+            postgres_session.close()

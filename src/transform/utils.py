@@ -1,6 +1,8 @@
 
 from src.models import StationsReadingsRaw
+from src.time_utils import convert_to_local_time
 import pandas as pd
+import numpy as np
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -65,3 +67,24 @@ def prepare_fiuna_records_for_insertion(fiuna_data):
         prepared_records[record.station_id].append(record)
 
     return prepared_records
+
+
+# meteostat_data.py
+
+def prepare_meteostat_data_for_insertion(data):
+    data.index = data.index.map(convert_to_local_time)
+    meteo_features = ['temp', 'rhum', 'pres', 'wspd', 'wdir']
+    data = data[meteo_features]
+    data.rename(columns={
+        'temp': 'temperature',
+        'rhum': 'humidity',
+        'pres': 'pressure',
+        'wspd': 'wind_speed',
+        'wdir': 'wind_dir'
+    }, inplace=True)
+    
+    data['wind_dir_cos'] = np.cos(2 * np.pi * data.wind_dir / 360)
+    data['wind_dir_sin'] = np.sin(2 * np.pi * data.wind_dir / 360)
+    data.drop('wind_dir', axis=1, inplace=True)
+    data['date'] = data.index
+    return data.round(2)

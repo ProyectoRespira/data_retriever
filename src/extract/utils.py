@@ -52,24 +52,22 @@ def select_new_records_from_origin_table(mysql_engine, table_name, last_measurem
 # meteostat_data.py
 
 def fetch_meteostat_data(start, end):
+    logging.info('fetching meteostat data...')
     asuncion = Point(-25.2667, -57.6333, 101)
     data = Hourly(asuncion, start, end).fetch()
     return data
 
-def get_last_station_readings_timestamp(session):
-    return session.query(func.max(StationReadings.date)).scalar()
 
 def get_last_meteostat_timestamp(session):
     return session.query(func.max(WeatherData.date)).scalar()
 
 def determine_time_range(session):
     if session.query(WeatherData).count() == 0:
-        last_stationreadings_timestamp = get_last_station_readings_timestamp(session)
         start_utc = datetime(2019, 1, 1, 0, 0, 0, 0)
-        end_utc = convert_to_utc(last_stationreadings_timestamp)
     else:
         last_meteostat_timestamp = get_last_meteostat_timestamp(session)
         start_utc = convert_to_utc(last_meteostat_timestamp + timedelta(hours=1))
-        end_utc = datetime.now(timezone('UTC')).replace(tzinfo=None, minute=0, second=0, microsecond=0)
+    
+    end_utc = datetime.now(timezone('UTC')).replace(tzinfo=None, minute=0, second=0, microsecond=0)
     
     return start_utc, end_utc

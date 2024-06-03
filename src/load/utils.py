@@ -17,4 +17,14 @@ def insert_station_readings_raw(postgres_session, transformed_fiuna_data):
         return False
 
 
-    
+def insert_weather_data(postgres_session, transformed_meteostat_data):
+    logging.info('Starting insert_weather_data...')
+    try:
+        transformed_meteostat_data.to_sql('weather_data', postgres_session.connection(), if_exists='append', index=False)
+        postgres_session.commit()
+        logging.info('Meteostat data inserted successfully')
+        return True
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+        postgres_session.rollback()
+        return False
