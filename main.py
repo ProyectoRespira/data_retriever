@@ -1,25 +1,45 @@
-from src.mirror import retrieve_data
-from src.meteostat_data import fill_meteostat_data
-from src.transform_raw_data import fill_station_readings
+from src.initialize_db import create_postgres_tables
+from src.extract.extract_data import extract_fiuna_data, extract_meteostat_data
+from src.transform.transform_data import transform_fiuna_data, transform_meteostat_data
+from src.load.load_data import load_station_readings_raw, load_weather_data
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def main():
+    create_postgres_tables()
+    
+    fiuna_data, extract_status = extract_fiuna_data()
+    if extract_status is False:
+        return 'Error: Extracting data from FIUNA failed'
+    
+    transformed_fiuna_data, transform_status = transform_fiuna_data(fiuna_data)
+    if transform_status is False:
+        return 'Error: Transforming data from FIUNA failed'
+    
+    load_status = load_station_readings_raw(transformed_fiuna_data)
+    if load_status is False: 
+        return 'Error: Loading data to StationReadingsRaw failed'
+    
+    logging.info('Success: Data from FIUNA loaded correctly')
+    
+    # Meteostat Data
+    meteostat_data, extract_status = extract_meteostat_data()
+    if extract_status is False:
+        return 'Error: Extracting data from Meteostat failed'
+    
+    transformed_meteostat_data, transform_status = transform_meteostat_data(meteostat_data)
+    if transform_status is False:
+        return 'Error: Transforming data from Meteostat failed'
+    
+    load_status = load_weather_data(transformed_meteostat_data)
+    if load_status is False:
+        return 'Error: Loading data to WeatherData failed'
+    
+    logging.info('Success: Data from Meteostat loaded correctly')
 
-    retrieve_data_status = retrieve_data()
-    if retrieve_data_status is False:
-        return "Error: Retrieving data from FIUNA failed"
+    return 'Process finished correctly'
     
-    meteostat_data_status = fill_meteostat_data()
-    if meteostat_data_status is False:
-        return "Error: Filling meteostat data failed"
-    
-    station_readings_status = fill_station_readings()
-    if station_readings_status is False:
-        return "Error: Filling station readings failed"
-    
-    return "Station readings filled successfully"
 
 if __name__ == "__main__":
     message = main()

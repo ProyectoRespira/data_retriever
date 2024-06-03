@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch
-from main import main
+from src.old_code.main_old import main
 
 def test_main_success():
     with patch('main.retrieve_data', return_value=True) as mock_retrieve_data, \

@@ -1,8 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
 import os
 from dotenv import load_dotenv
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 try:
     load_dotenv()
@@ -26,12 +28,10 @@ def create_mysql():
     MYSQL_USER = os.getenv('MYSQL_USER')
     MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD')
     MYSQL_DATABASE = os.getenv('MYSQL_DATABASE')
-    MYSQL_TABLES = os.getenv('MYSQL_TABLES')
 
     mysql_engine = create_engine(f'mysql+mysqlconnector://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}/{MYSQL_DATABASE}')
 
     return mysql_engine
-
 
 def create_postgres_session(postgres_engine):
     Session = sessionmaker(bind=postgres_engine)

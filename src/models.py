@@ -1,9 +1,17 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, VARCHAR
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, VARCHAR, Boolean
 from datetime import datetime
 
 BasePostgres = declarative_base()
+
+class Regions(BasePostgres):
+    __tablename__ = 'regions'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    latitude = Column(Float)
+    longitude = Column(Float)
+    region_code = Column(String, unique=True)
 
 
 class Stations(BasePostgres): # Same as Django
@@ -13,7 +21,10 @@ class Stations(BasePostgres): # Same as Django
     name = Column(String)
     latitude = Column(Float)
     longitude = Column(Float)
-    region = Column(String) 
+    region = Column(String, ForeignKey('regions.region_code'), name = 'region') 
+    region_rel = relationship('Regions')
+    is_station_on = Column(Boolean)
+    # agregar is_station_on (variable de status)
     
     # About region: in Django it looks like this 
     # region = models.CharField(max_length = 100, 
@@ -55,6 +66,7 @@ class StationsReadingsRaw(BasePostgres): # Copy of Raw Data from Origin DB
     humedad = Column(VARCHAR)
     presion = Column(VARCHAR)
     bateria = Column(VARCHAR)
+    # filled_data flag
 
     @property
     def date(self):
