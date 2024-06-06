@@ -21,3 +21,4 @@ database.ini
 
 .DS_Store
 tmp*
+*.egg-info
