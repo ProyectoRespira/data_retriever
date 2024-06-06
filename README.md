@@ -49,6 +49,12 @@ data_retriever/
 └── requirements.txt  # List of project dependencies
 ```
 
+## Current DB Structure
+![db diagram - first try](https://github.com/vnbl/data_retriever/assets/21232496/ba9ce547-a375-4ec8-bb19-d64ae212a891)
+
+# Current Flow Diagram
+Available for editing [here](https://lucid.app/lucidchart/9458c9c0-a69d-435e-8e2a-c308dd53ffb3/edit?viewport_loc=-1888%2C-751%2C3755%2C1602%2C0_0&invitationId=inv_9832203a-f57d-4c0e-8088-e32f409d3b45) 
+
 ## Installation
 
 Provide instructions on how to install and set up the project, including any dependencies or prerequisites.
