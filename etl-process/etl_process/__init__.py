@@ -7,7 +7,7 @@ all_assets = load_assets_from_modules([assets])
 
 defs = Definitions(
     assets=all_assets,
-    jobs=[jobs.run_pipeline],
+    jobs=[jobs.run_pipeline_job],
     resources={
         "credentials": resources.SomeCredentials(
             user="user",
