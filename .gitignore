@@ -18,3 +18,6 @@ database.ini
 
 # testing files
 *.ipynb
+
+.DS_Store
+tmp*
