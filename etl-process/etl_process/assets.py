@@ -1,8 +1,6 @@
 
 from typing import List
-
-from dagster import asset, AssetExecutionContext, Output, Out
-
+from dagster import asset, AssetExecutionContext
 from etl_process.resources import SomeCredentials
 
 
