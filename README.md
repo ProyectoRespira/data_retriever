@@ -55,6 +55,8 @@ data_retriever/
 # Current Flow Diagram
 Available for editing [here](https://lucid.app/lucidchart/9458c9c0-a69d-435e-8e2a-c308dd53ffb3/edit?viewport_loc=-1888%2C-751%2C3755%2C1602%2C0_0&invitationId=inv_9832203a-f57d-4c0e-8088-e32f409d3b45) 
 
+![data_retriever_flow](https://github.com/vnbl/data_retriever/assets/21232496/6eb560c1-e2f5-4c2b-86d6-0563c217f280)
+
 ## Installation
 
 Provide instructions on how to install and set up the project, including any dependencies or prerequisites.
