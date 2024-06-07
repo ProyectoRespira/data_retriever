@@ -21,6 +21,7 @@ Open http://localhost:3000 with your browser to see the project.
 
 The core of dagster is generating software-defined assets. Assets can be generated in two ways:
 
+
 ### Assets
 Define it as an [`@asset`](https://docs.dagster.io/concepts/assets/software-defined-assets):
 ```python
@@ -68,6 +69,7 @@ def generate_asset_from_graph():
     return store_file(fetch_file())
 ```
 
+
 ### Resources
 If you need a config for an asset, use a `ConfigurableResource`:
 ```python
@@ -87,6 +89,7 @@ from project.resources import SomeCredentials
 def asset_name(context: AssetExecutionContext, credentials: SomeCredentials):
     context.log.info(f"Current user: {credentials.user}")
 ```
+
 
 ### Jobs
 Organize how assets should be materialized with `jobs`, can also use `schedules` and `sensors` to automate:
@@ -115,7 +118,9 @@ defs = Definitions(
     assets=[
         load_assets_from_modules([assets])
     ],
-    jobs=[jobs.run_pipeline_job],
+    jobs=[
+        jobs.run_pipeline_job
+    ],
     resources={
         "credentials": resources.SomeCredential(
             user=EnvVar('USER'),
