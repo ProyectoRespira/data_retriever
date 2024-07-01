@@ -40,15 +40,50 @@ class StationReadings(BasePostgres): # Same as Django
     station = Column(Integer, ForeignKey('stations.id'), name = 'station')
     station_rel = relationship('Stations')
     date = Column(DateTime)
+
+    # PM
     pm1 = Column(Float)
     pm2_5 = Column(Float)
     pm10 = Column(Float)
+
+    pm2_5_avg_6h = Column(Float)
+    pm2_5_max_6h = Column(Float)
+    pm2_5_skew_6h = Column(Float)
+    pm2_5_std_6h = Column(Float)
+
+    # AQI
+    aqi_pm2_5 = Column(Float)
+    aqi_pm10 = Column(Float)
+
+    level = Column(Integer) # 1 = good, 2 = moderate, 3 = unhealth for sensitive groups, and so on
+
+    aqi_pm2_5_max_24h = Column(Float)
+    aqi_pm2_5_skew_24h = Column(Float)
+    aqi_pm2_5_std_24h = Column(Float)
+
+    # climate readings
     temperature = Column(Float)
     humidity = Column(Float)
     pressure = Column(Float)
 
-    aqi_pm2_5 = Column(Float)
-    aqi_pm10 = Column(Float)
+class RegionReadings(BasePostgres):
+
+    __tablename__ = 'region_readings'
+    id = Column(Integer, primary_key=True)
+    region = Column(Integer, ForeignKey('regions.id'), name = 'region')
+    region_rel = relationship('Regions')
+    date = Column(DateTime)
+    pm2_5_region_avg = Column(Float)
+    pm2_5_region_max = Column(Float)
+    pm2_5_region_skew = Column(Float)
+    pm2_5_region_std = Column(Float)
+    
+    aqi_region_avg = Column(Float)
+    aqi_region_max = Column(Float)
+    aqi_region_skew = Column(Float)
+    aqi_region_std = Column(Float)
+    
+    level_region_max = Column(Float)
 
 
 class StationsReadingsRaw(BasePostgres): # Copy of Raw Data from Origin DB 
@@ -85,7 +120,6 @@ class WeatherData(BasePostgres):
     wind_speed = Column(Float)
     wind_dir_cos = Column(Float)
     wind_dir_sin = Column(Float)
-    nowcast_pm25 = Column(Float)
 
 class USAirQualityReadings(BasePostgres):
     __tablename__ = 'airnow_data'
