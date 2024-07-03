@@ -1,6 +1,6 @@
 from sqlalchemy import MetaData, Table, desc, select
 from sqlalchemy.exc import SQLAlchemyError
-from src.models import StationsReadingsRaw, WeatherData, StationReadings, USAirQualityReadings
+from src.models import StationsReadingsRaw, WeatherReadings, StationReadings, PatternStationReadings, PatternStations
 from src.time_utils import convert_to_utc
 from datetime import datetime, timedelta
 from pytz import timezone
@@ -61,10 +61,10 @@ def fetch_meteostat_data(start, end):
 
 
 def get_last_meteostat_timestamp(session):
-    return session.query(func.max(WeatherData.date)).scalar()
+    return session.query(func.max(WeatherReadings.date)).scalar()
 
 def determine_time_range(session):
-    if session.query(WeatherData).count() == 0:
+    if session.query(WeatherReadings).count() == 0:
         start_utc = datetime(2019, 1, 1, 0, 0, 0, 0)
     else:
         last_meteostat_timestamp = get_last_meteostat_timestamp(session)
@@ -77,7 +77,7 @@ def determine_time_range(session):
 
 # airnow data
 def get_last_airnow_timestamp(session):
-    return session.query(func.max(USAirQualityReadings.date)).scalar()
+    return session.query(func.max(PatternStationReadings.date)).scalar()
 
 def define_airnow_api_url(session):
     try:
@@ -85,12 +85,16 @@ def define_airnow_api_url(session):
     except:
         raise "Error loading .env file right now"
 
-    if session.query(USAirQualityReadings).count() == 0:
+    if session.query(PatternStationReadings).count() == 0:
         last_airnow_timestamp_utc = datetime(2023, 1, 1, 0, 0, 0, 0)
     else:
         last_airnow_timestamp_localtime = get_last_airnow_timestamp(session) + timedelta(hours=1)
         last_airnow_timestamp_utc = convert_to_utc(last_airnow_timestamp_localtime)
     
+    bbox_data = session.query(PatternStations.bbox).filter(
+        PatternStations.region == 'GRAN_ASUNCION'
+    )
+
     options = {}
     options["url"] = "https://airnowapi.org/aq/data/"
     options["start_date"] = last_airnow_timestamp_utc.strftime('%Y-%m-%d')

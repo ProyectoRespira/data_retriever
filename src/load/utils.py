@@ -1,5 +1,5 @@
 import logging
-from src.models import USAirQualityReadings
+from src.models import PatternStationReadings
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -34,7 +34,7 @@ def insert_airnow_data(postgres_session, transformed_airnow_data):
     logging.info('Starting insert_airnow_data...')
     try:
         readings_list = [
-            USAirQualityReadings(
+            PatternStationReadings(
                 date=data['date'],
                 pm2_5=data['pm2_5'],
                 latitude=data['latitude'],
