@@ -1,1 +1,1 @@
-[{"id": 1, "name": "Gran Asunci\u00f3n", "latitude": "-25.3102", "longitude": "-57.5080", "region_code": "GRAN_ASUNCION"}]
+[{"id": 1, "name": "Gran Asunci\u00f3n", "region_code": "GRAN_ASUNCION", "latitude_north": "-25.140", "latitude_south": "-25.410", "longitude_east": "-57.470", "longitude_west": "-57.680", "has_weather_data": false, "has_pattern_station": false}]
