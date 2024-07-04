@@ -1,5 +1,5 @@
 import logging
-from src.models import PatternStationReadings
+from src.models import StationReadings
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -21,7 +21,7 @@ def insert_station_readings_raw(postgres_session, transformed_fiuna_data):
 def insert_weather_data(postgres_session, transformed_meteostat_data):
     logging.info('Starting insert_weather_data...')
     try:
-        transformed_meteostat_data.to_sql('weather_data', postgres_session.connection(), if_exists='append', index=False)
+        transformed_meteostat_data.to_sql('weather_readings', postgres_session.connection(), if_exists='append', index=False)
         postgres_session.commit()
         logging.info('Meteostat data inserted successfully')
         return True
@@ -34,11 +34,10 @@ def insert_airnow_data(postgres_session, transformed_airnow_data):
     logging.info('Starting insert_airnow_data...')
     try:
         readings_list = [
-            PatternStationReadings(
+            StationReadings(
+                station = data['station'],
                 date=data['date'],
-                pm2_5=data['pm2_5'],
-                latitude=data['latitude'],
-                longitude=data['longitude']
+                pm2_5=data['pm2_5']
             )
             for data in (transformed_airnow_data if isinstance(transformed_airnow_data, list) else [transformed_airnow_data])
         ]
