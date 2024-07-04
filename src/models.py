@@ -10,14 +10,8 @@ class Regions(BasePostgres):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     region_code = Column(String, unique=True)
-    
     # area
-    latitude_north = Column(Float)
-    latitude_south = Column(Float)
-
-    longitude_east = Column(Float)
-    longitude_west = Column(Float)
-
+    bbox = Column(String)
     # status
     has_weather_data = Column(Boolean)
     has_pattern_station = Column(Boolean)
@@ -33,6 +27,7 @@ class Stations(BasePostgres): # Same as Django
     region = Column(String, ForeignKey('regions.region_code'), name = 'region') 
     region_rel = relationship('Regions')
     is_station_on = Column(Boolean)
+    is_pattern_station = Column(Boolean)
     # agregar is_station_on (variable de status)
     
     # About region: in Django it looks like this 
@@ -51,13 +46,6 @@ class WeatherStations(BasePostgres):
     region = Column(String, ForeignKey('regions.region_code'), name = 'region')
     region_rel = relationship('Regions')
 
-class PatternStations(BasePostgres):
-    __tablename__ = 'pattern_stations'
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    bbox = Column(String)
-    region = Column(String, ForeignKey('regions.region_code'), name = 'region')
-    region_rel = relationship('Regions')
 
 #### Classes for readings from external DBs ######
 
@@ -99,15 +87,6 @@ class WeatherReadings(BasePostgres):
     wind_dir_cos = Column(Float)
     wind_dir_sin = Column(Float)
 
-class PatternStationReadings(BasePostgres):
-    __tablename__ = 'pattern_readings'
-    id = Column(Integer, primary_key=True)
-    pattern_station = Column(Integer, ForeignKey('pattern_stations.id'), name = 'pattern_station')
-    pattern_station_rel = relationship('PatternStations')
-    date = Column(DateTime)
-    pm2_5 = Column(Float)
-    latitude = Column(Float)
-    longitude = Column(Float)
 
 
 ####### Classes for transformed readings for usage ##########
@@ -162,7 +141,7 @@ class RegionReadings(BasePostgres):
     aqi_region_skew = Column(Float)
     aqi_region_std = Column(Float)
 
-    level_region_max = Column(Float)
+    level_region_max = Column(Integer)
 
 
 class CalibrationFactors(BasePostgres):
