@@ -1,6 +1,6 @@
 from sqlalchemy import MetaData, Table, desc, select
 from sqlalchemy.exc import SQLAlchemyError
-from src.models import StationsReadingsRaw, WeatherReadings, StationReadings, PatternStationReadings, PatternStations
+from src.models import StationsReadingsRaw, WeatherReadings, Regions, StationReadings, Stations
 from src.time_utils import convert_to_utc
 from datetime import datetime, timedelta
 from pytz import timezone
@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # mirror.py
 
-def get_last_measurement_id(postgres_session, station_id):
+def get_last_raw_measurement_id(postgres_session, station_id):
     logging.info('Starting get_last_measurement_id...')
     last_measurement = (postgres_session.query(StationsReadingsRaw)
                         .filter(StationsReadingsRaw.station_id == station_id)
@@ -27,7 +27,7 @@ def get_last_measurement_id(postgres_session, station_id):
         logging.info(f'No previous measurements for station {station_id}')
         return 0
 
-def select_new_records_from_origin_table(mysql_engine, table_name, last_measurement_id):
+def select_new_records_from_fiuna_origin_table(mysql_engine, table_name, last_measurement_id):
     logging.info(f'Starting select_new_records_from_origin_table where table_name = {table_name} and last_measurement_id = {last_measurement_id}')
 
     try:
@@ -60,14 +60,14 @@ def fetch_meteostat_data(start, end):
     return data
 
 
-def get_last_meteostat_timestamp(session):
+def get_last_weather_station_timestamp(session):
     return session.query(func.max(WeatherReadings.date)).scalar()
 
-def determine_time_range(session):
+def determine_meteostat_query_time_range(session):
     if session.query(WeatherReadings).count() == 0:
         start_utc = datetime(2019, 1, 1, 0, 0, 0, 0)
     else:
-        last_meteostat_timestamp = get_last_meteostat_timestamp(session)
+        last_meteostat_timestamp = get_last_weather_station_timestamp(session)
         start_utc = convert_to_utc(last_meteostat_timestamp + timedelta(hours=1))
     
     end_utc = datetime.now(timezone('UTC')).replace(tzinfo=None, minute=0, second=0, microsecond=0)
@@ -76,25 +76,70 @@ def determine_time_range(session):
 
 
 # airnow data
-def get_last_airnow_timestamp(session):
-    return session.query(func.max(PatternStationReadings.date)).scalar()
+def get_last_station_readings_timestamp(session):
+    last_timestamp = session.query(
+        func.max(StationReadings.date)
+        ).join(
+        Stations, StationReadings.station == Stations.id
+        ).filter(
+            Stations.is_pattern_station == True
+        ).scalar()
 
-def define_airnow_api_url(session):
+    return last_timestamp
+
+def get_pattern_station_ids(session):
+    pattern_station_ids = session.query(Stations.id).filter(
+        Stations.is_pattern_station == True
+    ).all()
+
+    return [id_tuple[0] for id_tuple in pattern_station_ids]
+
+def get_station_ids(session):
+    station_ids = session.query(Stations.id).filter(
+        Stations.is_pattern_station == False
+    ).all()
+
+    return [id_tuple[0] for id_tuple in station_ids]
+
+def get_region_bbox(session, region_code):
+    bbox = session.query(Regions.bbox).filter(
+        Regions.region_code == region_code
+    ).scalar()
+
+    return bbox
+
+def get_station_readings_count(session, pattern_station_id):
+    count = session.query(
+        func.count(StationReadings.id)
+    ).filter(
+        StationReadings.station == pattern_station_id
+    ).scalar()
+
+    return count
+
+def get_region_code(session, station_id):
+    return session.query(Stations.region).filter(
+        Stations.id == station_id
+    ).scalar()
+
+def define_airnow_api_url(session, pattern_station_id):
     try:
         load_dotenv()
     except:
         raise "Error loading .env file right now"
+    
+    station_readings_count = get_station_readings_count(session, pattern_station_id)
 
-    if session.query(PatternStationReadings).count() == 0:
+    if station_readings_count == 0:
         last_airnow_timestamp_utc = datetime(2023, 1, 1, 0, 0, 0, 0)
     else:
-        last_airnow_timestamp_localtime = get_last_airnow_timestamp(session) + timedelta(hours=1)
+        last_airnow_timestamp_localtime = get_last_station_readings_timestamp(session) + timedelta(hours=1)
         last_airnow_timestamp_utc = convert_to_utc(last_airnow_timestamp_localtime)
-    
-    bbox_data = session.query(PatternStations.bbox).filter(
-        PatternStations.region == 'GRAN_ASUNCION'
-    )
 
+    region_code = get_region_code(session, station_id = pattern_station_id)
+
+    region_bbox = get_region_bbox(session, region_code)
+    
     options = {}
     options["url"] = "https://airnowapi.org/aq/data/"
     options["start_date"] = last_airnow_timestamp_utc.strftime('%Y-%m-%d')
@@ -102,12 +147,13 @@ def define_airnow_api_url(session):
     options["end_date"] = datetime.now(timezone('UTC')).strftime('%Y-%m-%d')
     options["end_hour_utc"] = datetime.now(timezone('UTC')).strftime('%H')
     options["parameters"] = "pm25"
-    options["bbox"] = "-57.725,-25.384,-57.500,-25.214"
+    options["bbox"] = region_bbox
     options["data_type"] = "c" # options: a (AQI), b (concentrations & AQI), c (concentrations)
     options["format"] = "application/json" # options: 'text/csv', 'application/json', 'application/vnd.google-earth.kml', 'application/xml'
     options["api_key"] = os.getenv('AIRNOW_API_KEY')
     options["verbose"] = 1
     options["includerawconcentrations"] = 1
+
 
     # API request URL
     request_url = options["url"] \
