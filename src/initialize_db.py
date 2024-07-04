@@ -1,4 +1,4 @@
-from src.models import BasePostgres, Stations, Regions, WeatherStations, PatternStations
+from src.models import BasePostgres, Stations, Regions, WeatherStations
 from sqlalchemy.exc import IntegrityError
 from src.database import create_postgres_session, create_postgres
 import json
@@ -19,9 +19,10 @@ with open('src/pattern_data.json', 'r') as f:
     pattern_data = json.load(f)
 
 
-def create_stations(postgres_session, station_data = stations_data):
+def create_stations(postgres_session, station_data = stations_data, pattern_data = pattern_data):
+    all_stations = station_data + [station for station in pattern_data]
     existing_station_ids = {station.id for station in postgres_session.query(Stations).all()}
-    for station_info in station_data:
+    for station_info in all_stations:
         station_id = station_info.get('id')
         if station_id not in existing_station_ids:
             try:
@@ -31,19 +32,20 @@ def create_stations(postgres_session, station_data = stations_data):
                     latitude=station_info['latitude'],
                     longitude=station_info['longitude'],
                     region=station_info['region'],
-                    is_station_on = station_info['is_station_on']
+                    is_station_on = station_info['is_station_on'],
+                    is_pattern_station = station_info['is_pattern_station']
                 )
                 postgres_session.add(new_station)
                 postgres_session.commit()
                 print(f"Station '{new_station.name}' created successfully.")
             except KeyError as e:
-                print(f"Skipping station creation due to missing or invalid data: {e}")
+                print(f"Skipping station '{station_id}'creation due to missing or invalid data: {e}")
             except IntegrityError as e:
                 postgres_session.rollback()
-                print(f"Failed to create station with ID '{station_id}'. It may already exist.")
+                print(f"Failed to create station '{station_id}'. It may already exist.")
                 logging.error(f'error: {e}')
         else:
-            print(f"Station with ID '{station_id}' already exists. Skipping creation.")
+            print(f"Station '{station_id}' already exists. Skipping creation.")
 
 def create_region(postgres_session, region_data = region_data):
     existing_region_ids = {region.id for region in postgres_session.query(Regions).all()}
@@ -55,10 +57,7 @@ def create_region(postgres_session, region_data = region_data):
                     id = region_id,
                     name = region_info['name'],
                     region_code = region_info['region_code'],
-                    latitude_north = region_info['latitude_north'],
-                    latitude_south = region_info['latitude_south'],
-                    longitude_east = region_info['longitude_east'],
-                    longitude_west = region_info['longitude_west'],
+                    bbox = region_info['bbox'],
                     has_weather_data = region_info['has_weather_data'],
                     has_pattern_station = region_info['has_pattern_station']
                 )
@@ -66,12 +65,12 @@ def create_region(postgres_session, region_data = region_data):
                 postgres_session.commit()
                 print(f"Region '{new_region.name}' created successfully.")
             except KeyError as e:
-                print(f'Skipping region creation due to missing or invalid data: {e}')
+                print(f"Skipping region with ID = '{region_id}' creation due to missing or invalid data: {e}")
             except IntegrityError:
                 postgres_session.rollback()
-                print(f"Failed to create region with ID '{region_id}. It may already exist.")
+                print(f"Failed to create region with ID '{region_id}'. It may already exist.")
         else:
-            print(f"Region with ID '{region_id} already exists. Skipping creation.")
+            print(f"Region with ID '{region_id}' already exists. Skipping creation.")
 
 def create_weather_stations(postgres_session, weather_data = weather_data):
     existing_weather_ids = {weather.id for weather in postgres_session.query(WeatherStations).all()}
@@ -90,35 +89,12 @@ def create_weather_stations(postgres_session, weather_data = weather_data):
                 postgres_session.commit()
                 print(f"Weather Station '{new_weather_station.name}' created successfully.")
             except KeyError as e:
-                print(f'Skipping Weather Station creation due to missing or invalid data: {e}')
+                print(f"Skipping Weather Station with ID = '{weather_id}' creation due to missing or invalid data: {e}")
             except IntegrityError:
                 postgres_session.rollback()
-                print(f"Failed to create Weather Station with ID '{weather_id}. It may already exist.")
+                print(f"Failed to create Weather Station with ID = '{weather_id}'. It may already exist.")
         else:
-            print(f"Weather Station with ID '{weather_id} already exists. Skipping creation.")
-
-def create_pattern_stations(postgres_session, pattern_data = pattern_data):
-    existing_pattern_ids = {pattern.id for pattern in postgres_session.query(PatternStations).all()}
-    for pattern_info in pattern_data:
-        pattern_id = pattern_info.get('id')
-        if pattern_id not in existing_pattern_ids:
-            try:
-                new_pattern_station = PatternStations(
-                    id = pattern_id,
-                    name = pattern_info['name'],
-                    bbox = pattern_info['bbox'],
-                    region = pattern_info['region']
-                )
-                postgres_session.add(new_pattern_station)
-                postgres_session.commit()
-                print(f"Pattern Station '{new_pattern_station.name}' created successfully.")
-            except KeyError as e:
-                print(f'Skipping Pattern Station creation due to missing or invalid data: {e}')
-            except IntegrityError:
-                postgres_session.rollback()
-                print(f"Failed to create Pattern Station with ID '{pattern_id}. It may already exist.")
-        else:
-            print(f"Pattern Station with ID '{pattern_id} already exists. Skipping creation.")
+            print(f"Weather Station with ID '{weather_id}' already exists. Skipping creation.")
 
 
 
@@ -129,7 +105,6 @@ def create_postgres_tables():
         with create_postgres_session(postgres_engine) as session:
             create_region(postgres_session=session)
             create_weather_stations(postgres_session=session)
-            create_pattern_stations(postgres_session=session)
             create_stations(postgres_session=session)
     except Exception as e:
         logging.error(f'An error occurred in create_postgres_tables: {e}')
