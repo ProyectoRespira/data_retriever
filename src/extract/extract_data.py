@@ -1,12 +1,14 @@
 
 from sqlalchemy import distinct
 from src.extract.utils import (
-    select_new_records_from_fiuna_origin_table, 
-    get_last_raw_measurement_id, 
+    select_new_records_from_fiuna_origin_table,
     determine_meteostat_query_time_range, 
-    get_weather_station_ids,
     fetch_meteostat_data, 
     define_airnow_api_url, 
+)
+from src.querys import (
+    get_last_raw_measurement_id,
+    get_weather_stations_ids,
     get_pattern_station_ids
 )
 from src.database import create_postgres_session, create_postgres, create_mysql
@@ -49,7 +51,7 @@ def extract_meteostat_data():
     try:
         postgres_engine = create_postgres()
         with create_postgres_session(postgres_engine) as session:
-            station_ids = get_weather_station_ids(session)
+            station_ids = get_weather_stations_ids(session)
             results = {}
             for station_id in station_ids:
                 start_utc, end_utc = determine_meteostat_query_time_range(session)
