@@ -4,9 +4,9 @@ from src.extract.utils import (
     select_new_records_from_fiuna_origin_table, 
     get_last_raw_measurement_id, 
     determine_meteostat_query_time_range, 
+    get_weather_station_ids,
     fetch_meteostat_data, 
     define_airnow_api_url, 
-    get_last_station_readings_timestamp, 
     get_pattern_station_ids
 )
 from src.database import create_postgres_session, create_postgres, create_mysql
@@ -46,20 +46,20 @@ def extract_fiuna_data(): # modify this method to only extract data
 def extract_meteostat_data():
     logging.info('Starting extract_meteostat_data...')
     session = None
-
     try:
         postgres_engine = create_postgres()
         with create_postgres_session(postgres_engine) as session:
-            start_utc, end_utc = determine_meteostat_query_time_range(session)
-
-            if start_utc < end_utc:
-                meteostat_df = fetch_meteostat_data(start=start_utc, end=end_utc)
-
-                logging.info('Meteostat data retrieved successfully')
-                return meteostat_df, True
-            else:
-                logging.info('No new meteostat data to retrieve')
-                return None, True
+            station_ids = get_weather_station_ids(session)
+            results = {}
+            for station_id in station_ids:
+                start_utc, end_utc = determine_meteostat_query_time_range(session)
+                if start_utc < end_utc:
+                    meteostat_df = fetch_meteostat_data(session, start_utc, end_utc, station_id)
+                    logging.info(f'Meteostat data for station {station_id} retrieved successfully')
+                    results[station_id] = meteostat_df
+                else:
+                    logging.info(f'No new meteostat data to retrieve for station {station_id}')
+            return results, True
     except Exception as e:
         logging.error(f"An error occurred: {e}")
         return None, False

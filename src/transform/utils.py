@@ -72,23 +72,32 @@ def prepare_fiuna_records_for_insertion(fiuna_data):
 
 # meteostat data
 
-def prepare_meteostat_data_for_insertion(meteostat_data):
-    meteostat_data.index = meteostat_data.index.map(convert_to_local_time)
-    meteo_features = ['temp', 'rhum', 'pres', 'wspd', 'wdir']
-    meteostat_data = meteostat_data[meteo_features]
-    meteostat_data.rename(columns={
-        'temp': 'temperature',
-        'rhum': 'humidity',
-        'pres': 'pressure',
-        'wspd': 'wind_speed',
-        'wdir': 'wind_dir'
-    }, inplace=True)
-    
-    meteostat_data['wind_dir_cos'] = np.cos(2 * np.pi * meteostat_data.wind_dir / 360)
-    meteostat_data['wind_dir_sin'] = np.sin(2 * np.pi * meteostat_data.wind_dir / 360)
-    meteostat_data.drop('wind_dir', axis=1, inplace=True)
-    meteostat_data['date'] = meteostat_data.index
-    return meteostat_data.round(2)
+def prepare_meteostat_data_for_insertion(meteostat_data_dict):
+    transformed_data_list = []
+    for station_id, meteostat_data in meteostat_data_dict.items():
+        meteostat_data.index = meteostat_data.index.map(convert_to_local_time)
+        meteo_features = ['temp', 'rhum', 'pres', 'wspd', 'wdir']
+        meteostat_data = meteostat_data[meteo_features]
+        meteostat_data.rename(columns={
+            'temp': 'temperature',
+            'rhum': 'humidity',
+            'pres': 'pressure',
+            'wspd': 'wind_speed',
+            'wdir': 'wind_dir'
+        }, inplace=True)
+        meteostat_data['weather_station'] = station_id
+        meteostat_data['wind_dir_cos'] = np.cos(2 * np.pi * meteostat_data.wind_dir / 360)
+        meteostat_data['wind_dir_sin'] = np.sin(2 * np.pi * meteostat_data.wind_dir / 360)
+        meteostat_data.drop('wind_dir', axis=1, inplace=True)
+        meteostat_data['date'] = meteostat_data.index
+        meteostat_data.round(2)
+        transformed_data_list.append(meteostat_data)
+    if len(transformed_data_list) > 1:
+        transformed_data = pd.concat(transformed_data)
+    else:
+        transformed_data = transformed_data_list[0]
+        print(transformed_data.head())
+    return transformed_data
 
 # airnow data
 

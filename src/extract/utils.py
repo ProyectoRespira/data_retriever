@@ -1,6 +1,6 @@
 from sqlalchemy import MetaData, Table, desc, select
 from sqlalchemy.exc import SQLAlchemyError
-from src.models import StationsReadingsRaw, WeatherReadings, Regions, StationReadings, Stations
+from src.models import StationsReadingsRaw, WeatherStations, WeatherReadings, Regions, StationReadings, Stations
 from src.time_utils import convert_to_utc
 from datetime import datetime, timedelta
 from pytz import timezone
@@ -53,11 +53,26 @@ def select_new_records_from_fiuna_origin_table(mysql_engine, table_name, last_me
 
 # meteostat_data.py
 
-def fetch_meteostat_data(start, end):
+def fetch_meteostat_data(session, start, end, station_id):
     logging.info('fetching meteostat data...')
-    asuncion = Point(-25.2667, -57.6333, 101)
-    data = Hourly(asuncion, start, end).fetch()
+    latitude, longitude = get_weather_station_coordinates(session, station_id)
+    coordinates = Point(latitude, longitude, 101)
+    data = Hourly(coordinates, start, end).fetch()
     return data
+
+def get_weather_station_ids(session):
+    result = session.query(WeatherStations.id).all()
+    station_ids = [r[0] for r in result]
+    return station_ids
+
+def get_weather_station_coordinates(session, station_id):
+    latitude = session.query(WeatherStations.latitude).filter(
+        WeatherStations.id == station_id
+    ).scalar()
+    longitude = session.query(WeatherStations.longitude).filter(
+        WeatherStations.id == station_id
+    ).scalar()
+    return latitude, longitude
 
 
 def get_last_weather_station_timestamp(session):
