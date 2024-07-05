@@ -94,15 +94,16 @@ def prepare_meteostat_data_for_insertion(meteostat_data):
 
 def prepare_airnow_data_for_insertion(response_dict):
     try:
-        transformed_data = [
-            {
-                'station': station_id,
-                'date': convert_to_local_time(datetime.strptime(entry['UTC'], "%Y-%m-%dT%H:%M")),
-                'pm2_5': entry['Value']
-            }
-            for station_id, data in response_dict.items()
-            for entry in data
-        ]
+        transformed_data = []
+        for station_id, data in response_dict.items():
+            for entry in data:
+                local_date = convert_to_local_time(datetime.strptime(entry['UTC'],"%Y-%m-%dT%H:%M"))
+                transformed_data_entry = {
+                        'station': station_id,
+                        'date': local_date,
+                        'pm2_5': entry['Value']
+                    }
+                transformed_data.append(transformed_data_entry)
     except KeyError as e:
         raise ValueError(f'KeyError in data transformation: {e}')
     except ValueError as e:
