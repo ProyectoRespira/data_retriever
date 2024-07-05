@@ -16,6 +16,12 @@ class Regions(BasePostgres):
     has_weather_data = Column(Boolean)
     has_pattern_station = Column(Boolean)
 
+    def get_region_bbox(self, session, region_code):
+        bbox = session.query(self.bbox).filter(
+            self.region_code == region_code
+        ).scalar()
+        return bbox
+
 
 class Stations(BasePostgres): # Same as Django
     __tablename__ = 'stations'
@@ -28,6 +34,19 @@ class Stations(BasePostgres): # Same as Django
     region_rel = relationship('Regions')
     is_station_on = Column(Boolean)
     is_pattern_station = Column(Boolean)
+
+    @property
+    def get_pattern_station_ids(self):
+        pass
+    
+    @property
+    def get_fiuna_station_ids(self):
+        pass
+
+    @property
+    def get_region_code(self):
+        pass
+    
     # agregar is_station_on (variable de status)
     
     # About region: in Django it looks like this 
@@ -50,6 +69,9 @@ class WeatherStations(BasePostgres):
 #### Classes for readings from external DBs ######
 
 class StationsReadingsRaw(BasePostgres): # Copy of Raw Data from Origin DB 
+    '''
+    Raw readings from FIUNA
+    '''
     __tablename__ = 'station_readings_raw'
 
     id = Column(Integer, primary_key=True)
@@ -74,6 +96,11 @@ class StationsReadingsRaw(BasePostgres): # Copy of Raw Data from Origin DB
             return None
         
 class WeatherReadings(BasePostgres):
+    '''
+    Readings from Weather Stations. Used for inference and calibrating PM sensors
+    Source - Meteostat: https://dev.meteostat.net/python/hourly.html#api
+    For Asunción: Silvio Pettirossi Airport
+    '''
     __tablename__ = 'weather_readings'
     id = Column(Integer, primary_key=True)
     weather_station = Column(Integer, ForeignKey('weather_stations.id'), name = 'weather_station')
@@ -92,6 +119,12 @@ class WeatherReadings(BasePostgres):
 ####### Classes for transformed readings for usage ##########
 
 class StationReadings(BasePostgres): # Same as Django
+    '''
+    # Clean readings from FIUNA and Pattern Stations. Used for inference.
+
+    # Pattern Station readings for a specific region. Used to calculate calibration factors.
+      Pattern Station in Asunción: US Embassy: https://www.airnow.gov/international/us-embassies-and-consulates/#Paraguay$Asuncion
+    '''
     __tablename__ ='station_readings'
 
     id = Column(Integer, primary_key=True)
@@ -124,7 +157,14 @@ class StationReadings(BasePostgres): # Same as Django
     humidity = Column(Float)
     pressure = Column(Float)
 
+    @property
+    def get_station_readings_count(self):
+        pass
+
 class RegionReadings(BasePostgres):
+    '''
+    average PM and AQI values for a specific region. Used for inference
+    '''
 
     __tablename__ = 'region_readings'
     id = Column(Integer, primary_key=True)
@@ -145,6 +185,10 @@ class RegionReadings(BasePostgres):
 
 
 class CalibrationFactors(BasePostgres):
+    '''
+    Signal treatment factor for each station, calculated by comparing each pollution station 3 month average 
+    readings with average readings from a nearby pattern station. Factors should be calculated monthly.
+    '''
     __tablename__ = 'calibration_factors'
     id = Column(Integer, primary_key=True)
     region = Column(String, ForeignKey('regions.region_code'), name = 'region')
