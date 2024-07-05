@@ -65,7 +65,7 @@ def get_last_weather_station_timestamp(session):
 
 def determine_meteostat_query_time_range(session):
     if session.query(WeatherReadings).count() == 0:
-        start_utc = datetime(2019, 1, 1, 0, 0, 0, 0)
+        start_utc = datetime(2019, 1, 1, 0, 0, 0, 0)   
     else:
         last_meteostat_timestamp = get_last_weather_station_timestamp(session)
         start_utc = convert_to_utc(last_meteostat_timestamp + timedelta(hours=1))
@@ -130,15 +130,13 @@ def define_airnow_api_url(session, pattern_station_id):
     
     station_readings_count = get_station_readings_count(session, pattern_station_id)
 
-    if station_readings_count == 0:
+    if station_readings_count < 0:
         last_airnow_timestamp_utc = datetime(2023, 1, 1, 0, 0, 0, 0)
     else:
         last_airnow_timestamp_localtime = get_last_station_readings_timestamp(session) + timedelta(hours=1)
         last_airnow_timestamp_utc = convert_to_utc(last_airnow_timestamp_localtime)
 
     region_code = get_region_code(session, station_id = pattern_station_id)
-
-    region_bbox = get_region_bbox(session, region_code)
     
     options = {}
     options["url"] = "https://airnowapi.org/aq/data/"
@@ -147,7 +145,7 @@ def define_airnow_api_url(session, pattern_station_id):
     options["end_date"] = datetime.now(timezone('UTC')).strftime('%Y-%m-%d')
     options["end_hour_utc"] = datetime.now(timezone('UTC')).strftime('%H')
     options["parameters"] = "pm25"
-    options["bbox"] = region_bbox
+    options["bbox"] = get_region_bbox(session, region_code)
     options["data_type"] = "c" # options: a (AQI), b (concentrations & AQI), c (concentrations)
     options["format"] = "application/json" # options: 'text/csv', 'application/json', 'application/vnd.google-earth.kml', 'application/xml'
     options["api_key"] = os.getenv('AIRNOW_API_KEY')
