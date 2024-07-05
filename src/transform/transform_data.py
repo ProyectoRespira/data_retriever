@@ -29,7 +29,7 @@ def transform_airnow_data(airnow_data):
             return transformed_airnow_data, True
         else:
             logging.warning("No data provided for transformation.")
-            return None, False
+            return None, True
     except KeyError as e:
         logging.error(f"KeyError: {e}. Check the structure of the input data.")
         return None, False

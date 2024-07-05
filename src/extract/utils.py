@@ -3,7 +3,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from src.models import StationsReadingsRaw, WeatherStations, WeatherReadings, Regions, StationReadings, Stations
 from src.time_utils import convert_to_utc
 from datetime import datetime, timedelta
-from pytz import timezone
+from pytz import timezone, utc
 from meteostat import Point, Hourly
 from sqlalchemy import func
 import os
@@ -146,19 +146,24 @@ def define_airnow_api_url(session, pattern_station_id):
     station_readings_count = get_station_readings_count(session, pattern_station_id)
 
     if station_readings_count < 0:
-        last_airnow_timestamp_utc = datetime(2023, 1, 1, 0, 0, 0, 0)
+        start_timestamp_utc = datetime(2023, 1, 1, 0, 0, 0, 0)
     else:
         last_airnow_timestamp_localtime = get_last_station_readings_timestamp(session) + timedelta(hours=1)
-        last_airnow_timestamp_utc = convert_to_utc(last_airnow_timestamp_localtime)
+        start_timestamp_utc = convert_to_utc(last_airnow_timestamp_localtime).replace(tzinfo=utc)
+
+    end_timestamp_utc = datetime.now(timezone('UTC'))
+
+    if start_timestamp_utc.replace(tzinfo=utc).strftime('%Y-%m-%d %H') > end_timestamp_utc.strftime('%Y-%m-%d %H'):
+        return None
 
     region_code = get_region_code(session, station_id = pattern_station_id)
     
     options = {}
     options["url"] = "https://airnowapi.org/aq/data/"
-    options["start_date"] = last_airnow_timestamp_utc.strftime('%Y-%m-%d')
-    options["start_hour_utc"] = last_airnow_timestamp_utc.strftime('%H')
-    options["end_date"] = datetime.now(timezone('UTC')).strftime('%Y-%m-%d')
-    options["end_hour_utc"] = datetime.now(timezone('UTC')).strftime('%H')
+    options["start_date"] = start_timestamp_utc.strftime('%Y-%m-%d')
+    options["start_hour_utc"] = start_timestamp_utc.strftime('%H')
+    options["end_date"] = end_timestamp_utc.strftime('%Y-%m-%d')
+    options["end_hour_utc"] = end_timestamp_utc.strftime('%H')
     options["parameters"] = "pm25"
     options["bbox"] = get_region_bbox(session, region_code)
     options["data_type"] = "c" # options: a (AQI), b (concentrations & AQI), c (concentrations)

@@ -59,6 +59,7 @@ def extract_meteostat_data():
                     results[station_id] = meteostat_df
                 else:
                     logging.info(f'No new meteostat data to retrieve for station {station_id}')
+                    return None, True
             return results, True
     except Exception as e:
         logging.error(f"An error occurred: {e}")
@@ -69,7 +70,6 @@ def extract_meteostat_data():
 
 def extract_airnow_data():
     logging.info('Starting extract_airnow_data...')
-    session = None
     try:
         postgres_engine = create_postgres()
         with create_postgres_session(postgres_engine) as session:
@@ -77,6 +77,11 @@ def extract_airnow_data():
             responses = {}
             for station_id in airnow_stations_id:
                 api_url = define_airnow_api_url(session, station_id)
+                # check if there's a valid api url
+                if api_url is None:
+                    logging.info(f'No new data from Airnow for Station {station_id}')
+                    return None, True
+                
                 response = requests.get(api_url)
                 if response.status_code == 200:
                     logging.info(f'Data retrieved from AirNow for station with ID = {station_id} Successfully')
