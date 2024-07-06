@@ -16,12 +16,6 @@ class Regions(BasePostgres):
     has_weather_data = Column(Boolean)
     has_pattern_station = Column(Boolean)
 
-    def get_region_bbox(self, session, region_code):
-        bbox = session.query(self.bbox).filter(
-            self.region_code == region_code
-        ).scalar()
-        return bbox
-
 
 class Stations(BasePostgres): # Same as Django
     __tablename__ = 'stations'
@@ -35,18 +29,6 @@ class Stations(BasePostgres): # Same as Django
     is_station_on = Column(Boolean)
     is_pattern_station = Column(Boolean)
 
-    @property
-    def get_pattern_station_ids(self):
-        pass
-    
-    @property
-    def get_fiuna_station_ids(self):
-        pass
-
-    @property
-    def get_region_code(self):
-        pass
-    
     # agregar is_station_on (variable de status)
     
     # About region: in Django it looks like this 
@@ -157,9 +139,6 @@ class StationReadings(BasePostgres): # Same as Django
     humidity = Column(Float)
     pressure = Column(Float)
 
-    @property
-    def get_station_readings_count(self):
-        pass
 
 class RegionReadings(BasePostgres):
     '''
