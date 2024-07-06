@@ -54,7 +54,7 @@ def extract_meteostat_data():
             station_ids = get_weather_stations_ids(session)
             results = {}
             for station_id in station_ids:
-                start_utc, end_utc = determine_meteostat_query_time_range(session)
+                start_utc, end_utc = determine_meteostat_query_time_range(session, station_id)
                 if start_utc < end_utc:
                     meteostat_df = fetch_meteostat_data(session, start_utc, end_utc, station_id)
                     logging.info(f'Meteostat data for station {station_id} retrieved successfully')

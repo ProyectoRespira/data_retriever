@@ -96,7 +96,6 @@ def prepare_meteostat_data_for_insertion(meteostat_data_dict):
         transformed_data = pd.concat(transformed_data)
     else:
         transformed_data = transformed_data_list[0]
-        print(transformed_data.head())
     return transformed_data
 
 # airnow data

@@ -6,7 +6,7 @@ from src.querys import (get_weather_station_coordinates,
                         get_station_readings_count,
                         get_last_station_readings_timestamp,
                         get_region_bbox,
-                        get_region_code)
+                        get_station_region_code)
 from src.time_utils import convert_to_utc
 from datetime import datetime, timedelta
 from pytz import timezone, utc
@@ -51,11 +51,11 @@ def fetch_meteostat_data(session, start, end, station_id):
     return data
 
 
-def determine_meteostat_query_time_range(session):
+def determine_meteostat_query_time_range(session, station_id):
     if session.query(WeatherReadings).count() == 0:
         start_utc = datetime(2019, 1, 1, 0, 0, 0, 0)   
     else:
-        last_meteostat_timestamp = get_last_weather_station_timestamp(session)
+        last_meteostat_timestamp = get_last_weather_station_timestamp(session, station_id)
         start_utc = convert_to_utc(last_meteostat_timestamp + timedelta(hours=1))
     
     end_utc = datetime.now(timezone('UTC')).replace(tzinfo=None, minute=0, second=0, microsecond=0)
@@ -84,7 +84,7 @@ def define_airnow_api_url(session, pattern_station_id):
     if start_timestamp_utc.replace(tzinfo=utc).strftime('%Y-%m-%d %H') > end_timestamp_utc.strftime('%Y-%m-%d %H'):
         return None
 
-    region_code = get_region_code(session, station_id = pattern_station_id)
+    region_code = get_station_region_code(session, station_id = pattern_station_id)
     
     options = {}
     options["url"] = "https://airnowapi.org/aq/data/"
