@@ -1,7 +1,7 @@
 
 from sqlalchemy import distinct
 from src.extract.utils import (
-    select_new_records_from_fiuna_origin_table,
+    select_new_records_from_fiuna,
     determine_meteostat_query_time_range, 
     fetch_meteostat_data, 
     define_airnow_api_url, 
@@ -33,7 +33,7 @@ def extract_fiuna_data(): # modify this method to only extract data
             for station_id in station_ids:
                 table_name = f'Estacion{station_id[0]}'
                 last_measurement_id = get_last_raw_measurement_id(postgres_session, station_id[0])
-                fiuna_data[station_id[0]] = select_new_records_from_fiuna_origin_table(mysql_engine, table_name, last_measurement_id)
+                fiuna_data[station_id[0]] = select_new_records_from_fiuna(mysql_engine, table_name, last_measurement_id)
             logging.info("Data retrieved successfully")
         return fiuna_data, True
     except Exception as e:

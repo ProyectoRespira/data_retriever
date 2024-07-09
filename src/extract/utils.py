@@ -17,7 +17,7 @@ import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def select_new_records_from_fiuna_origin_table(mysql_engine, table_name, last_measurement_id):
+def select_new_records_from_fiuna(mysql_engine, table_name, last_measurement_id):
     logging.info(f'Starting select_new_records_from_origin_table where table_name = {table_name} and last_measurement_id = {last_measurement_id}')
 
     try:
@@ -114,4 +114,5 @@ def define_airnow_api_url(session, pattern_station_id):
                   + "&api_key=" + options["api_key"]
     
     return request_url
+
 
