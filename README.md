@@ -72,6 +72,13 @@ Provide instructions on how to install and set up the project, including any dep
 ## Usage
 
 Explain how to use the project, including any command-line interfaces or APIs available.
+in main folder:
+```
+python -m venv venv
+venv/Scripts/Activate
+pip install -r requirements.txt
+python main.py
+```
 
 ### Example .env file
 Rename `.env.example` to `.env` and complete with credentials
