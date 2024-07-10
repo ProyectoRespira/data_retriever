@@ -26,6 +26,12 @@ data_retriever/
 │   ├── stations_data.json  # JSON file containing station data
 │   ├── region_data.json    # JSON file containing region data
 │   ├── time_utils.py       # time conversion functions
+│   ├── features/                # code to build features for inference
+│   │   ├── utils.py            
+│   │   └── extract_data.py     # Functions to build features
+│   ├── calibration/              # code to calculate calibration factors
+│   │   ├── utils.py            
+│   │   └── transform_data.py   # Functions to load calibration factors to db
 │   ├── extract/                # code to extract data from various sources
 │   │   ├── utils.py            
 │   │   └── extract_data.py     # Functions to extract data
@@ -50,7 +56,7 @@ data_retriever/
 ```
 
 ## Current DB Structure
-![db diagram - first try](https://github.com/vnbl/data_retriever/assets/21232496/ba9ce547-a375-4ec8-bb19-d64ae212a891)
+![data_retriever_v3](https://github.com/vnbl/data_retriever/assets/21232496/12fa07db-cf99-4fd2-a578-672e52498e09)
 
 # Current Flow Diagram
 Available for editing [here](https://lucid.app/lucidchart/9458c9c0-a69d-435e-8e2a-c308dd53ffb3/edit?viewport_loc=-1888%2C-751%2C3755%2C1602%2C0_0&invitationId=inv_9832203a-f57d-4c0e-8088-e32f409d3b45) 
