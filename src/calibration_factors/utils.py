@@ -5,112 +5,78 @@ import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-import logging
-from datetime import timedelta
-from sqlalchemy import func, and_, cast, Float, Time
-
-# Function to get the earliest and latest dates
-def get_date_range(postgres_session):
-    earliest_date = postgres_session.query(func.min(StationReadings.date)).scalar()
-    latest_date = postgres_session.query(func.max(StationReadings.date)).scalar()
-    return earliest_date, latest_date
-
-# Function to get all stations
-def get_stations(postgres_session):
-    return postgres_session.query(Stations).all()
-
-# Function to calculate the average PM2.5 value for a given date range
-def calculate_pattern_avg(postgres_session, start_date, end_date):
-    return postgres_session.query(func.avg(StationReadings.pm2_5)).filter(
-        StationReadings.date >= start_date,
-        StationReadings.date <= end_date,
-        StationReadings.pm2_5.isnot(None)
+def get_pattern_station_id_region(session, station_id):
+    '''
+    returns pattern_station_id and region for a specific station_id
+    '''
+    region = session.query(Stations.region).filter(
+        Stations.id == station_id
     ).scalar()
 
-# Function to check if a calibration factor already exists
-def check_existing_factor(postgres_session, station_id, start_date, end_date):
-    return postgres_session.query(CalibrationFactors).filter(
-        CalibrationFactors.station_id == station_id,
-        CalibrationFactors.start_date == start_date,
-        CalibrationFactors.end_date == end_date
-    ).first()
+    pattern_station_id = session.query(Stations.id).filter(
+        Stations.is_pattern_station == True,
+        Stations.region == region
+    )
+    return pattern_station_id, region
 
-# Function to calculate the station average PM2.5 value for a given date range
-def calculate_station_avg(postgres_session, station_id, start_date, end_date):
-    return postgres_session.query(func.avg(cast(StationsReadingsRaw.mp2_5, Float))).filter(
-        StationsReadingsRaw.station_id == station_id,
-        and_(
-            func.to_date(StationsReadingsRaw.fecha, 'DD-MM-YYYY') + func.cast(StationsReadingsRaw.hora, Time) >= start_date,
-            func.to_date(StationsReadingsRaw.fecha, 'DD-MM-YYYY') + func.cast(StationsReadingsRaw.hora, Time) <= end_date,
-            StationsReadingsRaw.mp2_5.isnot(None)
-        )
-    ).scalar()
+def humidity_correction(df):
+    df['C_RH'] = df['humidity'].apply(lambda x: 1 if x < 65 else (0.0121212*x) + 1 if x < 85 else (1 + ((0.2/1.65)/(-1 + 100/min(x, 90)))))
+    pass
 
-# Main function to calculate calibration factors
-def calculate_calibration_factor(postgres_session):
-    logging.info('Starting calculate_calibration_factor...')
-    factors = []
+def get_station_average_corrected_for_humidity(station_id, start, end):
+    pass
 
-    try:
-        # Get the date range and stations
-        earliest_airnow_date, latest_airnow_date = get_date_range(postgres_session)
-        stations = get_stations(postgres_session)
+def get_pattern_station_average(pattern_station_id, start, end):
+    pass
 
-        if not earliest_airnow_date:
-            logging.info('No sufficient data in airnow_data table.')
-            return factors
+def get_calibration_date_setup(month_year, station_id):
+    pass
 
-        current_start_date = earliest_airnow_date
+def calcuate_calibration_factor(month_year, station_id):
 
-        # Loop through 90-day intervals until the latest date
-        while current_start_date + timedelta(days=90) <= latest_airnow_date:
-            current_end_date = current_start_date + timedelta(days=90) 
+    pattern_station_id, region = get_pattern_station_id_region(station_id)
 
-            # Calculate the pattern average for the current date range
-            pattern_avg = calculate_pattern_avg(postgres_session, current_start_date, current_end_date)
-
-            # Loop through each station to calculate calibration factors
-            for station in stations:
-                # Check if a calibration factor already exists for the current period and station
-                if check_existing_factor(postgres_session, station.id, current_start_date, current_end_date):
-                    continue
-
-                logging.info(f'Calculating factor for period: {current_start_date} / {current_end_date} for station {station.id}')
-
-                # Calculate the station average for the current date range
-                station_avg = calculate_station_avg(postgres_session, station.id, current_start_date, current_end_date)
-
-                # Calculate the calibration factor if both averages are not None
-                if pattern_avg is not None and station_avg is not None:
-                    station_calibration_factor = pattern_avg / station_avg
-                    factors.append({
-                        'station_id': station.id,
-                        'start_date': current_start_date,
-                        'end_date': current_end_date,
-                        'station_mean': station_avg,
-                        'pattern_mean': pattern_avg,
-                        'calibration_factor': station_calibration_factor
-                    })
-
-            # Move to the next 90-day period
-            current_start_date = current_end_date
-
-    except Exception as e:
-        # Log any errors that occur
-        logging.error(f'An error occurred: {e}', exc_info=True)
+    start_cal, end_cal, start_usage, end_usage = get_calibration_date_setup(month_year, station_id)
     
-    return factors
+    station_mean = get_station_average_corrected_for_humidity(station_id, start_cal, end_cal)
 
-def prepare_calibration_factors_for_insertion(postgres_session):
-    factors = calculate_calibration_factor(postgres_session)
-    calibration_factors = []
-    for data in factors:
-        calibration_factors.append(CalibrationFactors(
-            start_date=data['start_date'],
-            end_date=data['end_date'],
-            station_id=data['station_id'],
-            station_mean=data['station_mean'],
-            pattern_mean=data['pattern_mean'],
-            calibration_factor=data['calibration_factor']
-        ))
-    return calibration_factors
+    pattern_mean = get_pattern_station_average(pattern_station_id, start_cal, end_cal)
+
+    calibration_factor = pattern_mean/station_mean
+
+    calibration_info = {'region': region,
+                        'station_id': station_id,
+                        'date_start_cal': start_cal,
+                        'date_end_cal': end_cal,
+                        'station_mean': station_mean, 
+                        'pattern_mean': pattern_mean,
+                        'date_start': start_usage,
+                        'date_end': end_usage,
+                        'calibration_factor': calibration_factor}
+
+    return calibration_info
+
+def load_calibration_factor(session, calibration_info):
+    
+    calibration = CalibrationFactors(
+        region = calibration_info['region'],
+        station_id = calibration_info['station_id'],
+        date_start_cal = calibration_info['date_start_cal'],
+        date_end_cal = calibration_info['date_end_cal'],
+        station_mean = calibration_info['station_mean'],
+        pattern_mean = calibration_info['pattern_mean'],
+        date_start = calibration_info['date_start'],
+        date_end = calibration_info['date_end'],
+        calibration_factor = calibration_info['calibration_factor']
+    )
+
+    session.add(calibration)
+    session.commit()
+
+    logging.info(f'Calibration factor for station {calibration_info['station_id']} 
+                 for period {calibration_info['date_start']}/{calibration_info['date_end']} inserted correctly')
+    
+    return True
+
+
+    
