@@ -31,17 +31,21 @@ def load_weather_data(transformed_meteostat_data):
 
 def load_airnow_data(transformed_airnow_data):
     postgres_session = None
+    
     try:
         postgres_session = create_postgres_session(create_postgres())
+        
         if transformed_airnow_data is not None:
             status = insert_airnow_data(postgres_session, transformed_airnow_data)
             return status
         else:
             logging.info('No new airnow data to insert')
             return True
+    
     except Exception as e:
         logging.error(f'An error occurred: {e}')
         return False
+    
     finally:
         if postgres_session:
             postgres_session.close()

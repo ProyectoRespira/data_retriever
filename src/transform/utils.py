@@ -78,6 +78,7 @@ def prepare_meteostat_data_for_insertion(meteostat_data_dict):
         meteostat_data.index = meteostat_data.index.map(convert_to_local_time)
         meteo_features = ['temp', 'rhum', 'pres', 'wspd', 'wdir']
         meteostat_data = meteostat_data[meteo_features]
+        
         meteostat_data.rename(columns={
             'temp': 'temperature',
             'rhum': 'humidity',
@@ -85,13 +86,16 @@ def prepare_meteostat_data_for_insertion(meteostat_data_dict):
             'wspd': 'wind_speed',
             'wdir': 'wind_dir'
         }, inplace=True)
+        
         meteostat_data['weather_station'] = station_id
         meteostat_data['wind_dir_cos'] = np.cos(2 * np.pi * meteostat_data.wind_dir / 360)
         meteostat_data['wind_dir_sin'] = np.sin(2 * np.pi * meteostat_data.wind_dir / 360)
         meteostat_data.drop('wind_dir', axis=1, inplace=True)
         meteostat_data['date'] = meteostat_data.index
         meteostat_data.round(2)
+        
         transformed_data_list.append(meteostat_data)
+    
     if len(transformed_data_list) > 1:
         transformed_data = pd.concat(transformed_data)
     else:
@@ -103,17 +107,21 @@ def prepare_meteostat_data_for_insertion(meteostat_data_dict):
 def prepare_airnow_data_for_insertion(response_dict):
     try:
         transformed_data = []
+        
         for station_id, data in response_dict.items():
             for entry in data:
                 local_date = convert_to_local_time(datetime.strptime(entry['UTC'],"%Y-%m-%dT%H:%M"))
+        
                 transformed_data_entry = {
                         'station': station_id,
                         'date': local_date,
                         'pm2_5': entry['Value']
                     }
                 transformed_data.append(transformed_data_entry)
+    
     except KeyError as e:
         raise ValueError(f'KeyError in data transformation: {e}')
+    
     except ValueError as e:
         raise ValueError(f'ValueError in data transformation: {e}')
     
