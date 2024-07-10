@@ -1,33 +1,23 @@
-from sqlalchemy import MetaData, Table, desc, select
+from sqlalchemy import MetaData, Table, select
 from sqlalchemy.exc import SQLAlchemyError
-from src.models import StationsReadingsRaw, WeatherData, StationReadings, USAirQualityReadings
+from src.models import WeatherReadings
+from src.querys import (get_weather_station_coordinates, 
+                        get_last_weather_station_timestamp, 
+                        get_station_readings_count,
+                        get_last_station_readings_timestamp,
+                        get_region_bbox,
+                        get_station_region_code)
 from src.time_utils import convert_to_utc
 from datetime import datetime, timedelta
-from pytz import timezone
+from pytz import timezone, utc
 from meteostat import Point, Hourly
-from sqlalchemy import func
 import os
 from dotenv import load_dotenv
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# mirror.py
-
-def get_last_measurement_id(postgres_session, station_id):
-    logging.info('Starting get_last_measurement_id...')
-    last_measurement = (postgres_session.query(StationsReadingsRaw)
-                        .filter(StationsReadingsRaw.station_id == station_id)
-                        .order_by(desc(StationsReadingsRaw.measurement_id))
-                        .first())
-    if last_measurement:
-        logging.info(f'Last measurement ID for station {station_id}: {last_measurement.measurement_id}')
-        return last_measurement.measurement_id
-    else:
-        logging.info(f'No previous measurements for station {station_id}')
-        return 0
-
-def select_new_records_from_origin_table(mysql_engine, table_name, last_measurement_id):
+def select_new_records_from_fiuna(mysql_engine, table_name, last_measurement_id):
     logging.info(f'Starting select_new_records_from_origin_table where table_name = {table_name} and last_measurement_id = {last_measurement_id}')
 
     try:
@@ -53,21 +43,19 @@ def select_new_records_from_origin_table(mysql_engine, table_name, last_measurem
 
 # meteostat_data.py
 
-def fetch_meteostat_data(start, end):
+def fetch_meteostat_data(session, start, end, station_id):
     logging.info('fetching meteostat data...')
-    asuncion = Point(-25.2667, -57.6333, 101)
-    data = Hourly(asuncion, start, end).fetch()
+    latitude, longitude = get_weather_station_coordinates(session, station_id)
+    coordinates = Point(latitude, longitude, 101)
+    data = Hourly(coordinates, start, end).fetch()
     return data
 
 
-def get_last_meteostat_timestamp(session):
-    return session.query(func.max(WeatherData.date)).scalar()
-
-def determine_time_range(session):
-    if session.query(WeatherData).count() == 0:
-        start_utc = datetime(2019, 1, 1, 0, 0, 0, 0)
+def determine_meteostat_query_time_range(session, station_id):
+    if session.query(WeatherReadings).count() == 0:
+        start_utc = datetime(2019, 1, 1, 0, 0, 0, 0)   
     else:
-        last_meteostat_timestamp = get_last_meteostat_timestamp(session)
+        last_meteostat_timestamp = get_last_weather_station_timestamp(session, station_id)
         start_utc = convert_to_utc(last_meteostat_timestamp + timedelta(hours=1))
     
     end_utc = datetime.now(timezone('UTC')).replace(tzinfo=None, minute=0, second=0, microsecond=0)
@@ -76,34 +64,42 @@ def determine_time_range(session):
 
 
 # airnow data
-def get_last_airnow_timestamp(session):
-    return session.query(func.max(USAirQualityReadings.date)).scalar()
 
-def define_airnow_api_url(session):
+def define_airnow_api_url(session, pattern_station_id):
     try:
         load_dotenv()
     except:
         raise "Error loading .env file right now"
+    
+    station_readings_count = get_station_readings_count(session, pattern_station_id)
 
-    if session.query(USAirQualityReadings).count() == 0:
-        last_airnow_timestamp_utc = datetime(2023, 1, 1, 0, 0, 0, 0)
+    if station_readings_count < 0:
+        start_timestamp_utc = datetime(2023, 1, 1, 0, 0, 0, 0)
     else:
-        last_airnow_timestamp_localtime = get_last_airnow_timestamp(session) + timedelta(hours=1)
-        last_airnow_timestamp_utc = convert_to_utc(last_airnow_timestamp_localtime)
+        last_airnow_timestamp_localtime = get_last_station_readings_timestamp(session, pattern_station_id) + timedelta(hours=1)
+        start_timestamp_utc = convert_to_utc(last_airnow_timestamp_localtime).replace(tzinfo=utc)
+
+    end_timestamp_utc = datetime.now(timezone('UTC'))
+
+    if start_timestamp_utc.replace(tzinfo=utc).strftime('%Y-%m-%d %H') > end_timestamp_utc.strftime('%Y-%m-%d %H'):
+        return None
+
+    region_code = get_station_region_code(session, station_id = pattern_station_id)
     
     options = {}
     options["url"] = "https://airnowapi.org/aq/data/"
-    options["start_date"] = last_airnow_timestamp_utc.strftime('%Y-%m-%d')
-    options["start_hour_utc"] = last_airnow_timestamp_utc.strftime('%H')
-    options["end_date"] = datetime.now(timezone('UTC')).strftime('%Y-%m-%d')
-    options["end_hour_utc"] = datetime.now(timezone('UTC')).strftime('%H')
+    options["start_date"] = start_timestamp_utc.strftime('%Y-%m-%d')
+    options["start_hour_utc"] = start_timestamp_utc.strftime('%H')
+    options["end_date"] = end_timestamp_utc.strftime('%Y-%m-%d')
+    options["end_hour_utc"] = end_timestamp_utc.strftime('%H')
     options["parameters"] = "pm25"
-    options["bbox"] = "-57.725,-25.384,-57.500,-25.214"
+    options["bbox"] = get_region_bbox(session, region_code)
     options["data_type"] = "c" # options: a (AQI), b (concentrations & AQI), c (concentrations)
     options["format"] = "application/json" # options: 'text/csv', 'application/json', 'application/vnd.google-earth.kml', 'application/xml'
     options["api_key"] = os.getenv('AIRNOW_API_KEY')
     options["verbose"] = 1
     options["includerawconcentrations"] = 1
+
 
     # API request URL
     request_url = options["url"] \
@@ -118,4 +114,5 @@ def define_airnow_api_url(session):
                   + "&api_key=" + options["api_key"]
     
     return request_url
+
 

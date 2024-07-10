@@ -1,6 +1,16 @@
 
 from sqlalchemy import distinct
-from src.extract.utils import select_new_records_from_origin_table, get_last_measurement_id, determine_time_range, fetch_meteostat_data, define_airnow_api_url
+from src.extract.utils import (
+    select_new_records_from_fiuna,
+    determine_meteostat_query_time_range, 
+    fetch_meteostat_data, 
+    define_airnow_api_url, 
+)
+from src.querys import (
+    get_last_raw_measurement_id,
+    get_weather_stations_ids,
+    get_pattern_station_ids
+)
 from src.database import create_postgres_session, create_postgres, create_mysql
 from src.models import Stations
 import requests
@@ -16,11 +26,14 @@ def extract_fiuna_data(): # modify this method to only extract data
         mysql_engine = create_mysql()
         postgres_engine = create_postgres()
         with create_postgres_session(postgres_engine) as postgres_session:
-            station_ids = postgres_session.query(distinct(Stations.id)).all() 
+            station_ids = postgres_session.query(distinct(Stations.id)).filter(
+                Stations.is_pattern_station == False
+            ).all() 
+            
             for station_id in station_ids:
                 table_name = f'Estacion{station_id[0]}'
-                last_measurement_id = get_last_measurement_id(postgres_session, station_id[0])
-                fiuna_data[station_id[0]] = select_new_records_from_origin_table(mysql_engine, table_name, last_measurement_id)
+                last_measurement_id = get_last_raw_measurement_id(postgres_session, station_id[0])
+                fiuna_data[station_id[0]] = select_new_records_from_fiuna(mysql_engine, table_name, last_measurement_id)
             logging.info("Data retrieved successfully")
         return fiuna_data, True
     except Exception as e:
@@ -35,20 +48,21 @@ def extract_fiuna_data(): # modify this method to only extract data
 def extract_meteostat_data():
     logging.info('Starting extract_meteostat_data...')
     session = None
-
     try:
         postgres_engine = create_postgres()
         with create_postgres_session(postgres_engine) as session:
-            start_utc, end_utc = determine_time_range(session)
-
-            if start_utc < end_utc:
-                meteostat_df = fetch_meteostat_data(start=start_utc, end=end_utc)
-
-                logging.info('Meteostat data retrieved successfully')
-                return meteostat_df, True
-            else:
-                logging.info('No new meteostat data to retrieve')
-                return None, True
+            station_ids = get_weather_stations_ids(session)
+            results = {}
+            for station_id in station_ids:
+                start_utc, end_utc = determine_meteostat_query_time_range(session, station_id)
+                if start_utc < end_utc:
+                    meteostat_df = fetch_meteostat_data(session, start_utc, end_utc, station_id)
+                    logging.info(f'Meteostat data for station {station_id} retrieved successfully')
+                    results[station_id] = meteostat_df
+                else:
+                    logging.info(f'No new meteostat data to retrieve for station {station_id}')
+                    return None, True
+            return results, True
     except Exception as e:
         logging.error(f"An error occurred: {e}")
         return None, False
@@ -58,17 +72,25 @@ def extract_meteostat_data():
 
 def extract_airnow_data():
     logging.info('Starting extract_airnow_data...')
-    session = None
     try:
         postgres_engine = create_postgres()
         with create_postgres_session(postgres_engine) as session:
-            api_url = define_airnow_api_url(session)
-            response = requests.get(api_url)
-            if response.status_code == 200:
-                logging.info('Data retrieved from AirNow Successfully')
-                return response.json(), True # tuple with response and status
-            else:
-                raise Exception(f'Failed to fetch data: {response.status_code}')
+            airnow_stations_id = get_pattern_station_ids(session)
+            responses = {}
+            for station_id in airnow_stations_id:
+                api_url = define_airnow_api_url(session, station_id)
+                # check if there's a valid api url
+                if api_url is None:
+                    logging.info(f'No new data from Airnow for Station {station_id}')
+                    return None, True
+                
+                response = requests.get(api_url)
+                if response.status_code == 200:
+                    logging.info(f'Data retrieved from AirNow for station with ID = {station_id} Successfully')
+                    responses[station_id] = response.json()
+                else:
+                    raise Exception(f'Failed to fetch data: {response.status_code}')
+            return responses, True # tuple with responses and status
     except Exception as e:
         logging.error(f'An error occurred: {e}')
         return None, False
