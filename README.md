@@ -1,5 +1,7 @@
 # data_retriever
- Creates a mirror from mysql remote database to local postgres database
+ * ETL for FIUNA, Meteostat and Airnow
+ * Feature engineering for inference
+ * Inference
  
  ## Table of Contents
 
