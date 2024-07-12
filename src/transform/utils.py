@@ -1,6 +1,6 @@
 
 from src.models import StationsReadingsRaw
-from src.time_utils import convert_to_local_time
+from src.time_utils import convert_to_local_time, validate_date_hour
 import pandas as pd
 import numpy as np
 from datetime import datetime
@@ -47,6 +47,7 @@ def prepare_fiuna_records_for_insertion(fiuna_data):
         df = pd.DataFrame(records)
         df['station_id'] = station_id
         df.rename(columns={'id': 'measurement_id'}, inplace=True)
+        df = df[df.apply(lambda row: validate_date_hour(row['fecha'], row['hora']), axis = 1)]
         all_records.append(df)
 
     # Concatenate all DataFrames into a single DataFrame
