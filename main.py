@@ -60,7 +60,8 @@ def main():
     calibration_status = calculate_insert_calibration_factor(period, station_id)
     if calibration_status is False:
         return 'Calibration calculation failed'
-    # return 'Process finished correctly'
+    
+    return 'Process finished correctly'
 
 
     
