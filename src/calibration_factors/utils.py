@@ -3,6 +3,7 @@ from datetime import timedelta, datetime
 from dateutil.relativedelta import relativedelta
 from sqlalchemy import func, cast, Float, and_, Time
 import pandas as pd
+import numpy as np
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -18,7 +19,7 @@ def get_pattern_station_id_region(session, station_id):
     pattern_station_id = session.query(Stations.id).filter(
         Stations.is_pattern_station == True,
         Stations.region == region
-    )
+    ).scalar()
     return pattern_station_id, region
 
 def humidity_correction(df):
@@ -26,18 +27,25 @@ def humidity_correction(df):
     pass
 
 def get_station_average_corrected_for_humidity(session, station_id, start, end):
-    pm_readings = session.query(StationsReadingsRaw.mp2_5).filter(
+    pm_readings = session.query(
+        StationsReadingsRaw.fecha,
+        StationsReadingsRaw.hora,
+        StationsReadingsRaw.mp2_5
+        ).filter(
         StationsReadingsRaw.station_id == station_id,
         and_(
             func.to_date(StationsReadingsRaw.fecha, 'DD-MM-YYYY') + func.cast(StationsReadingsRaw.hora, Time) >= start,
                 func.to_date(StationsReadingsRaw.fecha, 'DD-MM-YYYY') + func.cast(StationsReadingsRaw.hora, Time) <= end,
                 StationsReadingsRaw.mp2_5.isnot(None)
         )
-    ).scalar()
+    ).all()
 
     _, region = get_pattern_station_id_region(session, station_id)
 
-    humidity_readings = session.query(WeatherReadings.humidity).join(
+    humidity_readings = session.query(
+        WeatherReadings.date,
+        WeatherReadings.humidity
+        ).join(
         WeatherStations, WeatherReadings.weather_station == WeatherStations.id
     ).join(
         Regions, WeatherStations.region == Regions.region_code
@@ -55,30 +63,36 @@ def get_station_average_corrected_for_humidity(session, station_id, start, end):
     pm_df['datetime'] = pd.to_datetime(pm_df['fecha'] + ' ' + pm_df['hora'].astype(str), format = '%d-%m-%Y %H:%M')
     pm_df = pm_df.set_index('datetime').drop(columns=['fecha', 'hora'])
 
+    pm_df['mp2_5'] = pd.to_numeric(pm_df['mp2_5'], errors = 'coerce')
+
     humidity_df = pd.DataFrame(humidity_readings, columns=['date', 'humidity'])
     humidity_df['C_RH'] = humidity_df['humidity'].apply(lambda x: 1 if x < 65 else (0.0121212*x) + 1 if x < 85 else (1 + ((0.2/1.65)/(-1 + 100/min(x, 90)))))
     humidity_df = humidity_df.set_index('date').drop(columns=['humidity'])
 
-    merged_df = pm_df.join(humidity_df.resample('5T').ffill(), how='left')
+    merged_df = pm_df.join(humidity_df.resample('5min').ffill(), how='left')
 
     merged_df['pm2_5_corrected'] = merged_df['mp2_5']/merged_df['C_RH']
 
-    corrected_average_pm2_5 = merged_df['pm2_5_corrected'].mean()
+    corrected_average_pm2_5 = float(merged_df['pm2_5_corrected'].mean())
 
     return corrected_average_pm2_5
     
 
-
 def get_pattern_station_average(session, pattern_station_id, start, end):
+    logging.info(f'Querying pattern station readings for ID: {pattern_station_id}, Start: {start}, End: {end}')
+    
     pattern_readings = session.query(StationReadings.pm2_5).filter(
-        StationReadings.id == pattern_station_id,
+        StationReadings.station == pattern_station_id,
         StationReadings.date >= start,
         StationReadings.date <= end
     ).all()
 
+    logging.info(f'Number of readings found: {len(pattern_readings)}')
     if pattern_readings:
-        pattern_average = sum([reading.pm2_5 for reading in pattern_readings]) / len(pattern_readings)
+        pattern_average = float(sum([reading.pm2_5 for reading in pattern_readings]) / len(pattern_readings))
+        logging.info(f'Calculated pattern average: {pattern_average}')
     else:
+        logging.warning(f'No readings found for pattern station ID: {pattern_station_id} in the given date range.')
         pattern_average = None
 
     return pattern_average
@@ -94,16 +108,26 @@ def get_calibration_date_setup(month_year):
     return start_cal, end_cal, start_usage, end_usage
 
 def calcuate_calibration_factor(session, month_year, station_id):
-
+    logging.info(f'Getting region and pattern station id for station {station_id}')
     pattern_station_id, region = get_pattern_station_id_region(session, station_id)
-
-    start_cal, end_cal, start_usage, end_usage = get_calibration_date_setup(month_year)
+    logging.info(f'pattern_station_id = {pattern_station_id}')
+    logging.info(f'region = {region}')
     
+    logging.info(f'Getting dates...')
+    start_cal, end_cal, start_usage, end_usage = get_calibration_date_setup(month_year)
+    logging.info(f'calibration date: {month_year}')
+    logging.info(f'start_cal: {start_cal}')
+    logging.info(f'end_cal: {end_cal}')
+    logging.info(f'start_usage: {start_usage}')
+    logging.info(f'end_usage: {end_usage}')
     station_mean = get_station_average_corrected_for_humidity(session, station_id, start_cal, end_cal)
+    logging.info(f'Station average = {station_mean}')
 
     pattern_mean = get_pattern_station_average(session, pattern_station_id, start_cal, end_cal)
-
+    logging.info(f'Pattern Station average = {pattern_mean}')
+    
     calibration_factor = pattern_mean/station_mean
+    logging.info(f'Calibration factor = {calibration_factor}')
 
     calibration_info = {'region': region,
                         'station_id': station_id,
