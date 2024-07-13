@@ -167,24 +167,24 @@ def compute_pattern_station_average_pm25(session, pattern_station_id, start, end
         pattern_average = None
     return pattern_average
 
-def setup_calibration_date_ranges(month_year):
+def setup_calibration_date_ranges(period):
     '''
     Sets up calibration and usage date ranges based on a given calibration date.
     '''
-    start_cal = month_year - relativedelta(months = 3)
-    end_cal = month_year
-    start_usage = month_year + timedelta(hours=1)
+    start_cal = period - relativedelta(months = 3)
+    end_cal = period
+    start_usage = period + timedelta(hours=1)
     end_usage = start_usage + relativedelta(months = 1)
 
     return start_cal, end_cal, start_usage, end_usage
 
-def verify_data_availability_for_calibration(session, month_year, station_id):
+def verify_data_availability_for_calibration(session, period, station_id):
     '''
     Verify that there's sufficient data available for calibration by checking there's data
     from both stations in start_cal date.
     '''
     pattern_station_id, _ = fetch_pattern_station_id_region(session, station_id)
-    start_cal, end_cal, _, _ = setup_calibration_date_ranges(month_year)
+    start_cal, end_cal, _, _ = setup_calibration_date_ranges(period)
 
     pattern_data = query_pattern_station_readings(session, pattern_station_id, start_cal, end_cal)
     station_data = query_raw_pm_readings(session, station_id, start_cal, end_cal)
@@ -212,14 +212,27 @@ def verify_data_availability_for_calibration(session, month_year, station_id):
         logging.warning('Lowest pattern date is not present in station data')
         return False
     
+def verify_existing_calibration_factor(session, period, station_id):
+    date_start = period + timedelta(hours=1)
+    factor = session.query(
+        CalibrationFactors.id
+        ).filter(
+            CalibrationFactors.date_start == date_start,
+            CalibrationFactors.station_id == station_id
+        ).all()
+    
+    if factor:
+        return True
+    else:
+        return False
 
-def compute_calibration_factor(session, month_year, station_id):
+def compute_calibration_factor(session, period, station_id):
     """
     Calculates the calibration factor for a given station and period.
 
     Args:
     - session (SQLAlchemy session): The session to use for database queries.
-    - month_year (str): The month and year for which calibration is to be calculated.
+    - period (str): The month and year for which calibration is to be calculated.
     - station_id (int): The ID of the station for which calibration is to be calculated.
 
     Returns:
@@ -231,7 +244,7 @@ def compute_calibration_factor(session, month_year, station_id):
     2. Checks if pattern station ID is valid; logs errors if not and returns None.
     3. Checks if sufficient data exists for calibration; logs information if not and returns None.
     4. Retrieves: 
-        - calibration dates, 
+        - calibration date parameters,
         - station PM2.5 mean corrected for humidity, and 
         - pattern station PM2.5 mean.
     5. Calculates calibration factor as pattern mean divided by station mean.
@@ -240,19 +253,24 @@ def compute_calibration_factor(session, month_year, station_id):
     logging.info(f'Getting region and pattern station id for station {station_id}')
     
     # Verification
+    factor_exists = verify_existing_calibration_factor(session, period, station_id)
+    
+    if factor_exists:
+        logging.warning(f'Factor for station {station_id} and period {period} already exists')
+        return None
 
     pattern_station_id, region = fetch_pattern_station_id_region(session, station_id)
     if pattern_station_id is None:
         logging.exception(f'No pattern station for station {station_id}')
         return None
 
-    data_exists = verify_data_availability_for_calibration(session, month_year, station_id)
+    data_exists = verify_data_availability_for_calibration(session, period, station_id)
     if data_exists is False:
-        logging.info(f'Not enough data for calibration for station {station_id} for period {month_year} ')
+        logging.info(f'Not enough data for calibration for station {station_id} for period {period} ')
         return None
 
     # Calibration
-    start_cal, end_cal, start_usage, end_usage = setup_calibration_date_ranges(month_year)
+    start_cal, end_cal, start_usage, end_usage = setup_calibration_date_ranges(period)
     
     station_mean = get_station_avg_corrected_for_humidity(session, station_id, start_cal, end_cal)
     pattern_mean = compute_pattern_station_average_pm25(session, pattern_station_id, start_cal, end_cal)
