@@ -69,7 +69,10 @@ def query_pattern_station_readings(session, pattern_station_id, start, end):
     '''
     logging.info(f'Querying pattern station readings for ID: {pattern_station_id}, Start: {start}, End: {end}')
     
-    pattern_readings = session.query(StationReadings.pm2_5).filter(
+    pattern_readings = session.query(
+        StationReadings.pm2_5,
+        StationReadings.date
+        ).filter(
         StationReadings.station == pattern_station_id,
         StationReadings.date >= start,
         StationReadings.date <= end
@@ -148,27 +151,42 @@ def setup_calibration_date_ranges(month_year):
     '''
     Sets up calibration and usage date ranges based on a given calibration date.
     '''
-    start_cal = month_year - relativedelta(months=3)
+    start_cal = month_year - relativedelta(months = 3)
     end_cal = month_year
     start_usage = month_year + timedelta(hours=1)
-    end_usage = start_usage + relativedelta(months=1)
+    end_usage = start_usage + relativedelta(months = 1)
 
     return start_cal, end_cal, start_usage, end_usage
 
 def verify_data_availability_for_calibration(session, month_year, station_id):
     '''
-    Verify that there's sufficient data available for calibration.
+    Verify that there's sufficient data available for calibration by checking there's data
+    from both stations in start_cal date.
     '''
     pattern_station_id, _ = fetch_pattern_station_id_region(session, station_id)
-    start_cal, end_cal, _ , _ = setup_calibration_date_ranges(month_year)
+    start_cal, end_cal, _, _ = setup_calibration_date_ranges(month_year)
 
     pattern_data = query_pattern_station_readings(session, pattern_station_id, start_cal, end_cal)
     station_data = query_raw_pm_readings(session, station_id, start_cal, end_cal)
 
-    if pattern_data and station_data:
+    if not pattern_data or not station_data:
+        logging.warning('Pattern data or station data is missing')
+        return False
+
+    pattern_dates = list(set([reading.date.date() for reading in pattern_data]))
+    pattern_dates.sort()
+    lowest_pattern_date = pd.Timestamp(pattern_dates[0])
+
+    station_dates = list(set([reading.fecha for reading in station_data]))
+    station_dates = pd.to_datetime(station_dates, format='%d-%m-%Y').sort_values()
+
+    if lowest_pattern_date in station_dates:
+        logging.info('Lowest pattern date is present in station data')
         return True
     else:
+        logging.warning('Lowest pattern date is not present in station data')
         return False
+    
 
 def compute_calibration_factor(session, month_year, station_id):
     """
