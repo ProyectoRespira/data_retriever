@@ -40,19 +40,19 @@ def main():
     
     # logging.info('Success: Data from Meteostat loaded correctly')
 
-    # # airnow data
-    # airnow_data, extract_status = extract_airnow_data()
-    # if extract_status is False:
-    #     return 'Error: Extracting data from AirNow failed.'
+    # airnow data
+    airnow_data, extract_status = extract_airnow_data()
+    if extract_status is False:
+        return 'Error: Extracting data from AirNow failed.'
     
-    # transformed_airnow_data, transform_status = transform_airnow_data(airnow_data)
+    transformed_airnow_data, transform_status = transform_airnow_data(airnow_data)
     
-    # if transform_status is False:
-    #     return 'Error: Transforming data from AirNow failed.'
+    if transform_status is False:
+        return 'Error: Transforming data from AirNow failed.'
     
-    # load_status = load_airnow_data(transformed_airnow_data)
-    # if load_status is False:
-    #     return 'Error: Loading data to USAirQualityReadings failed.'
+    load_status = load_airnow_data(transformed_airnow_data)
+    if load_status is False:
+        return 'Error: Loading data to USAirQualityReadings failed.'
     
     # calibration factors
     # period = datetime(2024, 1, 1, 0, 0, 0)

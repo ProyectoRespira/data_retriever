@@ -73,7 +73,7 @@ def define_airnow_api_url(session, pattern_station_id):
     
     station_readings_count = get_station_readings_count(session, pattern_station_id)
 
-    if station_readings_count < 0:
+    if station_readings_count < 1:
         start_timestamp_utc = datetime(2023, 1, 1, 0, 0, 0, 0)
     else:
         last_airnow_timestamp_localtime = get_last_station_readings_timestamp(session, pattern_station_id) + timedelta(hours=1)
