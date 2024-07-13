@@ -5,7 +5,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-def get_last_raw_measurement_id(postgres_session, station_id):
+def query_last_raw_measurement_id(postgres_session, station_id):
     """
     Get the last measurement ID for a specific station in StationReadingsRaw.
     
@@ -28,7 +28,7 @@ def get_last_raw_measurement_id(postgres_session, station_id):
         logging.info(f'No previous measurements for station {station_id}')
         return 0
 
-def get_weather_stations_ids(session):
+def fetch_weather_stations_ids(session):
     """
     Get the IDs of all weather stations.
 
@@ -42,7 +42,7 @@ def get_weather_stations_ids(session):
     station_ids = [r[0] for r in result]
     return station_ids
 
-def get_weather_station_coordinates(session, station_id): 
+def fetch_weather_station_coordinates(session, station_id): 
     """
     Get the latitude and longitude for a specific weather station.
 
@@ -61,7 +61,7 @@ def get_weather_station_coordinates(session, station_id):
     ).scalar()
     return latitude, longitude
 
-def get_last_weather_station_timestamp(session, station_id):
+def fetch_last_weather_station_timestamp(session, station_id):
     """
     Get the last timestamp for a specific weather station from WeatherReadings.
 
@@ -76,7 +76,7 @@ def get_last_weather_station_timestamp(session, station_id):
         WeatherReadings.weather_station == station_id
     ).scalar()
 
-def get_last_station_readings_timestamp(session, station_id):
+def fetch_last_station_readings_timestamp(session, station_id):
     """
     Get the last StationReadings timestamp for a specific station.
 
@@ -97,7 +97,7 @@ def get_last_station_readings_timestamp(session, station_id):
 
     return last_timestamp
 
-def get_pattern_station_ids(session):
+def fetch_pattern_station_ids(session):
     """
     Get the IDs of all pattern stations.
 
@@ -113,7 +113,7 @@ def get_pattern_station_ids(session):
 
     return [id_tuple[0] for id_tuple in pattern_station_ids]
 
-def get_station_ids(session):
+def fetch_station_ids(session):
     """
     Get the IDs of all stations that are not pattern stations.
 
@@ -129,7 +129,7 @@ def get_station_ids(session):
 
     return [id_tuple[0] for id_tuple in station_ids]
 
-def get_region_bbox(session, region_code):
+def fetch_region_bbox(session, region_code):
     """
     Get the bounding box (bbox) for a specific region.
 
@@ -146,7 +146,7 @@ def get_region_bbox(session, region_code):
 
     return bbox
 
-def get_station_readings_count(session, station_id):
+def fetch_station_readings_count(session, station_id):
     """
     Get the count of readings for a specific station.
 
@@ -165,7 +165,7 @@ def get_station_readings_count(session, station_id):
 
     return count
 
-def get_station_region_code(session, station_id):
+def fetch_station_region_code(session, station_id):
     """
     Get the region code for a specific station.
 

@@ -1,6 +1,6 @@
 from src.calibration_factors.utils import compute_calibration_factor, insert_calibration_factor_into_db, fetch_pattern_station_id_region, get_unique_calibration_dates
 from src.database import create_postgres, create_postgres_session
-from src.querys import get_station_ids
+from src.querys import fetch_station_ids
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -35,7 +35,7 @@ def backfill_calibration_factors():
         postgres_engine = create_postgres()
 
         with create_postgres_session(postgres_engine) as session:
-            stations = get_station_ids(session)
+            stations = fetch_station_ids(session)
             
             for station_id in stations:
                 pattern_station_id, _ = fetch_pattern_station_id_region(session, station_id)

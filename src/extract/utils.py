@@ -1,12 +1,12 @@
 from sqlalchemy import MetaData, Table, select
 from sqlalchemy.exc import SQLAlchemyError
 from src.models import WeatherReadings
-from src.querys import (get_weather_station_coordinates, 
-                        get_last_weather_station_timestamp, 
-                        get_station_readings_count,
-                        get_last_station_readings_timestamp,
-                        get_region_bbox,
-                        get_station_region_code)
+from src.querys import (fetch_weather_station_coordinates, 
+                        fetch_last_weather_station_timestamp, 
+                        fetch_station_readings_count,
+                        fetch_last_station_readings_timestamp,
+                        fetch_region_bbox,
+                        fetch_station_region_code)
 from src.time_utils import convert_to_utc
 from datetime import datetime, timedelta
 from pytz import timezone, utc
@@ -45,7 +45,7 @@ def select_new_records_from_fiuna(mysql_engine, table_name, last_measurement_id)
 
 def fetch_meteostat_data(session, start, end, station_id):
     logging.info('fetching meteostat data...')
-    latitude, longitude = get_weather_station_coordinates(session, station_id)
+    latitude, longitude = fetch_weather_station_coordinates(session, station_id)
     coordinates = Point(latitude, longitude, 101)
     data = Hourly(coordinates, start, end).fetch()
     return data
@@ -55,7 +55,7 @@ def determine_meteostat_query_time_range(session, station_id):
     if session.query(WeatherReadings).count() == 0:
         start_utc = datetime(2019, 1, 1, 0, 0, 0, 0)   
     else:
-        last_meteostat_timestamp = get_last_weather_station_timestamp(session, station_id)
+        last_meteostat_timestamp = fetch_last_weather_station_timestamp(session, station_id)
         start_utc = convert_to_utc(last_meteostat_timestamp + timedelta(hours=1))
     
     end_utc = datetime.now(timezone('UTC')).replace(tzinfo=None, minute=0, second=0, microsecond=0)
@@ -71,12 +71,12 @@ def define_airnow_api_url(session, pattern_station_id):
     except:
         raise "Error loading .env file right now"
     
-    station_readings_count = get_station_readings_count(session, pattern_station_id)
+    station_readings_count = fetch_station_readings_count(session, pattern_station_id)
 
     if station_readings_count < 1:
         start_timestamp_utc = datetime(2023, 1, 1, 0, 0, 0, 0)
     else:
-        last_airnow_timestamp_localtime = get_last_station_readings_timestamp(session, pattern_station_id) + timedelta(hours=1)
+        last_airnow_timestamp_localtime = fetch_last_station_readings_timestamp(session, pattern_station_id) + timedelta(hours=1)
         start_timestamp_utc = convert_to_utc(last_airnow_timestamp_localtime).replace(tzinfo=utc)
 
     end_timestamp_utc = datetime.now(timezone('UTC'))
@@ -84,7 +84,7 @@ def define_airnow_api_url(session, pattern_station_id):
     if start_timestamp_utc.replace(tzinfo=utc).strftime('%Y-%m-%d %H') > end_timestamp_utc.strftime('%Y-%m-%d %H'):
         return None
 
-    region_code = get_station_region_code(session, station_id = pattern_station_id)
+    region_code = fetch_station_region_code(session, station_id = pattern_station_id)
     
     options = {}
     options["url"] = "https://airnowapi.org/aq/data/"
@@ -93,7 +93,7 @@ def define_airnow_api_url(session, pattern_station_id):
     options["end_date"] = end_timestamp_utc.strftime('%Y-%m-%d')
     options["end_hour_utc"] = end_timestamp_utc.strftime('%H')
     options["parameters"] = "pm25"
-    options["bbox"] = get_region_bbox(session, region_code)
+    options["bbox"] = fetch_region_bbox(session, region_code)
     options["data_type"] = "c" # options: a (AQI), b (concentrations & AQI), c (concentrations)
     options["format"] = "application/json" # options: 'text/csv', 'application/json', 'application/vnd.google-earth.kml', 'application/xml'
     options["api_key"] = os.getenv('AIRNOW_API_KEY')
