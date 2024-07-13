@@ -1,6 +1,6 @@
 
 from src.models import StationsReadingsRaw
-from src.time_utils import convert_to_local_time
+from src.time_utils import convert_to_local_time, validate_date_hour
 import pandas as pd
 import numpy as np
 from datetime import datetime
@@ -47,6 +47,7 @@ def prepare_fiuna_records_for_insertion(fiuna_data):
         df = pd.DataFrame(records)
         df['station_id'] = station_id
         df.rename(columns={'id': 'measurement_id'}, inplace=True)
+        df = df[df.apply(lambda row: validate_date_hour(row['fecha'], row['hora']), axis = 1)]
         all_records.append(df)
 
     # Concatenate all DataFrames into a single DataFrame
@@ -111,13 +112,13 @@ def prepare_airnow_data_for_insertion(response_dict):
         for station_id, data in response_dict.items():
             for entry in data:
                 local_date = convert_to_local_time(datetime.strptime(entry['UTC'],"%Y-%m-%dT%H:%M"))
-        
-                transformed_data_entry = {
-                        'station': station_id,
-                        'date': local_date,
-                        'pm2_5': entry['Value']
-                    }
-                transformed_data.append(transformed_data_entry)
+                if entry['Value'] != -999:
+                    transformed_data_entry = {
+                            'station': station_id,
+                            'date': local_date,
+                            'pm2_5': entry['Value']
+                        }
+                    transformed_data.append(transformed_data_entry)
     
     except KeyError as e:
         raise ValueError(f'KeyError in data transformation: {e}')
