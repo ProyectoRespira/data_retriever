@@ -1,7 +1,7 @@
 from src.models import StationReadings, CalibrationFactors, StationsReadingsRaw, Stations, WeatherReadings, WeatherStations, Regions
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
-from sqlalchemy import func, and_, Time
+from sqlalchemy import func, and_, Time, distinct
 import pandas as pd
 import logging
 
@@ -80,6 +80,19 @@ def query_pattern_station_readings(session, pattern_station_id, start, end):
 
     return pattern_readings
 
+def get_unique_calibration_dates(session, pattern_station_id):
+    dates = session.query(
+        func.distinct(func.date_trunc('month', StationReadings.date))
+        ).filter(
+            StationReadings.station == pattern_station_id
+        ).order_by(
+            func.date_trunc('month', StationReadings.date)
+        ).all()
+    
+    unique_dates = [date[0] for date in dates]
+
+    return unique_dates
+
 # Data Processing Functions
 
 def create_raw_pm25_dataframe(pm_readings):
@@ -90,6 +103,10 @@ def create_raw_pm25_dataframe(pm_readings):
     pm_df['datetime'] = pd.to_datetime(pm_df['fecha'] + ' ' + pm_df['hora'].astype(str), format='%d-%m-%Y %H:%M')
     pm_df = pm_df.set_index('datetime').drop(columns=['fecha', 'hora'])
     pm_df['mp2_5'] = pd.to_numeric(pm_df['mp2_5'], errors='coerce')
+
+    if pm_df.index.duplicated().any():
+        pm_df = pm_df[~pm_df.index.duplicated(keep='first')]
+
     return pm_df
 
 def create_crh_dataframe(humidity_readings):
@@ -108,6 +125,9 @@ def create_crh_dataframe(humidity_readings):
     humidity_df = pd.DataFrame(humidity_readings, columns=['date', 'humidity'])
     humidity_df['C_RH'] = humidity_df['humidity'].apply(lambda x: 1 if x < 65 else (0.0121212 * x) + 1 if x < 85 else (1 + ((0.2 / 1.65) / (-1 + 100 / min(x, 90)))))
     humidity_df = humidity_df.set_index('date').drop(columns=['humidity'])
+
+    if humidity_df.index.duplicated().any():
+        humidity_df = humidity_df[~humidity_df.index.duplicated(keep='first')]
     return humidity_df
 
 def compute_corrected_pm_average(pm_df, humidity_df):
@@ -172,6 +192,11 @@ def verify_data_availability_for_calibration(session, month_year, station_id):
     if not pattern_data or not station_data:
         logging.warning('Pattern data or station data is missing')
         return False
+    
+    r = len(station_data) / len(pattern_data)
+    if r < 0.6:
+        logging.warning(f'Station {station_id} has less than 60% of valid data during calibration period.')
+        return False
 
     pattern_dates = list(set([reading.date.date() for reading in pattern_data]))
     pattern_dates.sort()
@@ -213,6 +238,8 @@ def compute_calibration_factor(session, month_year, station_id):
     6. Constructs and returns a dictionary with calibration information.
     """
     logging.info(f'Getting region and pattern station id for station {station_id}')
+    
+    # Verification
 
     pattern_station_id, region = fetch_pattern_station_id_region(session, station_id)
     if pattern_station_id is None:

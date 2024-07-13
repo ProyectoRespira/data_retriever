@@ -2,7 +2,7 @@ from src.initialize_db import create_postgres_tables
 from src.extract.extract_data import extract_fiuna_data, extract_meteostat_data, extract_airnow_data
 from src.transform.transform_data import transform_fiuna_data, transform_meteostat_data, transform_airnow_data
 from src.load.load_data import load_station_readings_raw, load_weather_data, load_airnow_data
-from src.calibration_factors.calibration_factors import calculate_insert_calibration_factor
+from src.calibration_factors.calibration_factors import insert_calibration_factor, backfill_calibration_factors
 from datetime import datetime
 import logging
 
@@ -55,12 +55,13 @@ def main():
     #     return 'Error: Loading data to USAirQualityReadings failed.'
     
     # calibration factors
-    period = datetime(2024, 1, 1, 0, 0, 0)
-    station_id = 3
-    calibration_status = calculate_insert_calibration_factor(period, station_id)
+    # period = datetime(2024, 1, 1, 0, 0, 0)
+    # station_id = 1
+    # calibration_status = insert_calibration_factor(period, station_id)
+    calibration_status = backfill_calibration_factors()
     if calibration_status is False:
         return 'Calibration calculation failed'
-    
+
     return 'Process finished correctly'
 
 
