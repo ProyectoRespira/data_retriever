@@ -134,7 +134,7 @@ def compute_corrected_pm_average(pm_df, humidity_df):
     '''
     Computes the corrected average PM2.5 readings.
     '''
-    merged_df = pm_df.join(humidity_df.resample('5min').ffill(), how='left')
+    merged_df = pm_df.resample('1h').mean().join(humidity_df, how='left')
     merged_df['pm2_5_corrected'] = merged_df['mp2_5'] / merged_df['C_RH']
     corrected_average_pm2_5 = float(merged_df['pm2_5_corrected'].mean())
     return corrected_average_pm2_5
