@@ -133,19 +133,3 @@ def transform_raw_readings_to_station_readings(session, station_id):
 
     humidity_df = get_humidity_dataframe_from_weather_readings(session, last_transformation_timestamp, station_id)
     df = apply_calibration_factor(session, df, station_id, pm_columns, humidity_df)
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
