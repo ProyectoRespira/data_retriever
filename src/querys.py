@@ -28,6 +28,9 @@ def query_last_raw_measurement_id(postgres_session, station_id):
         logging.info(f'No previous measurements for station {station_id}')
         return 0
 
+def query_last_stationreadings_timestamp(session, station_id):
+    return session.query(func.max(StationReadings.date)).filter_by(station=station_id).scalar()
+
 def fetch_weather_stations_ids(session):
     """
     Get the IDs of all weather stations.
@@ -96,6 +99,7 @@ def fetch_last_station_readings_timestamp(session, station_id):
         ).scalar()
 
     return last_timestamp
+
 
 def fetch_pattern_station_ids(session):
     """
