@@ -173,8 +173,8 @@ def setup_calibration_date_ranges(period):
     '''
     start_cal = period - relativedelta(months = 3)
     end_cal = period
-    start_usage = period + timedelta(hours=1)
-    end_usage = start_usage + relativedelta(months = 1)
+    start_usage = period + timedelta(hours = 1)
+    end_usage = start_usage - timedelta(hours = 1) + relativedelta(months = 1)
 
     return start_cal, end_cal, start_usage, end_usage
 
