@@ -108,6 +108,40 @@ def get_humidity_dataframe_from_weather_readings(session, last_transformation_ti
 
     return humidity_df
 
+def expand_calibration_factors_dataframe(df):
+    # Create an empty DataFrame to hold the expanded data
+    expanded_df = pd.DataFrame(columns=['date', 'calibration_factor'])
+
+    # Iterate over the rows of the original DataFrame
+    for index, row in df.iterrows():
+        date_range = pd.date_range(start=row['date_start'], end=row['date_end'], freq='H')
+        temp_df = pd.DataFrame({'date': date_range, 'calibration_factor': row['calibration_factor']})
+        expanded_df = pd.concat([expanded_df, temp_df])
+
+    # Reset the index of the expanded DataFrame
+    expanded_df.reset_index(drop=True, inplace=True)
+
+    return expanded_df
+
+def get_calibration_factors_dataframe(session, last_transformation_timestamp, station_id):
+    reading = session.query(
+        CalibrationFactors.date_start,
+        CalibrationFactors.date_end,
+        CalibrationFactors.calibration_factor
+    ).filter(
+        CalibrationFactors.station_id == station_id,
+        CalibrationFactors.date_start >= last_transformation_timestamp,
+        CalibrationFactors.date_end <= last_transformation_timestamp
+    )
+
+    calibration_df = pd.DataFrame([{'date_start': reading.date_start, 
+                                    'date_end' : reading.date_end,
+                                    'calibration_factor': reading.calibration_factor}])
+    
+    calibration_df = expand_calibration_factors_dataframe(calibration_df)
+    
+    return calibration_df
+
 def apply_calibration_factor(session, df, station_id, pm_columns, humidity_df):
     pass
 
@@ -137,4 +171,6 @@ def transform_raw_readings_to_station_readings(session, station_id):
     pm_columns = ['pm1', 'pm2_5', 'pm10'] # parameters to calibrate
 
     humidity_df = get_humidity_dataframe_from_weather_readings(session, last_transformation_timestamp, station_id)
+    calibration_df = get_calibration_factors_dataframe(session, last_transformation_timestamp, station_id)
+    
     df = apply_calibration_factor(session, df, station_id, pm_columns, humidity_df)
