@@ -109,18 +109,13 @@ def get_humidity_dataframe_from_weather_readings(session, last_transformation_ti
     return humidity_df
 
 def expand_calibration_factors_dataframe(df):
-    # Create an empty DataFrame to hold the expanded data
-    expanded_df = pd.DataFrame(columns=['date', 'calibration_factor'])
 
-    # Iterate over the rows of the original DataFrame
-    for index, row in df.iterrows():
-        date_range = pd.date_range(start=row['date_start'], end=row['date_end'], freq='H')
-        temp_df = pd.DataFrame({'date': date_range, 'calibration_factor': row['calibration_factor']})
-        expanded_df = pd.concat([expanded_df, temp_df])
+    df['date_range'] = df.apply(lambda row: pd.date_range(start=row['date_start'], end=row['date_end'], freq='H'), axis=1)
+    expanded_df = df.explode('date_range').reset_index(drop=True)
 
-    # Reset the index of the expanded DataFrame
-    expanded_df.reset_index(drop=True, inplace=True)
-
+    expanded_df = expanded_df.rename(columns={'date_range': 'date'})[['date', 'calibration_factor']]
+    expanded_df.set_index('date', inplace = True)
+    
     return expanded_df
 
 def get_calibration_factors_dataframe(session, last_transformation_timestamp, station_id):
