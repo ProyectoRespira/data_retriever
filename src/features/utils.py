@@ -79,6 +79,10 @@ def change_raw_readings_frequency(df):
         'pressure': 'mean'
     }).reset_index()
 
+def add_station_column(df, station_id):
+    df['station'] = station_id
+    return df
+
 def get_calibration_timerange(df):
     start = df.index.min()
     end = df.index.max()
@@ -127,6 +131,7 @@ def transform_raw_readings_to_station_readings(session, station_id):
     df = rename_columns(df, renaming_dict)
     df = change_dtype_to_numeric(df, numeric_columns)
     df = change_raw_readings_frequency(df)
+    df = add_station_column(df, station_id)
 
     # pm calibration
     pm_columns = ['pm1', 'pm2_5', 'pm10'] # parameters to calibrate
