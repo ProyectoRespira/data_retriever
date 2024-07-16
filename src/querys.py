@@ -100,7 +100,6 @@ def fetch_last_station_readings_timestamp(session, station_id):
 
     return last_timestamp
 
-
 def fetch_pattern_station_ids(session):
     """
     Get the IDs of all pattern stations.
@@ -183,3 +182,17 @@ def fetch_station_region_code(session, station_id):
     return session.query(Stations.region).filter(
         Stations.id == station_id
     ).scalar()
+
+def fetch_pattern_station_id_region(session, station_id):
+    '''
+    Returns pattern_station_id and region for a specific station_id.
+    '''
+    region = session.query(Stations.region).filter(
+        Stations.id == station_id
+    ).scalar()
+
+    pattern_station_id = session.query(Stations.id).filter(
+        Stations.is_pattern_station == True,
+        Stations.region == region
+    ).scalar()
+    return pattern_station_id, region
