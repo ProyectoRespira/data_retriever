@@ -249,5 +249,3 @@ def upsert_station_readings_into_db(session, df):
     session.add_all(new_records)
     session.commit() # commit new records
     return True
-
-
