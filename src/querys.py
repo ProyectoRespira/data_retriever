@@ -1,5 +1,6 @@
 from src.models import StationsReadingsRaw, WeatherStations, WeatherReadings, StationReadings, Stations, Regions
 from sqlalchemy import func, desc
+from datetime import datetime
 
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -29,7 +30,15 @@ def query_last_raw_measurement_id(postgres_session, station_id):
         return 0
 
 def query_last_stationreadings_timestamp(session, station_id):
-    return session.query(func.max(StationReadings.date)).filter_by(station=station_id).scalar()
+    last_measurement = session.query(
+                        func.max(StationReadings.date)
+                         ).filter(StationReadings.station==station_id).scalar()
+    if last_measurement:
+        logging.info(f'Last transformation timestamp: {last_measurement}')
+        return last_measurement
+    else:
+        logging.info(f'no previous measurements for station {station_id}')
+        return datetime(2019, 1, 1, 0, 0, 0)
 
 def fetch_weather_stations_ids(session):
     """
