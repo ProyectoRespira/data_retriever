@@ -16,15 +16,9 @@ def get_raw_readings_for_feature_transformation(session, station_id, last_transf
             StationsReadingsRaw.id,
             StationsReadingsRaw.fecha,
             StationsReadingsRaw.hora,
-            StationsReadingsRaw.mp2_5,
-            StationsReadingsRaw.mp10,
-            StationsReadingsRaw.mp1,
-            StationsReadingsRaw.temperatura,
-            StationsReadingsRaw.humedad,
-            StationsReadingsRaw.presion,
-            StationsReadingsRaw.station_id
         ).filter(
-            StationsReadingsRaw.station_id == station_id
+            StationsReadingsRaw.station_id == station_id, 
+            func.to_timestamp(func.concat(StationsReadingsRaw.fecha, ' ', StationsReadingsRaw.hora), 'DD-MM-YYYY HH24:MI') > last_transformation_timestamp
         ).all()
 
         valid_readings = [
@@ -147,9 +141,16 @@ def get_calibration_factors_dataframe(session, station_id, start, end): # sacar 
         CalibrationFactors.station_id == station_id,
         CalibrationFactors.date_start <= end,
         CalibrationFactors.date_end >= start
-    )
+    ).all()
 
-    calibration_df = pd.DataFrame([{'date_start': reading.date_start, 
+    if not readings:
+        calibration_df = pd.DataFrame([{'date_start' : start,
+                                        'date_end' : end,
+                                        'calibration_factor': 1}])
+        print(calibration_df.head())
+    else:
+        print(len(readings))
+        calibration_df = pd.DataFrame([{'date_start': reading.date_start, 
                                     'date_end' : reading.date_end,
                                     'calibration_factor': reading.calibration_factor} for reading in readings])
     logging.info('calibration df')
