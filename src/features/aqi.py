@@ -55,7 +55,7 @@ def get_timerange_with_missing_aqi(session, station_id):
 
     return result.min_date, result.max_date
 
-def query_station_readings(session, station_id, start, end):
+def get_station_readings_for_aqi_calculation(session, station_id, start, end):
     '''
     Fetch readings for a specific station where AQI values need to be updated.
     '''
@@ -73,31 +73,6 @@ def query_station_readings(session, station_id, start, end):
 
     return df
 
-def calculate_24h_mean(session, station_id, reading_date):
-    '''
-    Calculate the 24-hour mean for PM2.5 and PM10 values for a specific station.
-    '''
-    pm2_5_24h_mean = session.query(func.avg(StationReadings.pm2_5)).filter(
-        StationReadings.station == station_id,
-        StationReadings.date >= reading_date - timedelta(hours=24),
-        StationReadings.date <= reading_date
-    ).scalar()
-
-    pm10_24h_mean = session.query(func.avg(StationReadings.pm10)).filter(
-        StationReadings.station == station_id,
-        StationReadings.date >= reading_date - timedelta(hours=24),
-        StationReadings.date <= reading_date
-    ).scalar()
-
-    return pm2_5_24h_mean, pm10_24h_mean
-
-def compute_aqi(pm2_5_mean, pm10_mean):
-    '''
-    Compute AQI values for given PM2.5 and PM10 means.
-    '''
-    aqi_pm2_5, level = calculate_aqi_2_5_and_level(pm2_5_mean) if pm2_5_mean is not None else None
-    aqi_pm10 = calculate_aqi_10(pm10_mean) if pm10_mean is not None else None
-    return aqi_pm2_5, aqi_pm10, level
 
 def bulk_update_table_with_aqi_values():
     pass
@@ -111,7 +86,7 @@ def compute_and_update_aqi_for_station_readings(session, station_id):
         logging.info(f'Starting AQI calculation for station {station_id}')
         start, end = get_timerange_with_missing_aqi(session, station_id)
 
-        df = query_station_readings(session, station_id, start, end)
+        df = get_station_readings_for_aqi_calculation(session, station_id, start, end)
 
         logging.info(f'Calculating... ')
 
