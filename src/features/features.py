@@ -1,5 +1,6 @@
 from src.features.utils import transform_raw_readings_to_station_readings, upsert_station_readings_into_db
 from src.database import create_postgres, create_postgres_session
+from src.querys import fetch_station_ids
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -9,9 +10,10 @@ def transform_features():
         postgres_engine = create_postgres()
 
         with create_postgres_session(postgres_engine) as session:
-            station_id = 3
-            df = transform_raw_readings_to_station_readings(session, station_id)
-            upsert_station_readings_into_db(session, df)
+            stations = fetch_station_ids(session)
+            for station_id in stations:
+                df = transform_raw_readings_to_station_readings(session, station_id)
+                upsert_station_readings_into_db(session, df)
             return True
     
     except Exception as e:
