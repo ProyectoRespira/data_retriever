@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
-from datetime import datetime
+from sqlalchemy import update, func, or_
+from src.models import StationReadings
+from datetime import datetime, timedelta
 import pandas as pd
 
 def get_timerange_with_missing_stats(session: Session, station_id: int) -> tuple:
@@ -7,13 +9,43 @@ def get_timerange_with_missing_stats(session: Session, station_id: int) -> tuple
     Get the maximum and minimum dates for a specific station where stats values
     need to be calculated
     '''
-    pass
+    result = session.query(
+        func.min(StationReadings.date).label('min_date'),
+        func.max(StationReadings.date).label('max_date')
+    ).filter(
+        StationReadings.station == station_id,
+        or_(StationReadings.aqi_pm2_5_max_24h == None, 
+            StationReadings.aqi_pm2_5_skew_24h == None,
+            StationReadings.aqi_pm2_5_std_24h == None,
+
+            StationReadings.pm2_5_avg_6h == None,
+            StationReadings.pm2_5_max_6h == None,
+            StationReadings.pm2_5_skew_6h == None,
+            StationReadings.pm2_5_std_6h == None)
+    ).one()
+
+    return result.min_date, result.max_date
 
 def get_data_for_calculating_stats(session: Session, station_id: int, start: datetime, end: datetime) -> pd.DataFrame:
     '''
     Fetch readings for a specific station where stats values need to be updated.
     '''
-    pass
+    readings = session.query(StationReadings.date,
+                             StationReadings.id,
+                        StationReadings.aqi_pm2_5,
+                         StationReadings.pm2_5
+                         ).filter(
+                                    StationReadings.station == station_id,
+                                    StationReadings.date >= start - timedelta(hours=24),
+                                    StationReadings.date <= end
+                                ).all()
+    
+    df = pd.DataFrame([{'date': reading.date, 
+                        'id': reading.id,
+                        'aqi_pm2_5' : reading.aqi_pm2_5, 
+                        'pm2_5': reading.pm2_5} for reading in readings])
+
+    return df
 
 def calculate_station_readings_stats(session: Session, station_id: int) -> pd.DataFrame:
     '''
@@ -48,4 +80,9 @@ def update_station_readings_stats(session, df) -> bool:
     '''
     update stats in station_readings table
     '''
+    
+    # update_dict = df.to_dict(orient='records')
+    #     session.execute(
+    #         update(StationReadings), update_dict
+    #     )
     pass
