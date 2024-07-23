@@ -100,17 +100,21 @@ def compute_and_update_aqi_for_station_readings(session, station_id):
         
         # esto es muy lento, usar bulk_update_mappings? :
         # https://docs.sqlalchemy.org/en/20/orm/queryguide/dml.html#orm-queryguide-bulk-update
-        for _, row in df.iterrows():
-            session.query(StationReadings).filter(
-                StationReadings.station == station_id,
-                StationReadings.date == row['date']
-            ).update({
-                StationReadings.aqi_pm2_5: row['aqi_pm2_5'],
-                StationReadings.aqi_pm10: row['aqi_pm10'],
-                StationReadings.level: row['level']
-            })
-        
-        session.commit()
+        # for _, row in df.iterrows():
+        #     session.query(StationReadings).filter(
+        #         StationReadings.station == station_id,
+        #         StationReadings.date == row['date']
+        #     ).update({
+        #         StationReadings.aqi_pm2_5: row['aqi_pm2_5'],
+        #         StationReadings.aqi_pm10: row['aqi_pm10'],
+        #         StationReadings.level: row['level']
+        #     })
+        update_dict = df.to_dict(orient='records')
+        session.execute(
+            update(StationReadings), update_dict
+        )
+
+        #session.commit()
         logging.info('AQI update completed.')
         return True
     except Exception as e:
