@@ -16,7 +16,7 @@ def transform_features():
             for station_id in stations:
                 logging.info(f'Starting basic transformations for station {station_id}')
                 
-                df, message = transform_raw_readings_to_station_readings(session, station_id)
+                df, last_transformation_timestamp, message = transform_raw_readings_to_station_readings(session, station_id)
                 if df is None:
                     logging.warning(message)
                     return True
@@ -26,12 +26,14 @@ def transform_features():
                 status = upsert_station_readings_into_db(session, df)
                 if status is False:
                     logging.warning(f'Could not upsert station readings from station {station_id}')
+                
                 # calculate and add AQI
-                status = compute_and_update_aqi_for_station_readings(session, station_id)
+                status = compute_and_update_aqi_for_station_readings(session, station_id, last_transformation_timestamp)
                 if status is False:
                     logging.warning(f'Could not calculate and add AQI')
+                
                 # calculate and add stats
-                status = update_station_readings_stats(session, station_id)
+                status = update_station_readings_stats(session, station_id, last_transformation_timestamp)
                 if status is False:
                     logging.warning(f'Could not calculate and insert stats')
             return True

@@ -103,7 +103,7 @@ def change_raw_readings_frequency(df):
         'temperature': 'mean',
         'humidity': 'mean',
         'pressure': 'mean'
-    })
+    }).round(2)
 
     return df
 
@@ -176,9 +176,7 @@ def get_calibration_factors_dataframe(session, station_id, start, end): # sacar 
         calibration_df = pd.DataFrame([{'date_start' : start,
                                         'date_end' : end,
                                         'calibration_factor': 1}])
-        print(calibration_df.head())
     else:
-        print(len(readings))
         calibration_df = pd.DataFrame([{'date_start': reading.date_start, 
                                     'date_end' : reading.date_end,
                                     'calibration_factor': reading.calibration_factor} for reading in readings])
@@ -199,11 +197,11 @@ def apply_calibration_factor(df, pm_columns, humidity_df, calibration_df):
     for pm in pm_columns:
         df_merged[pm] = (df_merged[pm] / df_merged['C_RH']) * df_merged['calibration_factor']
 
+    df_merged = df_merged.round(2)
     df_merged.drop(columns=['region_humidity', 'C_RH', 'calibration_factor'], inplace=True)
-    logging.info(df_merged.info())
     df_merged.sort_index(ascending=True, inplace=True)
     df_merged.reset_index(inplace=True)
-    logging.info(df_merged.info())
+
     return df_merged
 
 def transform_raw_readings_to_station_readings(session, station_id):
@@ -248,7 +246,7 @@ def transform_raw_readings_to_station_readings(session, station_id):
         df = add_station_column(df, station_id)
         logging.info(df.info())
 
-        return df, f'basic transformations and pm calibration success.'
+        return df, last_transformation_timestamp, f'basic transformations and pm calibration success.'
 
 def upsert_station_readings_into_db(session, df):
     '''

@@ -40,7 +40,7 @@ def calculate_aqi_10(x):
     else:
         return round(401 + (x - 504) * 99 / 100, 0)
     
-def get_timerange_with_missing_aqi(session, station_id): 
+def get_timerange_with_missing_aqi(session, station_id, last_transformation_timestamp): 
     '''
     Get the maximum and minimum dates for a specific station where AQI values
     need to be calculated
@@ -50,6 +50,7 @@ def get_timerange_with_missing_aqi(session, station_id):
         func.max(StationReadings.date).label('max_date')
     ).filter(
         StationReadings.station == station_id,
+        StationReadings.date >= last_transformation_timestamp,
         or_(StationReadings.aqi_pm2_5 == None, StationReadings.aqi_pm10 == None)
     ).one()
 
@@ -62,53 +63,57 @@ def get_station_readings_for_aqi_calculation(session, station_id, start, end):
     readings = session.query(StationReadings.date,
                              StationReadings.id,
                         StationReadings.pm10,
-                         StationReadings.pm2_5
+                         StationReadings.pm2_5,
+                         StationReadings.station
                          ).filter(
                                     StationReadings.station == station_id,
                                     StationReadings.date >= start - timedelta(hours=24),
                                     StationReadings.date <= end
                                 ).all()
     
-    df = pd.DataFrame([{'date': reading.date, 'id': reading.id ,'pm10' : reading.pm10, 'pm2_5': reading.pm2_5} for reading in readings])
+    df = pd.DataFrame([{'date': reading.date, 'id': reading.id ,'pm10' : reading.pm10, 'pm2_5': reading.pm2_5, 'station': reading.station} for reading in readings])
+
+    df.set_index('date', inplace=True)
+    df.sort_index(ascending=True, inplace=True)
+    df['pm2_5'] = df['pm2_5'].ffill()
+    df['pm10'] = df['pm10'].ffill()
+
+    df.reset_index(inplace=True)
+    df.rename(columns={'index': 'date'}, inplace=True)
+    logging.info('Data for calculating AQI')
+    print(df.info())
 
     return df
 
 
-def bulk_update_table_with_aqi_values():
-    pass
-
-def compute_and_update_aqi_for_station_readings(session, station_id):
+def compute_and_update_aqi_for_station_readings(session, station_id, last_transformation_timestamp):
     '''
     Calculate AQI 2.5 and AQI 10 for existing pm readings in StationReadings
     and update table with AQI values.
     '''
     try: 
         logging.info(f'Starting AQI calculation for station {station_id}')
-        start, end = get_timerange_with_missing_aqi(session, station_id)
+        start, end = get_timerange_with_missing_aqi(session, station_id, last_transformation_timestamp)
 
         df = get_station_readings_for_aqi_calculation(session, station_id, start, end)
 
         logging.info(f'Calculating... ')
 
-        df['pm2_5_24h_mean'] = df['pm2_5'].rolling(window=24).mean()
-        df['pm10_24h_mean'] = df['pm10'].rolling(window=24).mean()
+        df['pm2_5_24h_mean'] = df['pm2_5'].rolling(window=24, min_periods=24).mean()
+        df['pm10_24h_mean'] = df['pm10'].rolling(window=24, min_periods=24).mean()
         
         df[['aqi_pm2_5', 'level']] = df['pm2_5_24h_mean'].apply(lambda x: pd.Series(calculate_aqi_2_5_and_level(x)))
         df['aqi_pm10'] = df['pm10_24h_mean'].apply(calculate_aqi_10)
 
+        df.drop(columns=['pm2_5_24h_mean', 'pm10_24h_mean', 'pm2_5', 'pm10'],
+                axis=1,
+                inplace=True)
+        
+        df.dropna(axis=0, how='any', inplace=True)
+        print(df.head())
+
         logging.info(f'Inserting...')
         
-        # esto es muy lento, usar bulk_update_mappings? :
-        # https://docs.sqlalchemy.org/en/20/orm/queryguide/dml.html#orm-queryguide-bulk-update
-        # for _, row in df.iterrows():
-        #     session.query(StationReadings).filter(
-        #         StationReadings.station == station_id,
-        #         StationReadings.date == row['date']
-        #     ).update({
-        #         StationReadings.aqi_pm2_5: row['aqi_pm2_5'],
-        #         StationReadings.aqi_pm10: row['aqi_pm10'],
-        #         StationReadings.level: row['level']
-        #     })
         update_dict = df.to_dict(orient='records')
         session.execute(
             update(StationReadings), update_dict
