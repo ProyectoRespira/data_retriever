@@ -80,8 +80,6 @@ def get_station_readings_for_aqi_calculation(session, station_id, start, end):
 
     df.reset_index(inplace=True)
     df.rename(columns={'index': 'date'}, inplace=True)
-    logging.info('Data for calculating AQI')
-    print(df.info())
 
     return df
 
@@ -110,7 +108,6 @@ def compute_and_update_aqi_for_station_readings(session, station_id, last_transf
                 inplace=True)
         
         df.dropna(axis=0, how='any', inplace=True)
-        print(df.head())
 
         logging.info(f'Inserting...')
         

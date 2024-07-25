@@ -34,7 +34,6 @@ def get_raw_readings_for_feature_transformation(session, station_id, last_transf
             return []
 
         valid_ids = [reading.id for reading in valid_readings]
-        logging.info(f'Retrieved {len(valid_ids)} valid readings from Station {station_id}')
         
         # Split valid_ids into chunks
         chunk_size = 1000  # Adjust chunk size as needed
@@ -180,7 +179,7 @@ def get_calibration_factors_dataframe(session, station_id, start, end): # sacar 
         calibration_df = pd.DataFrame([{'date_start': reading.date_start, 
                                     'date_end' : reading.date_end,
                                     'calibration_factor': reading.calibration_factor} for reading in readings])
-    logging.info('calibration df')
+
     calibration_df = expand_calibration_factors_dataframe(calibration_df)
     #calibration_df.to_csv('get_calibration.csv')
     return calibration_df
@@ -244,7 +243,6 @@ def transform_raw_readings_to_station_readings(session, station_id):
 
         df = apply_calibration_factor(df, pm_columns, humidity_df, calibration_df)
         df = add_station_column(df, station_id)
-        logging.info(df.info())
 
         return df, last_transformation_timestamp, f'basic transformations and pm calibration success.'
 
