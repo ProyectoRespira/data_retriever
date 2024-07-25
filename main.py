@@ -64,7 +64,9 @@ def main():
     #     return 'Calibration calculation failed'
     
     # feature engineering
-    feature_status = transform_features()
+    features_status = transform_features()
+    if features_status is False:
+        return 'Error: Loading station data to StationReadings failed.'
 
     return 'Process finished correctly'
 

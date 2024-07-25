@@ -1,5 +1,6 @@
 from src.features.utils import transform_raw_readings_to_station_readings, upsert_station_readings_into_db
 from src.features.aqi import compute_and_update_aqi_for_station_readings
+from src.features.stats import update_station_readings_stats
 from src.database import create_postgres, create_postgres_session
 from src.querys import fetch_station_ids
 import logging
@@ -26,13 +27,18 @@ def transform_features():
                 if status is False:
                     logging.warning(f'Could not upsert station readings from station {station_id}')
                 # calculate and add AQI
-                compute_and_update_aqi_for_station_readings(session, station_id)
+                status = compute_and_update_aqi_for_station_readings(session, station_id)
+                if status is False:
+                    logging.warning(f'Could not calculate and add AQI')
+                # calculate and add stats
+                status = update_station_readings_stats(session, station_id)
+                if status is False:
+                    logging.warning(f'Could not calculate and insert stats')
             return True
     
     except Exception as e:
         logging.exception('An exception occurred during feature engineering')
         return False
-    
     finally:
         if postgres_engine:
             postgres_engine.dispose()

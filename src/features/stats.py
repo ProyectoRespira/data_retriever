@@ -4,6 +4,10 @@ from src.models import StationReadings
 from datetime import datetime, timedelta
 import pandas as pd
 
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 def get_timerange_with_missing_stats(session: Session, station_id: int) -> tuple:
     '''
     Get the maximum and minimum dates for a specific station where stats values
@@ -31,14 +35,14 @@ def get_data_for_calculating_stats(session: Session, station_id: int, start: dat
     Fetch readings for a specific station where stats values need to be updated.
     '''
     readings = session.query(StationReadings.date,
-                             StationReadings.id,
-                        StationReadings.aqi_pm2_5,
-                         StationReadings.pm2_5
-                         ).filter(
+                            StationReadings.id,
+                            StationReadings.aqi_pm2_5,
+                            StationReadings.pm2_5
+                            ).filter(
                                     StationReadings.station == station_id,
                                     StationReadings.date >= start - timedelta(hours=24),
                                     StationReadings.date <= end
-                                ).all()
+                                    ).all()
     
     df = pd.DataFrame([{'date': reading.date, 
                         'id': reading.id,
@@ -76,13 +80,22 @@ def calculate_station_readings_stats(session: Session, station_id: int) -> pd.Da
 
     return df
 
-def update_station_readings_stats(session, df) -> bool:
+def update_station_readings_stats(session, station_id) -> bool:
     '''
     update stats in station_readings table
     '''
-    
-    # update_dict = df.to_dict(orient='records')
-    #     session.execute(
-    #         update(StationReadings), update_dict
-    #     )
-    pass
+
+    try:
+        logging.info(f'Starting stats calculation for station {station_id}')
+        df = calculate_station_readings_stats(session, station_id)
+
+        update_dict = df.to_dict(orient='records')
+        session.execute(
+            update(StationReadings), update_dict
+        )
+
+        logging.info('Stats update complete')
+        return True
+    except Exception as e:
+        logging.error(f'An error occurred: {e}')
+        return False
