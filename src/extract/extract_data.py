@@ -7,9 +7,9 @@ from src.extract.utils import (
     define_airnow_api_url, 
 )
 from src.querys import (
-    get_last_raw_measurement_id,
-    get_weather_stations_ids,
-    get_pattern_station_ids
+    query_last_raw_measurement_id,
+    fetch_weather_stations_ids,
+    fetch_pattern_station_ids
 )
 from src.database import create_postgres_session, create_postgres, create_mysql
 from src.models import Stations
@@ -33,7 +33,7 @@ def extract_fiuna_data(): # modify this method to only extract data
             
             for station_id in station_ids:
                 table_name = f'Estacion{station_id[0]}'
-                last_measurement_id = get_last_raw_measurement_id(postgres_session, station_id[0])
+                last_measurement_id = query_last_raw_measurement_id(postgres_session, station_id[0])
                 fiuna_data[station_id[0]] = select_new_records_from_fiuna(mysql_engine, table_name, last_measurement_id)
             
             logging.info("Data retrieved successfully")
@@ -57,7 +57,7 @@ def extract_meteostat_data():
         postgres_engine = create_postgres()
         
         with create_postgres_session(postgres_engine) as session:
-            station_ids = get_weather_stations_ids(session)
+            station_ids = fetch_weather_stations_ids(session)
             results = {}
             
             for station_id in station_ids:
@@ -86,7 +86,7 @@ def extract_airnow_data():
         postgres_engine = create_postgres()
         
         with create_postgres_session(postgres_engine) as session:
-            airnow_stations_id = get_pattern_station_ids(session)
+            airnow_stations_id = fetch_pattern_station_ids(session)
             responses = {}
             
             for station_id in airnow_stations_id:
