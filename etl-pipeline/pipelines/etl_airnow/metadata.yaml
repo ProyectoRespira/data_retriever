@@ -1,0 +1,6 @@
+created_at: '2024-07-26 19:29:41.693148+00:00'
+description: Extracts data from air now, weather readings
+name: etl_airnow
+tags: []
+type: python
+uuid: etl_airnow
