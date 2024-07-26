@@ -171,7 +171,7 @@ def setup_calibration_date_ranges(period):
     '''
     Sets up calibration and usage date ranges based on a given calibration date.
     '''
-    start_cal = period - relativedelta(months = 3)
+    start_cal = period - relativedelta(months = 1)
     end_cal = period
     start_usage = period + timedelta(hours = 1)
     end_usage = start_usage - timedelta(hours = 1) + relativedelta(months = 1)

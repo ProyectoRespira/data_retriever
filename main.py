@@ -59,9 +59,9 @@ def main():
     # # period = datetime(2024, 1, 1, 0, 0, 0)
     # # station_id = 1
     # # calibration_status = insert_calibration_factor(period, station_id)
-    # calibration_status = backfill_calibration_factors()
-    # if calibration_status is False:
-    #     return 'Calibration calculation failed'
+    calibration_status = backfill_calibration_factors()
+    if calibration_status is False:
+        return 'Calibration calculation failed'
     
     # feature engineering
     features_status = transform_features()

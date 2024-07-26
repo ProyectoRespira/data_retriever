@@ -80,3 +80,7 @@ yarl==1.9.4
 python-dotenv
 pandas
 meteostat
+
+# requirements for graphs
+plotly
+nbformat>=4.2.0
