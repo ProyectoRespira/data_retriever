@@ -82,11 +82,12 @@ default:
   # PostgresSQL
   POSTGRES_CONNECT_TIMEOUT: 10
   POSTGRES_DBNAME: postgres
-  POSTGRES_SCHEMA: public # Optional
-  POSTGRES_USER: username
-  POSTGRES_PASSWORD: password
-  POSTGRES_HOST: hostname
+  POSTGRES_SCHEMA: public
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: mysecretpassword
+  POSTGRES_HOST: localhost
   POSTGRES_PORT: 5432
+
   # Qdrant
   QDRANT_COLLECTION: collection
   QDRANT_PATH: path
