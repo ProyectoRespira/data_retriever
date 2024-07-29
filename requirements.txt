@@ -42,8 +42,8 @@ defusedxml==0.7.1
 Deprecated==1.2.14
 docstring_parser==0.16
 entrypoints==0.4
-# Editable install with no version control (etl_process==0.0.0)
--e /Users/quantum/data_retriever/etl-process
+# # Editable install with no version control (etl_process==0.0.0)
+# -e /Users/quantum/data_retriever/etl-process
 executing==2.0.1
 Faker==4.14.0
 fastjsonschema==2.20.0
