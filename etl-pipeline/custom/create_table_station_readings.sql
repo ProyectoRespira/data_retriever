@@ -4,7 +4,7 @@
 -- station_readings_silver
 -- station_readings_gold
 
-CREATE TABLE station_readings_raw (
+CREATE TABLE IF NOT EXISTS station_readings_raw (
     id SERIAL PRIMARY KEY,
     measurement_id INTEGER,
     station_id INTEGER REFERENCES stations(id),
@@ -19,7 +19,7 @@ CREATE TABLE station_readings_raw (
     bateria VARCHAR
 );
 
-CREATE TABLE station_readings (
+CREATE TABLE IF NOT EXISTS station_readings (
     id SERIAL PRIMARY KEY,
     station INTEGER REFERENCES stations(id),
     date TIMESTAMP,
