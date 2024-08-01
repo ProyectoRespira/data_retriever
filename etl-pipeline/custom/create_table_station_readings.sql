@@ -4,7 +4,7 @@
 -- station_readings_silver
 -- station_readings_gold
 
-CREATE TABLE IF NOT EXISTS station_readings_raw (
+CREATE TABLE IF NOT EXISTS station_readings_bronze (
     id SERIAL PRIMARY KEY,
     measurement_id INTEGER,
     station_id INTEGER REFERENCES stations(id),
@@ -19,7 +19,20 @@ CREATE TABLE IF NOT EXISTS station_readings_raw (
     bateria VARCHAR
 );
 
-CREATE TABLE IF NOT EXISTS station_readings (
+CREATE TABLE IF NOT EXISTS station_readings_silver (
+    id SERIAL PRIMARY KEY,
+    measurement_id INTEGER,
+    station_id INTEGER REFERENCES stations(id),
+    date TIMESTAMP,
+    pm2_5 FLOAT,
+    pm1 FLOAT,
+    pm10 FLOAT,
+    temperature FLOAT,
+    humidity FLOAT,
+    pressure FLOAT
+);
+
+CREATE TABLE IF NOT EXISTS station_readings_gold (
     id SERIAL PRIMARY KEY,
     station INTEGER REFERENCES stations(id),
     date TIMESTAMP,
@@ -39,4 +52,4 @@ CREATE TABLE IF NOT EXISTS station_readings (
     temperature FLOAT,
     humidity FLOAT,
     pressure FLOAT
-);
+)
