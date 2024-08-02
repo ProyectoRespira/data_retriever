@@ -5,11 +5,11 @@ blocks:
     data_provider: postgres
     data_provider_profile: default
     dbt: {}
-    disable_query_preprocessing: false
+    disable_query_preprocessing: true
     export_write_policy: append
     file_path: custom/create_table_regions.sql
     file_source:
-      path: custom/create_table_regions.sql
+      path: custom\create_table_regions.sql
     limit: 1000
     use_raw_sql: true
   downstream_blocks:
@@ -31,11 +31,11 @@ blocks:
     data_provider: postgres
     data_provider_profile: default
     dbt: {}
-    disable_query_preprocessing: false
+    disable_query_preprocessing: true
     export_write_policy: append
     file_path: custom/create_table_stations.sql
     file_source:
-      path: custom/create_table_stations.sql
+      path: custom\create_table_stations.sql
     limit: 1000
     use_raw_sql: true
   downstream_blocks:
@@ -58,11 +58,11 @@ blocks:
     data_provider: postgres
     data_provider_profile: default
     dbt: {}
-    disable_query_preprocessing: false
+    disable_query_preprocessing: true
     export_write_policy: append
     file_path: custom/create_table_weather_stations.sql
     file_source:
-      path: custom/create_table_weather_stations.sql
+      path: custom\create_table_weather_stations.sql
     limit: 1000
     use_raw_sql: true
   downstream_blocks:
@@ -85,11 +85,11 @@ blocks:
     data_provider: postgres
     data_provider_profile: default
     dbt: {}
-    disable_query_preprocessing: false
+    disable_query_preprocessing: true
     export_write_policy: append
     file_path: custom/create_table_station_readings.sql
     file_source:
-      path: custom/create_table_station_readings.sql
+      path: custom\create_table_station_readings.sql
     limit: 1000
     use_raw_sql: true
   downstream_blocks:
@@ -116,7 +116,7 @@ blocks:
     export_write_policy: append
     file_path: custom/create_table_weather_readings.sql
     file_source:
-      path: custom/create_table_weather_readings.sql
+      path: custom\create_table_weather_readings.sql
     limit: 1000
     use_raw_sql: true
   downstream_blocks: []
@@ -156,5 +156,5 @@ tags:
 - init
 type: python
 uuid: initialize_database
-variables_dir: /Users/quantum/.mage_data/etl-pipeline
+variables_dir: C:\Users\Fer/.mage_data\etl-pipeline
 widgets: []
