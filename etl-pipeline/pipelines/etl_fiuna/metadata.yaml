@@ -6,36 +6,11 @@ blocks:
     data_provider_profile: default
     dynamic: true
     export_write_policy: replace
-  downstream_blocks:
-  - halcyon_star
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: sql
-  name: white firefly
-  retry_config: null
-  status: executed
-  timeout: null
-  type: data_loader
-  upstream_blocks: []
-  uuid: white_firefly
-- all_upstream_blocks_executed: true
-  color: null
-  configuration:
-    data_provider: postgres
-    data_provider_profile: default
-    dbt: {}
-    disable_query_preprocessing: false
-    dynamic: false
-    export_write_policy: replace
     file_path: data_loaders/extract_station_ids.sql
     file_source:
       path: data_loaders/extract_station_ids.sql
-    limit: 1000
-    use_raw_sql: false
   downstream_blocks:
-  - extract_last_measurement_id
-  - transform_station_ids
+  - extract_station_readings
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -53,120 +28,48 @@ blocks:
     data_provider: postgres
     data_provider_profile: default
     export_write_policy: replace
-  downstream_blocks: []
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: sql
-  name: halcyon star
-  retry_config: null
-  status: executed
-  timeout: null
-  type: transformer
-  upstream_blocks:
-  - white_firefly
-  uuid: halcyon_star
-- all_upstream_blocks_executed: true
-  color: null
-  configuration:
-    data_provider: postgres
-    data_provider_profile: default
-    dynamic: true
-    export_write_policy: replace
-    file_path: transformers/transform_station_ids.py
-    file_source:
-      path: transformers/transform_station_ids.py
-  downstream_blocks:
-  - extract_station_readings
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: python
-  name: transform_station_ids
-  retry_config: null
-  status: updated
-  timeout: null
-  type: transformer
-  upstream_blocks:
-  - extract_station_ids
-  uuid: transform_station_ids
-- all_upstream_blocks_executed: false
-  color: null
-  configuration:
-    data_provider: postgres
-    data_provider_profile: default
-    dbt: {}
-    disable_query_preprocessing: false
-    export_write_policy: replace
     file_path: transformers/extract_station_readings.sql
     file_source:
       path: transformers/extract_station_readings.sql
-    limit: 1000
-    use_raw_sql: false
-  downstream_blocks: []
+    reduce_output: true
+  downstream_blocks:
+  - collect_station_readings
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: sql
   name: extract_station_readings
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: transformer
   upstream_blocks:
-  - transform_station_ids
+  - extract_station_ids
   uuid: extract_station_readings
 - all_upstream_blocks_executed: true
   color: null
   configuration:
     data_provider: postgres
     data_provider_profile: default
-    dbt: {}
-    disable_query_preprocessing: false
-    dynamic: true
-    export_write_policy: replace
-    limit: 1000
-    reduce_output: false
-    use_raw_sql: false
+    export_write_policy: append
+    file_path: transformers/collect_station_readings.py
+    file_source:
+      path: transformers/collect_station_readings.py
   downstream_blocks:
   - load_station_readings
-  - extract_latest_records_from_fiuna
   executor_config: null
   executor_type: local_python
   has_callback: false
-  language: sql
-  name: extract_last_measurement_id
+  language: python
+  name: collect_station_readings
   retry_config: null
-  status: failed
+  status: executed
   timeout: null
   type: transformer
   upstream_blocks:
-  - extract_station_ids
-  uuid: extract_last_measurement_id
-- all_upstream_blocks_executed: false
-  color: null
-  configuration:
-    data_provider: postgres
-    data_provider_profile: default
-    dbt: {}
-    disable_query_preprocessing: false
-    export_write_policy: replace
-    limit: 1000
-    use_raw_sql: false
-  downstream_blocks: []
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: sql
-  name: extract_latest_records_from_fiuna
-  retry_config: null
-  status: updated
-  timeout: null
-  type: transformer
-  upstream_blocks:
-  - extract_last_measurement_id
-  uuid: extract_latest_records_from_fiuna
-- all_upstream_blocks_executed: false
+  - extract_station_readings
+  uuid: collect_station_readings
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     data_provider: postgres
@@ -175,6 +78,8 @@ blocks:
     dbt: {}
     disable_query_preprocessing: false
     export_write_policy: append
+    file_source:
+      path: data_exporters/load_station_readings.sql
     limit: 1000
     use_raw_sql: false
   downstream_blocks: []
@@ -184,11 +89,11 @@ blocks:
   language: sql
   name: load_station_readings
   retry_config: null
-  status: updated
+  status: not_executed
   timeout: null
   type: data_exporter
   upstream_blocks:
-  - extract_last_measurement_id
+  - collect_station_readings
   uuid: load_station_readings
 cache_block_output_in_memory: false
 callbacks: []
