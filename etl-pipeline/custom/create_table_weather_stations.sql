@@ -13,4 +13,5 @@ INSERT INTO weather_stations (
     longitude, 
     region
 ) VALUES
-    (1, 'Silvio Pettirossi Airport', '-25.2667', '-57.6333', 'GRAN_ASUNCION');
+    (1, 'Silvio Pettirossi Airport', '-25.2667', '-57.6333', 'GRAN_ASUNCION')
+ON CONFLICT (id) DO NOTHING;

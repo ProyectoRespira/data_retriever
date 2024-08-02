@@ -20,4 +20,5 @@ VALUES (
     '-57.680,-25.410,-57.470,-25.140', 
     FALSE, 
     FALSE
-);
+)
+ON CONFLICT (region_code) DO NOTHING;;
