@@ -1,49 +1,82 @@
 blocks:
-- all_upstream_blocks_executed: false
-  color: null
+- all_upstream_blocks_executed: true
+  color: teal
   configuration:
     data_provider: postgres
     data_provider_profile: default
     dbt: {}
     disable_query_preprocessing: false
+    dynamic: false
     export_write_policy: replace
-    file_path: data_loaders\get_pattern_station_ids.sql
-    file_source:
-      path: data_loaders\get_pattern_station_ids.sql
     limit: 1000
-    use_raw_sql: false
+    use_raw_sql: true
+  downstream_blocks:
+  - define_airnow_api_settings
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: get_pattern_station_reading_count
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks: []
+  uuid: get_pattern_station_reading_count
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    dynamic: false
+    file_path: transformers/define_airnow_api_settings.py
+    file_source:
+      path: transformers/define_airnow_api_settings.py
+  downstream_blocks:
+  - extract_data_from_airnow
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: define_airnow_api_settings
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - get_pattern_station_reading_count
+  uuid: define_airnow_api_settings
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - load_airnow_readings_bronze
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: extract_data_from_airnow
+  retry_config: null
+  status: failed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - define_airnow_api_settings
+  uuid: extract_data_from_airnow
+- all_upstream_blocks_executed: false
+  color: null
+  configuration: {}
   downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
-  language: sql
-  name: get_pattern_station_ids
+  language: python
+  name: load_airnow_readings_bronze
   retry_config: null
   status: updated
   timeout: null
-  type: data_loader
+  type: data_exporter
   upstream_blocks:
-  - get_station_readings_count
-  uuid: get_pattern_station_ids
-- all_upstream_blocks_executed: true
-  color: null
-  configuration:
-    data_provider: postgres
-    data_provider_profile: default
-    export_write_policy: replace
-  downstream_blocks:
-  - get_pattern_station_ids
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: sql
-  name: get_station_readings_count
-  retry_config: null
-  status: updated
-  timeout: null
-  type: data_loader
-  upstream_blocks: []
-  uuid: get_station_readings_count
+  - extract_data_from_airnow
+  uuid: load_airnow_readings_bronze
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
@@ -66,5 +99,5 @@ spark_config: {}
 tags: []
 type: python
 uuid: etl_airnow
-variables_dir: C:\Users\Fer/.mage_data\etl-pipeline
+variables_dir: /home/vnbl/.mage_data/etl-pipeline
 widgets: []
