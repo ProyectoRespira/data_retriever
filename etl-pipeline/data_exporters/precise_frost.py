@@ -27,5 +27,5 @@ def export_data_to_postgres(df: DataFrame, **kwargs) -> None:
             schema_name,
             table_name,
             index=False,  # Specifies whether to include index in exported table
-            if_exists='replace',  # Specify resolution policy if table name already exists
+            if_exists='append',  # Specify resolution policy if table name already exists
         )

@@ -41,13 +41,13 @@ blocks:
   language: python
   name: define_airnow_api_settings
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: transformer
   upstream_blocks:
   - get_last_airnow_reading_silver_and_bbox
   uuid: define_airnow_api_settings
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration: {}
   downstream_blocks:
@@ -65,7 +65,7 @@ blocks:
   upstream_blocks:
   - define_airnow_api_settings
   uuid: extract_data_from_airnow
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     file_path: data_exporters/export_to_airnow_readings_bronze.py
@@ -84,7 +84,7 @@ blocks:
   upstream_blocks:
   - extract_data_from_airnow
   uuid: export_to_airnow_readings_bronze
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     file_path: transformers/transform_airnow_bronze_to_silver.py
@@ -105,7 +105,7 @@ blocks:
   upstream_blocks:
   - extract_data_from_airnow
   uuid: transform_airnow_bronze_to_silver
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     file_path: data_exporters/load_airnow_readings_silver.py
@@ -124,7 +124,7 @@ blocks:
   upstream_blocks:
   - transform_airnow_bronze_to_silver
   uuid: load_airnow_readings_silver
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration: {}
   downstream_blocks:
@@ -141,7 +141,7 @@ blocks:
   upstream_blocks:
   - transform_airnow_bronze_to_silver
   uuid: pristine_oracle
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration: {}
   downstream_blocks: []
@@ -151,7 +151,7 @@ blocks:
   language: python
   name: precise frost
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_exporter
   upstream_blocks:
