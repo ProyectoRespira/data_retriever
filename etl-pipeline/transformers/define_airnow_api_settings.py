@@ -6,10 +6,10 @@ if 'test' not in globals():
 import pandas as pd
 from datetime import datetime, timedelta
 from pytz import timezone
-from typing import Dict
+from typing import Dict, List
 
 @transformer
-def transform(data, *args, **kwargs):
+def transform(data, *args, **kwargs) -> Dict:
     """
     Template code for a transformer block.
 
@@ -43,10 +43,12 @@ def transform(data, *args, **kwargs):
     data['verbose'] = 1
     data['includerawconcentrations'] = 1
     
-    data_dict = data.to_dict(orient = 'index')
+    data = data.to_dict(orient = 'records')
+    # metadata = []
+    # for row in data:
+    #     metadata.append(dict(block_uuid=f"for_station_{row['station_id']}"))
 
-    print(data_dict)
-    return data_dict
+    return data
 
 
 # @test

@@ -63,7 +63,7 @@ blocks:
   language: python
   name: collect_station_readings
   retry_config: null
-  status: executed
+  status: failed
   timeout: null
   type: transformer
   upstream_blocks:
@@ -117,5 +117,5 @@ spark_config: {}
 tags: []
 type: python
 uuid: etl_fiuna
-variables_dir: /Users/quantum/.mage_data/etl-pipeline
+variables_dir: /home/vnbl/.mage_data/etl-pipeline
 widgets: []

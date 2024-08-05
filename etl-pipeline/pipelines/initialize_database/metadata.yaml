@@ -151,7 +151,7 @@ blocks:
   language: sql
   name: create_table_airnow_readings
   retry_config: null
-  status: failed
+  status: updated
   timeout: null
   type: custom
   upstream_blocks:

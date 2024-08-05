@@ -2,18 +2,14 @@
 CREATE TABLE IF NOT EXISTS airnow_readings_bronze(
     id SERIAL PRIMARY KEY,
     station_id INTEGER REFERENCES stations(id), -- constrain: is_pattern_station == True
-    UTC VARCHAR, -- YYYY-MM-DDTHH:mm
-    Latitude FLOAT,
-    Longitude FLOAT,
-    Parameter VARCHAR,
-    Unit VARCHAR,
-    Value FLOAT -- pm2_5
+    date_utc VARCHAR, -- YYYY-MM-DDTHH:mm
+    pm2_5 FLOAT -- pm2_5
 );
 
 CREATE TABLE IF NOT EXISTS airnow_readings_silver(
     id SERIAL PRIMARY KEY,
     station_id INTEGER REFERENCES stations(id),
-    date TIMESTAMP,
+    date_utc TIMESTAMP,
     pm2_5 FLOAT
 );
 

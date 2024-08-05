@@ -1,5 +1,5 @@
 SELECT s.id AS station_id, 
-       MAX(a.date) AS start_date_utc,
+       MAX(a.date_utc) AS start_date_utc,
        r.bbox 
 FROM regions r
 LEFT JOIN stations s ON s.region = r.region_code

@@ -8,21 +8,24 @@ blocks:
     disable_query_preprocessing: false
     dynamic: false
     export_write_policy: replace
+    file_path: custom/get_last_airnow_reading_silver_and_bbox.sql
+    file_source:
+      path: custom/get_last_airnow_reading_silver_and_bbox.sql
     limit: 1000
-    use_raw_sql: true
+    use_raw_sql: false
   downstream_blocks:
   - define_airnow_api_settings
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: sql
-  name: get_pattern_station_reading_count
+  name: get_last_airnow_reading_silver_and_bbox
   retry_config: null
   status: executed
   timeout: null
   type: custom
   upstream_blocks: []
-  uuid: get_pattern_station_reading_count
+  uuid: get_last_airnow_reading_silver_and_bbox
 - all_upstream_blocks_executed: true
   color: null
   configuration:
@@ -42,26 +45,103 @@ blocks:
   timeout: null
   type: transformer
   upstream_blocks:
-  - get_pattern_station_reading_count
+  - get_last_airnow_reading_silver_and_bbox
   uuid: define_airnow_api_settings
 - all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks:
-  - load_airnow_readings_bronze
+  - export_to_airnow_readings_bronze
+  - transform_airnow_bronze_to_silver
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
   name: extract_data_from_airnow
   retry_config: null
-  status: failed
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
   - define_airnow_api_settings
   uuid: extract_data_from_airnow
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    file_path: data_exporters/export_to_airnow_readings_bronze.py
+    file_source:
+      path: data_exporters/export_to_airnow_readings_bronze.py
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: export_to_airnow_readings_bronze
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - extract_data_from_airnow
+  uuid: export_to_airnow_readings_bronze
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    file_path: transformers/transform_airnow_bronze_to_silver.py
+    file_source:
+      path: transformers/transform_airnow_bronze_to_silver.py
+  downstream_blocks:
+  - load_airnow_readings_silver
+  - pristine_oracle
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: transform_airnow_bronze_to_silver
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - extract_data_from_airnow
+  uuid: transform_airnow_bronze_to_silver
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    file_path: data_exporters/load_airnow_readings_silver.py
+    file_source:
+      path: data_exporters/load_airnow_readings_silver.py
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: load_airnow_readings_silver
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - transform_airnow_bronze_to_silver
+  uuid: load_airnow_readings_silver
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - precise_frost
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: pristine oracle
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - transform_airnow_bronze_to_silver
+  uuid: pristine_oracle
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks: []
@@ -69,14 +149,14 @@ blocks:
   executor_type: local_python
   has_callback: false
   language: python
-  name: load_airnow_readings_bronze
+  name: precise frost
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
-  - extract_data_from_airnow
-  uuid: load_airnow_readings_bronze
+  - pristine_oracle
+  uuid: precise_frost
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}

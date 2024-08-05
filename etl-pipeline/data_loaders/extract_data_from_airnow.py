@@ -1,6 +1,8 @@
 import io
 import pandas as pd
 import requests
+from typing import Any, Dict
+
 if 'data_loader' not in globals():
     from mage_ai.data_preparation.decorators import data_loader
 if 'test' not in globals():
@@ -10,7 +12,7 @@ import os
 from dotenv import load_dotenv
 
 @data_loader
-def load_data_from_api(data, *args, **kwargs) -> pd.DataFrame:
+def load_data_from_api(data, *args, **kwargs) -> Dict[str, Any]:
     """
     Template for loading data from API
     """
@@ -34,6 +36,9 @@ def load_data_from_api(data, *args, **kwargs) -> pd.DataFrame:
 
     df = pd.json_normalize(responses)
     df['station_id'] = data['station_id']
+    df.rename(columns = {'UTC': 'date_utc', 'Value': 'pm2_5'}, inplace = True)
+    df.drop(columns = ['Latitude', 'Longitude', 'Parameter', 'Unit'], axis = 1, inplace = True)
+    #df.drop(columns=['parameter', 'latitude', 'longitude', 'unit'], axis = 1, inplace = True)
 
     print(df.info())
 
