@@ -1,6 +1,7 @@
 import io
 import pandas as pd
 import requests
+import datetime
 from typing import Any, Dict
 
 if 'data_loader' not in globals():
@@ -16,13 +17,30 @@ def load_data_from_api(data, *args, **kwargs) -> Dict[str, Any]:
     """
     Template for loading data from API
     """
+
     load_dotenv()
 
+    execution_type = kwargs['execution_type']
+
+    if execution_type == 'incremental':
+        end_date_utc = kwargs['execution_date'] # now
+        start_date_utc = end_date_utc - datetime.timedelta(hours = 1)
+    else:
+        end_date_utc = kwargs['interval_start_datetime']
+        start_date_utc = kwargs['interval_end_datetime']
+
+    print(kwargs['execution_date'])
+    start_date = start_date_utc.strftime('%Y-%m-%d')
+    start_hour = start_date_utc.strftime('%H')
+    
+    end_date = end_date_utc.strftime('%Y-%m-%d')
+    end_hour = end_date_utc.strftime('%H')
+
     url = "https://airnowapi.org/aq/data/" \
-        + "?startdate=" + data["start_date"] \
-        + "t" + data["start_hour_utc"] \
-        + "&enddate=" + data["end_date"] \
-        + "t" + data["end_hour_utc"] \
+        + "?startdate=" + start_date \
+        + "t" + start_hour \
+        + "&enddate=" + end_date \
+        + "t" + end_hour \
         + "&parameters=" + data["parameters"] \
         + "&bbox=" + data["bbox"] \
         + "&datatype=" + data["data_type"] \

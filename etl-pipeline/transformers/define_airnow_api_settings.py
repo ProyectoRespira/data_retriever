@@ -26,21 +26,6 @@ def transform(data, *args, **kwargs) -> Dict:
     # # Specify your transformation logic here
     # data.set_index('station_id', inplace = True, drop = True)
 
-    data['end_date_utc'] = datetime.now(timezone('UTC')) 
-    data['end_date'] = data['end_date_utc'].dt.strftime('%Y-%m-%d')
-    data['end_hour_utc'] = data['end_date_utc'].dt.strftime('%H')
-    
-    
-    #data['start_date_utc'] = data['start_date_utc'].fillna(value = datetime(2024,7,1,0,0,0,0)).infer_objects(copy=False)
-    #data['start_date_utc] = data['start_date_utc'] + timedelta(hours = 1)
-    data['start_date_utc'] = data['end_date_utc'] - timedelta(hours = 1)
-    data['start_date'] = data['start_date_utc'].dt.strftime('%Y-%m-%d')
-    data['start_hour_utc'] = data['start_date_utc'].dt.strftime('%H')
-
-    data.drop('end_date_utc', axis = 1, inplace = True)
-    data.drop('start_date_utc', axis = 1, inplace = True)
-    
-
     data['parameters'] = 'pm25'
     data['data_type'] = 'c'
     data['format']='application/json'
