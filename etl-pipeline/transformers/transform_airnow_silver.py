@@ -44,12 +44,21 @@ def set_variable_dtypes(df):
     })
     return df
 
+def process_group(group):
+    group.drop_duplicates(keep='last', inplace=True)
+    group = interpolate_missing_pm2_5_values(group)
+    group = set_variable_dtypes(group)
+    group.sort_values(by=['date_utc'], ascending=True, inplace=True)
+    
+    return group
+
+
 @transformer
 def transform(data, data_2, *args, **kwargs):
 
     # adapt bronze readings data types to silver
     data = format_date_utc(data)
-    data = drop_id_column(data)
+    data = drop_id_column(data) 
 
     # combine existing silver and new bronze readings
     # into a single df for interpolation
@@ -57,17 +66,10 @@ def transform(data, data_2, *args, **kwargs):
         df = combine_existing_and_new_readings(data, data_2)
     else:
         df = data.copy()
-    # drop bad readings
-    # combined_data['pm2_5'] = combined_data['pm2_5'].replace(-999, np.nan)  
+        
+    processed_data = df.groupby('station_id').apply(process_group).reset_index(drop=True)
 
-    df.drop_duplicates(keep='last', inplace = True)
-    df = interpolate_missing_pm2_5_values(df)
-
-    df = set_variable_dtypes(df)
-
-    df.sort_values(by=['date_utc'], ascending=False, inplace=True)
-
-    return df
+    return processed_data
 
 
 @test
