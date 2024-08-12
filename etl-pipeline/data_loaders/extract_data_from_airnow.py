@@ -4,6 +4,9 @@ import requests
 import datetime
 from typing import Any, Dict
 from mage_ai.data_preparation.shared.secrets import get_secret_value
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 if 'data_loader' not in globals():
     from mage_ai.data_preparation.decorators import data_loader
@@ -46,7 +49,8 @@ def load_data_from_api(data, *args, **kwargs) -> Dict[str, Any]:
     try:
         response = requests.get(url, params=params, timeout=120)
     except E:
-        return "didn't get a response from Airnow"
+        logging.error(f"An error occurred during API request: {E}")
+        return None
 
     responses = response.json()
 
