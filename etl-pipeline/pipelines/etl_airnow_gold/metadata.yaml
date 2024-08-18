@@ -1,0 +1,89 @@
+blocks:
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: false
+  downstream_blocks:
+  - transform_airnow_gold
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: extract_new_readings_from_airnow_silver
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks: []
+  uuid: extract_new_readings_from_airnow_silver
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    dynamic: false
+    export_write_policy: append
+    file_path: transformers/transform_airnow_gold.py
+    file_source:
+      path: transformers/transform_airnow_gold.py
+  downstream_blocks:
+  - load_airnow_to_station_readings
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: transform_airnow_gold
+  retry_config: null
+  status: updated
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - extract_new_readings_from_airnow_silver
+  uuid: transform_airnow_gold
+- all_upstream_blocks_executed: false
+  color: null
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: load_airnow_to_station_readings
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - transform_airnow_gold
+  uuid: load_airnow_to_station_readings
+cache_block_output_in_memory: false
+callbacks: []
+concurrency_config: {}
+conditionals: []
+created_at: '2024-08-12 16:23:25.216549+00:00'
+data_integration: null
+description: transform data from airnow_readings_silver and insert to table station_readings_gold
+executor_config: {}
+executor_count: 1
+executor_type: null
+extensions: {}
+name: etl_airnow_gold
+notification_config: {}
+remote_variables_dir: null
+retry_config: {}
+run_pipeline_in_one_process: false
+settings:
+  triggers: null
+spark_config: {}
+tags:
+- pattern station
+type: python
+uuid: etl_airnow_gold
+variables_dir: /home/vnbl/.mage_data/etl-pipeline
+widgets: []
