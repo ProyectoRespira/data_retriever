@@ -26,7 +26,6 @@ def interpolate_missing_pm2_5_values(df):
 
     df.set_index('date_utc', inplace = True)
     df['pm2_5'] = df['pm2_5'].replace(-999, np.nan) 
-
     df_resampled = df.resample('h').asfreq()
     df_resampled['pm2_5'] = df_resampled['pm2_5'].interpolate(method='linear')
     
@@ -45,12 +44,20 @@ def set_variable_dtypes(df):
     return df
 
 def process_group(group):
-    group.drop_duplicates(keep='last', inplace=True)
+    group.drop_duplicates(subset = ['date_utc'], keep='first', inplace=True)
     group = interpolate_missing_pm2_5_values(group)
     group = set_variable_dtypes(group)
     group.sort_values(by=['date_utc'], ascending=True, inplace=True)
     
+    order = ['station_id', 'date_utc', 'pm2_5']
+    group = group[order]
+
     return group
+
+# def add_id_column(df):
+#     df['id'] = range(1, len(df) + 1)
+#     df['id'] = df['id'].astype(int)
+#     return df 
 
 
 @transformer
@@ -63,12 +70,19 @@ def transform(data, data_2, *args, **kwargs):
     # combine existing silver and new bronze readings
     # into a single df for interpolation
     if not data_2.empty:
+        
         df = combine_existing_and_new_readings(data, data_2)
+    
     else:
         df = data.copy()
         
     processed_data = df.groupby('station_id').apply(process_group).reset_index(drop=True)
 
+    if not data_2.empty:
+        data_2_filtered = data_2[['station_id', 'date_utc']]
+        processed_data = processed_data.merge(data_2_filtered, on=['station_id', 'date_utc'], how='left', indicator=True)
+        processed_data = processed_data[processed_data['_merge'] == 'left_only'].drop(columns=['_merge'])
+    
     return processed_data
 
 
