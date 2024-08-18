@@ -1,7 +1,7 @@
 import io
 import pandas as pd
 import requests
-import datetime
+from dateutil.relativedelta import relativedelta
 from typing import Any, Dict
 from mage_ai.data_preparation.shared.secrets import get_secret_value
 import logging
@@ -18,15 +18,17 @@ def load_data_from_api(data, *args, **kwargs) -> Dict[str, Any]:
     """
     Template for loading data from API
     """
-
+    kwarg_logger = kwargs.get('logger')
     execution_type = kwargs['execution_type']
+
+    kwarg_logger.info(type(data))
 
     if execution_type == 'incremental':
         end_date_utc = kwargs['execution_date'] # now
-        start_date_utc = end_date_utc - datetime.timedelta(hours = 1)
-    else:
-        end_date_utc = kwargs['interval_start_datetime']
-        start_date_utc = kwargs['interval_end_datetime']
+        start_date_utc = end_date_utc 
+    elif execution_type == 'backfill_year':
+        start_date_utc = kwargs['execution_date']
+        end_date_utc = start_date_utc + relativedelta(years=1)
 
     start_date = start_date_utc.strftime('%Y-%m-%d')
     start_hour = start_date_utc.strftime('%H')
