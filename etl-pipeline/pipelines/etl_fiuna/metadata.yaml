@@ -69,7 +69,7 @@ blocks:
   upstream_blocks:
   - extract_station_readings
   uuid: collect_station_readings
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     data_provider: postgres
@@ -114,7 +114,8 @@ run_pipeline_in_one_process: false
 settings:
   triggers: null
 spark_config: {}
-tags: []
+tags:
+- fiuna
 type: python
 uuid: etl_fiuna
 variables_dir: /home/vnbl/.mage_data/etl-pipeline
