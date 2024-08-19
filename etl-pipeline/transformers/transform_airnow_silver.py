@@ -54,12 +54,6 @@ def process_group(group):
 
     return group
 
-# def add_id_column(df):
-#     df['id'] = range(1, len(df) + 1)
-#     df['id'] = df['id'].astype(int)
-#     return df 
-
-
 @transformer
 def transform(data, data_2, *args, **kwargs):
 
