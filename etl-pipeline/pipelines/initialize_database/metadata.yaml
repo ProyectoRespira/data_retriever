@@ -9,7 +9,7 @@ blocks:
     export_write_policy: append
     file_path: custom/create_table_regions.sql
     file_source:
-      path: null
+      path: custom/create_table_regions.sql
     limit: 1000
     use_raw_sql: true
   downstream_blocks:
@@ -35,7 +35,7 @@ blocks:
     export_write_policy: append
     file_path: custom/create_table_stations.sql
     file_source:
-      path: null
+      path: custom/create_table_stations.sql
     limit: 1000
     use_raw_sql: true
   downstream_blocks:
@@ -62,7 +62,7 @@ blocks:
     export_write_policy: append
     file_path: custom/create_table_weather_stations.sql
     file_source:
-      path: null
+      path: custom/create_table_weather_stations.sql
     limit: 1000
     use_raw_sql: true
   downstream_blocks:
@@ -89,7 +89,7 @@ blocks:
     export_write_policy: append
     file_path: custom/create_table_station_readings.sql
     file_source:
-      path: null
+      path: custom/create_table_station_readings.sql
     limit: 1000
     use_raw_sql: true
   downstream_blocks:
@@ -116,7 +116,7 @@ blocks:
     export_write_policy: append
     file_path: custom/create_table_weather_readings.sql
     file_source:
-      path: null
+      path: custom/create_table_weather_readings.sql
     limit: 1000
     use_raw_sql: true
   downstream_blocks:
