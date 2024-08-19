@@ -63,13 +63,13 @@ blocks:
   language: python
   name: collect_station_readings
   retry_config: null
-  status: executed
+  status: failed
   timeout: null
   type: transformer
   upstream_blocks:
   - extract_station_readings
   uuid: collect_station_readings
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     data_provider: postgres
@@ -114,8 +114,9 @@ run_pipeline_in_one_process: false
 settings:
   triggers: null
 spark_config: {}
-tags: []
+tags:
+- fiuna
 type: python
 uuid: etl_fiuna
-variables_dir: /Users/quantum/.mage_data/etl-pipeline
+variables_dir: /home/vnbl/.mage_data/etl-pipeline
 widgets: []

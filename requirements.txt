@@ -1,5 +1,5 @@
 aiofiles==22.1.0
-aiohttp==3.9.5
+aiohttp #==3.9.5
 aiosignal==1.3.1
 alembic==1.13.1
 altair==4.2.2
@@ -102,7 +102,7 @@ ldap3==2.9.1
 Levenshtein==0.25.1
 locket==1.0.0
 lxml==5.2.2
-mage-ai==0.9.72
+mage-ai==0.9.73
 makefun==1.15.4
 Mako==1.3.5
 markdown-it-py==3.0.0
@@ -238,7 +238,7 @@ universal_pathlib==0.2.2
 uritemplate==4.1.1
 urllib3==1.26.19
 uvicorn==0.30.1
-#uvloop==0.19.0
+uvloop==0.19.0
 watchdog==4.0.0
 watchfiles==0.22.0
 wcwidth==0.2.13
@@ -246,7 +246,7 @@ webencodings==0.5.1
 websocket-client==1.8.0
 websockets==12.0
 widgetsnbextension==4.0.11
-winloop
+#winloop
 wrapt==1.16.0
 xlsx2csv==0.8.1
 XlsxWriter==3.2.0
@@ -255,3 +255,4 @@ xmltodict==0.13.0
 yarl==1.9.4
 zeep==4.2.1
 zenpy==2.0.25
+meteostat

@@ -28,7 +28,8 @@ INSERT INTO stations (
     (7, 'San Roque', '-25.28936695307490', '-57.62515967711810', 'GRAN_ASUNCION', FALSE, FALSE),
     (8, 'Centro de Asunción', '-25.28640403412280', '-57.64701121486720', 'GRAN_ASUNCION', FALSE, FALSE),
     (9, 'Ñu Guasu', '-25.26458493433890', '-57.54793468862770', 'GRAN_ASUNCION', FALSE, FALSE),
-    (10, 'Botánico', '-25.24647398851810', '-57.54928501322870', 'GRAN_ASUNCION', FALSE, FALSE);
+    (10, 'Botánico', '-25.24647398851810', '-57.54928501322870', 'GRAN_ASUNCION', FALSE, FALSE)
+    ;
 
 
 -- pattern station
@@ -41,4 +42,5 @@ INSERT INTO stations (
     is_station_on, 
     is_pattern_station
 ) VALUES
-    (101, 'US Embassy - Asunción', '-25.296368', '-57.604671', 'GRAN_ASUNCION', FALSE, TRUE);
+    (101, 'US Embassy - Asunción', '-25.296368', '-57.604671', 'GRAN_ASUNCION', FALSE, TRUE)
+    ;

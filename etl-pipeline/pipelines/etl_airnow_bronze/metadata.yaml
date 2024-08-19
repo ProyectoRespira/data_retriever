@@ -1,0 +1,110 @@
+blocks:
+- all_upstream_blocks_executed: true
+  color: teal
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    dbt: {}
+    disable_query_preprocessing: false
+    dynamic: false
+    export_write_policy: replace
+    file_path: custom/get_last_airnow_reading_silver_and_bbox.sql
+    file_source:
+      path: custom/get_last_airnow_reading_silver_and_bbox.sql
+    limit: 1000
+    use_raw_sql: false
+  downstream_blocks:
+  - extract_data_from_airnow
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: get_last_airnow_reading_silver_and_bbox
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks: []
+  uuid: get_last_airnow_reading_silver_and_bbox
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - export_to_airnow_readings_bronze
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: extract_data_from_airnow
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - get_last_airnow_reading_silver_and_bbox
+  uuid: extract_data_from_airnow
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    file_path: data_exporters/export_to_airnow_readings_bronze.py
+    file_source:
+      path: data_exporters/export_to_airnow_readings_bronze.py
+  downstream_blocks:
+  - trigger_airnow_silver_pipeline
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: export_to_airnow_readings_bronze
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - extract_data_from_airnow
+  uuid: export_to_airnow_readings_bronze
+- all_upstream_blocks_executed: false
+  color: teal
+  configuration:
+    file_source:
+      path: custom/trigger_airnow_silver_pipeline.py
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: trigger_airnow_silver_pipeline
+  retry_config: null
+  status: updated
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - export_to_airnow_readings_bronze
+  uuid: trigger_airnow_silver_pipeline
+cache_block_output_in_memory: false
+callbacks: []
+concurrency_config: {}
+conditionals: []
+created_at: '2024-07-26 19:29:41.693148+00:00'
+data_integration: null
+description: Extracts pollution data from Airnow and stores the data in table airnow_readings_bronze
+executor_config: {}
+executor_count: 1
+executor_type: null
+extensions: {}
+name: etl_airnow_bronze
+notification_config: {}
+remote_variables_dir: null
+retry_config: {}
+run_pipeline_in_one_process: false
+settings:
+  triggers: null
+spark_config: {}
+tags:
+- pattern station
+type: python
+uuid: etl_airnow_bronze
+variables:
+  execution_type: incremental
+variables_dir: /home/vnbl/.mage_data/etl-pipeline
+widgets: []
