@@ -5,10 +5,10 @@ blocks:
     data_provider: postgres
     data_provider_profile: default
     dbt: {}
-    disable_query_preprocessing: true
+    disable_query_preprocessing: false
     export_write_policy: append
     limit: 1000
-    use_raw_sql: false
+    use_raw_sql: true
   downstream_blocks:
   - transform_airnow_gold
   executor_config: null
@@ -40,13 +40,13 @@ blocks:
   language: python
   name: transform_airnow_gold
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: transformer
   upstream_blocks:
   - extract_new_readings_from_airnow_silver
   uuid: transform_airnow_gold
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks: []
