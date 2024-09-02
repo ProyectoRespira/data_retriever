@@ -40,7 +40,7 @@ blocks:
   language: python
   name: extract_fiuna_data
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_loader
   upstream_blocks:

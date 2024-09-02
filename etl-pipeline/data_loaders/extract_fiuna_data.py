@@ -16,9 +16,7 @@ def load_data_from_mysql(data,*args, **kwargs):
 
     Docs: https://docs.mage.ai/design/data-loading#mysql
     """
-    
-    print(data['station_id'])
-    print(data['last_measurement_id'])
+
     station_id = data['station_id']
     table_name = f'Estacion{ station_id }'
     last_measurement_id = data['last_measurement_id']
