@@ -8,6 +8,7 @@ if 'transformer' not in globals():
 if 'test' not in globals():
     from mage_ai.data_preparation.decorators import test
 
+
 def validate_date_hour(date, hour):
     if date is None:
         return False
@@ -16,7 +17,6 @@ def validate_date_hour(date, hour):
     
     date = date.strip()
     hour = hour.strip()
-
     date_pattern = re.compile(r'^\d{1,2}-\d{1,2}-\d{4}$')
     hour_pattern = re.compile(r'^\d{1,2}:\d{2}$')
 
@@ -33,11 +33,13 @@ def validate_date_hour(date, hour):
     
     return True
 
+
 def validate_pm_readings(pm):
     if pm >= 0:
         return pm
     else:
         return np.nan
+
 
 def validate_pressure(pressure):
     if 800 < pressure < 1200:
@@ -45,17 +47,20 @@ def validate_pressure(pressure):
     else:
         return np.nan
 
+
 def validate_temperature(temperature):
     if -10 < temperature < 80:
         return temperature
     else:
         return np.nan
 
+
 def validate_humidity(humidity):
     if 0 <= humidity <= 100:
         return humidity
     else:
         return np.nan
+
 
 def rename_columns(df):
     new_names = {
@@ -70,6 +75,7 @@ def rename_columns(df):
     }
     df.rename(columns=new_names, inplace = True)
     return df
+
 
 def convert_dtypes(df):
     # Convert 'date' and 'hour' to strings
@@ -86,15 +92,21 @@ def convert_dtypes(df):
     
     return df
 
+
 def process_data(df):
     # rename columns
     df.dropna(inplace = True)
+    
     df = rename_columns(df)
+    
     df.drop(columns=['id','bateria'], axis = 1, inplace = True)
+
     # assert dtypes
     df = convert_dtypes(df)
+
     # validate readings 
     df = df[df.apply(lambda row: validate_date_hour(row['date'], row['hour']), axis = 1)]
+    
     df['pressure'] = df['pressure'].apply(validate_pressure)
     df['temperature'] = df['temperature'].apply(validate_temperature)
     df['humidity'] = df['humidity'].apply(validate_humidity)
@@ -103,6 +115,7 @@ def process_data(df):
     df['pm10'] = df['pm10'].apply(validate_pm_readings)
 
     return df
+
 
 @transformer
 def transform(data, *args, **kwargs):
