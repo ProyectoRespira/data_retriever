@@ -1,0 +1,160 @@
+blocks:
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    dbt: {}
+    disable_query_preprocessing: false
+    dynamic: true
+    export_write_policy: append
+    file_source:
+      path: data_loaders/extract_station_ids.sql
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks:
+  - extract_fiuna_silver_to_gold
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: extract_station_ids
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks: []
+  uuid: extract_station_ids
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    dbt: {}
+    disable_query_preprocessing: false
+    export_write_policy: append
+    file_path: data_loaders/extract_fiuna_silver_to_gold.sql
+    file_source:
+      path: data_loaders/extract_fiuna_silver_to_gold.sql
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks:
+  - transform_fiuna_gold_frequency
+  - select_processed_silver_ids
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: extract_fiuna_silver_to_gold
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - extract_station_ids
+  uuid: extract_fiuna_silver_to_gold
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    export_write_policy: append
+    file_path: transformers/select_processed_silver_ids.py
+    file_source:
+      path: transformers/select_processed_silver_ids.py
+  downstream_blocks:
+  - load_processed_fiuna_silver_ids
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: select_processed_silver_ids
+  retry_config: null
+  status: updated
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - extract_fiuna_silver_to_gold
+  uuid: select_processed_silver_ids
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    file_source:
+      path: transformers/transform_fiuna_gold_frequency.py
+  downstream_blocks:
+  - load_srg_readings
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: transform_fiuna_gold_frequency
+  retry_config: null
+  status: updated
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - extract_fiuna_silver_to_gold
+  uuid: transform_fiuna_gold_frequency
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    file_path: data_exporters/load_processed_fiuna_silver_ids.py
+    file_source:
+      path: data_exporters/load_processed_fiuna_silver_ids.py
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: load_processed_fiuna_silver_ids
+  retry_config: null
+  status: updated
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - select_processed_silver_ids
+  uuid: load_processed_fiuna_silver_ids
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    file_path: data_exporters/load_srg_readings.py
+    file_source:
+      path: data_exporters/load_srg_readings.py
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: load_srg_readings
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - transform_fiuna_gold_frequency
+  uuid: load_srg_readings
+cache_block_output_in_memory: false
+callbacks: []
+concurrency_config: {}
+conditionals: []
+created_at: '2024-09-13 04:18:40.756637+00:00'
+data_integration: null
+description: null
+executor_config: {}
+executor_count: 1
+executor_type: null
+extensions: {}
+name: etl_fiuna_gold_measurements
+notification_config: {}
+remote_variables_dir: null
+retry_config: {}
+run_pipeline_in_one_process: false
+settings:
+  triggers: null
+spark_config: {}
+tags:
+- fiuna
+type: python
+uuid: etl_fiuna_gold_measurements
+variables_dir: /home/vnbl/.mage_data/etl-pipeline
+widgets: []
