@@ -61,19 +61,18 @@ def transform(data, *args, **kwargs):
     try:
         if data is None:
             klogger.exception('No data for calibration')
-            return data
+            return pd.DataFrame()
 
         if check_data_coverage(data):
-            cal_data = get_cal_data(data, exec_date)
-            print(cal_data)
+            cal_data = get_cal_data(data)
             return cal_data
         else:
             klogger.exception(f"Not enough data to calibrate this month for station {data['station_id'].iloc[0]}")
-            return data
+            return pd.DataFrame()
     except Exception as e:
         klogger.exception(e)
 
-    return data
+    return pd.DataFrame()
 
 
 @test

@@ -9,8 +9,8 @@ WITH station_data AS (
     FROM station_readings_silver srs
     WHERE srs.station_id = '{{ block_output(parse=lambda data, vars: data[0]["station_id"]) }}'
     AND srs.date_localtime BETWEEN 
-        (DATE_TRUNC('day', CAST('{{ execution_date }}' AS timestamp) AT TIME ZONE 'UTC' AT TIME ZONE 'America/Asuncion') - INTERVAL '3 months') 
-        AND DATE_TRUNC('day', CAST('{{ execution_date }}' AS timestamp) AT TIME ZONE 'UTC' AT TIME ZONE 'America/Asuncion')
+        (DATE_TRUNC('day', CAST('{{ execution_date }}' AS timestamp)) - INTERVAL '3 months') 
+        AND DATE_TRUNC('day', CAST('{{ execution_date }}' AS timestamp))
     GROUP BY DATE_TRUNC('hour', srs.date_localtime), srs.station_id
 ),
 pattern_data AS (
@@ -22,8 +22,8 @@ pattern_data AS (
     FROM station_readings_gold srg
     WHERE srg.station = '{{ block_output(parse=lambda data, vars: data[0]["pattern_station_id"]) }}'
     AND srg.date_localtime BETWEEN 
-        (DATE_TRUNC('day', CAST('{{ execution_date }}' AS timestamp) AT TIME ZONE 'UTC' AT TIME ZONE 'America/Asuncion') - INTERVAL '3 months') 
-        AND DATE_TRUNC('day', CAST('{{ execution_date }}' AS timestamp) AT TIME ZONE 'UTC' AT TIME ZONE 'America/Asuncion')
+        (DATE_TRUNC('day', CAST('{{ execution_date }}' AS timestamp) ) - INTERVAL '3 months') 
+        AND DATE_TRUNC('day', CAST('{{ execution_date }}' AS timestamp))
     GROUP BY DATE_TRUNC('hour', srg.date_localtime), srg.station
 ),
 weather_data AS (
@@ -35,8 +35,8 @@ weather_data AS (
     FROM weather_readings_gold wrg
     WHERE wrg.weather_station = '{{ block_output(parse=lambda data, vars: data[0]["weather_station_id"]) }}'
     AND wrg.date_localtime BETWEEN 
-        (DATE_TRUNC('day', CAST('{{ execution_date }}' AS timestamp) AT TIME ZONE 'UTC' AT TIME ZONE 'America/Asuncion') - INTERVAL '3 months') 
-        AND DATE_TRUNC('day', CAST('{{ execution_date }}' AS timestamp) AT TIME ZONE 'UTC' AT TIME ZONE 'America/Asuncion')
+        (DATE_TRUNC('day', CAST('{{ execution_date }}' AS timestamp) ) - INTERVAL '3 months') 
+        AND DATE_TRUNC('day', CAST('{{ execution_date }}' AS timestamp))
     GROUP BY DATE_TRUNC('hour', wrg.date_localtime), wrg.weather_station
 )
 -- Combine all data using LEFT JOINs based on date_localtime
