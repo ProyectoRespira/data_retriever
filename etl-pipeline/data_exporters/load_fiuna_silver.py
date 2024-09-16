@@ -1,3 +1,4 @@
+import numpy as np
 from mage_ai.settings.repo import get_repo_path
 from mage_ai.io.config import ConfigFileLoader
 from mage_ai.io.postgres import Postgres
@@ -20,20 +21,26 @@ def export_data_to_postgres(df: DataFrame, **kwargs) -> None:
     table_name = 'station_readings_silver'  # Specify the name of the table to export data to
     config_path = path.join(get_repo_path(), 'io_config.yaml')
     config_profile = 'default'
+    #batch_size = 1000
 
     klogger = kwargs.get('logger')
 
     try:
         if df.empty:
             raise Exception('Dataframe is empty')
+
+        #df_batches = np.array_split(df, len(df) // batch_size + 1)
         
         with Postgres.with_config(ConfigFileLoader(config_path, config_profile)) as loader:
+            #for batch in df_batches:
             loader.export(
                 df,
                 schema_name,
                 table_name,
                 index=False,  # Specifies whether to include index in exported table
                 if_exists='append',  # Specify resolution policy if table name already exists
+                unique_conflict_method = 'UPDATE',
+                unique_constraints = ['station_id', 'date_localtime']
             )
     except Exception as e:
         klogger.exception(e)

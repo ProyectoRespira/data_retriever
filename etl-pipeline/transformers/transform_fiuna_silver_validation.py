@@ -35,7 +35,7 @@ def validate_date_hour(date, hour):
 
 
 def validate_pm_readings(pm):
-    if pm >= 0:
+    if pm > 0:
         return pm
     else:
         return np.nan

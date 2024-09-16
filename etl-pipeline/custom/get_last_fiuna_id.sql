@@ -7,4 +7,4 @@ WITH LastMeasurement AS (
 SELECT s.id AS station_id, COALESCE(lm.last_measurement_id, 0) AS last_measurement_id
 FROM stations s
 LEFT JOIN LastMeasurement lm ON s.id = lm.station_id
-WHERE s.is_pattern_station = false;
+WHERE s.is_pattern_station = false AND s.is_station_on = true;
