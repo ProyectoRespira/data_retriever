@@ -11,6 +11,7 @@ blocks:
     use_raw_sql: true
   downstream_blocks:
   - transform_weather_silver
+  - extract_weather_silver_for_interpolation
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -23,31 +24,28 @@ blocks:
   upstream_blocks: []
   uuid: extract_new_readings_weather_bronze
 - all_upstream_blocks_executed: true
-  color: teal
+  color: null
   configuration:
     data_provider: postgres
     data_provider_profile: default
-    dbt: {}
-    disable_query_preprocessing: false
     export_write_policy: append
-    file_path: custom/select_last_reading_from_weather_silver.sql
+    file_path: data_loaders/extract_weather_silver_for_interpolation.py
     file_source:
-      path: custom/select_last_reading_from_weather_silver.sql
-    limit: 1000
-    use_raw_sql: true
+      path: data_loaders/extract_weather_silver_for_interpolation.py
   downstream_blocks:
   - transform_weather_silver
   executor_config: null
   executor_type: local_python
   has_callback: false
-  language: sql
-  name: select_last_reading_from_weather_silver
+  language: python
+  name: extract_weather_silver_for_interpolation
   retry_config: null
   status: executed
   timeout: null
-  type: custom
-  upstream_blocks: []
-  uuid: select_last_reading_from_weather_silver
+  type: data_loader
+  upstream_blocks:
+  - extract_new_readings_weather_bronze
+  uuid: extract_weather_silver_for_interpolation
 - all_upstream_blocks_executed: true
   color: null
   configuration:
@@ -62,14 +60,14 @@ blocks:
   language: python
   name: transform_weather_silver
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: transformer
   upstream_blocks:
   - extract_new_readings_weather_bronze
-  - select_last_reading_from_weather_silver
+  - extract_weather_silver_for_interpolation
   uuid: transform_weather_silver
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks: []
@@ -79,7 +77,7 @@ blocks:
   language: python
   name: load_weather_silver
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
