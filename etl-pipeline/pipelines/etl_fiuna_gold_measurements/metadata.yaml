@@ -70,7 +70,7 @@ blocks:
   language: python
   name: select_processed_silver_ids
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: transformer
   upstream_blocks:
@@ -89,13 +89,13 @@ blocks:
   language: python
   name: transform_fiuna_gold_frequency
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: transformer
   upstream_blocks:
   - extract_fiuna_silver_to_gold
   uuid: transform_fiuna_gold_frequency
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_path: data_exporters/load_processed_fiuna_silver_ids.py
@@ -108,13 +108,13 @@ blocks:
   language: python
   name: load_processed_fiuna_silver_ids
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
   - select_processed_silver_ids
   uuid: load_processed_fiuna_silver_ids
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_path: data_exporters/load_srg_readings.py

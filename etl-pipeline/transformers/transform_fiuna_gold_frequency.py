@@ -57,7 +57,7 @@ def transform(data, *args, **kwargs):
     klogger = kwargs.get('logger')
 
     try:
-        if df.empty:
+        if data.empty:
             raise Exception('Dataframe is empty')
 
         data = process_data(data)

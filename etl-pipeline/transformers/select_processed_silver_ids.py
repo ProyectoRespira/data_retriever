@@ -10,7 +10,7 @@ def transform(data, *args, **kwargs) -> DataFrame:
     klogger = kwargs.get('logger')
     
     try:
-        if df.empty:
+        if data.empty:
             raise Exception('Dataframe is empty')
         data = data[['silver_id', 'date_localtime']]
     except Exception as e:
