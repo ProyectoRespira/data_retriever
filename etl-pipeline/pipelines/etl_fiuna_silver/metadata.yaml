@@ -5,7 +5,7 @@ blocks:
     data_provider: postgres
     data_provider_profile: default
     dbt: {}
-    disable_query_preprocessing: false
+    disable_query_preprocessing: true
     dynamic: true
     export_write_policy: append
     file_path: custom/get_last_fiuna_id.sql
