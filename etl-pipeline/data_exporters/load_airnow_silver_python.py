@@ -28,4 +28,6 @@ def export_data_to_postgres(data: DataFrame, **kwargs) -> None:
             table_name,
             index=False,  # Specifies whether to include index in exported table
             if_exists='append',  # Specify resolution policy if table name already exists
+            unique_conflict_method='UPDATE',
+            unique_constraints=['station_id', 'date_utc']
         )

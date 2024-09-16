@@ -11,6 +11,7 @@ blocks:
     use_raw_sql: true
   downstream_blocks:
   - transform_airnow_silver
+  - extract_airnow_silver_for_interpolation
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -23,31 +24,28 @@ blocks:
   upstream_blocks: []
   uuid: extract_new_readings_airnow_bronze
 - all_upstream_blocks_executed: true
-  color: teal
+  color: null
   configuration:
     data_provider: postgres
     data_provider_profile: default
-    dbt: {}
-    disable_query_preprocessing: false
-    export_write_policy: append
-    file_path: custom/select_last_reading_from_airnow_silver.sql
+    export_write_policy: replace
+    file_path: data_loaders/extract_airnow_silver_for_interpolation.py
     file_source:
-      path: custom/select_last_reading_from_airnow_silver.sql
-    limit: 1000
-    use_raw_sql: false
+      path: data_loaders/extract_airnow_silver_for_interpolation.py
   downstream_blocks:
   - transform_airnow_silver
   executor_config: null
   executor_type: local_python
   has_callback: false
-  language: sql
-  name: select_last_reading_from_airnow_silver
+  language: python
+  name: extract_airnow_silver_for_interpolation
   retry_config: null
   status: executed
   timeout: null
-  type: custom
-  upstream_blocks: []
-  uuid: select_last_reading_from_airnow_silver
+  type: data_loader
+  upstream_blocks:
+  - extract_new_readings_airnow_bronze
+  uuid: extract_airnow_silver_for_interpolation
 - all_upstream_blocks_executed: true
   color: null
   configuration:
@@ -68,7 +66,7 @@ blocks:
   type: transformer
   upstream_blocks:
   - extract_new_readings_airnow_bronze
-  - select_last_reading_from_airnow_silver
+  - extract_airnow_silver_for_interpolation
   uuid: transform_airnow_silver
 - all_upstream_blocks_executed: true
   color: null
