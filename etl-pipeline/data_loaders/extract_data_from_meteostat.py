@@ -23,9 +23,15 @@ def load_data(data, *args, **kwargs):
         end_date = kwargs['execution_date']
         start_date = end_date - relativedelta(hours = 1)
     elif execution_type == 'backfill_year':
-        start_date = kwargs['execution_date']
-        end_date = start_date + relativedelta(years = 1)
-
+        end_date = kwargs['execution_date']
+        start_date = end_date - relativedelta(years = 1)
+    elif execution_type == 'backfill_day':
+        end_date = kwargs['execution_date']
+        start_date = end_date - relativedelta(days = 1)
+    elif execution_type == 'backfill_month':
+        end_date = kwargs['execution_date']
+        start_date = end_date - relativedelta(months = 1)
+        
     new_data = []
     
     for i in data.index:
@@ -41,7 +47,8 @@ def load_data(data, *args, **kwargs):
     else:
         df = pd.concat(new_data)
 
-    df['date_utc'] = df.index
+    df['date_utc'] = pd.to_datetime(df.index)
+    df['date_utc'] = df['date_utc'].dt.tz_localize('UTC')
     df.rename(columns = {'temp': 'temperature'}, inplace = True)
     df.reset_index(drop=True)
     
