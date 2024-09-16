@@ -5,14 +5,14 @@ blocks:
     data_provider: postgres
     data_provider_profile: default
     dbt: {}
-    disable_query_preprocessing: false
+    disable_query_preprocessing: true
     dynamic: false
     export_write_policy: replace
     file_path: custom/get_last_airnow_reading_silver_and_bbox.sql
     file_source:
       path: custom/get_last_airnow_reading_silver_and_bbox.sql
     limit: 1000
-    use_raw_sql: false
+    use_raw_sql: true
   downstream_blocks:
   - extract_data_from_airnow
   executor_config: null
@@ -37,13 +37,13 @@ blocks:
   language: python
   name: extract_data_from_airnow
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
   - get_last_airnow_reading_silver_and_bbox
   uuid: extract_data_from_airnow
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_path: data_exporters/export_to_airnow_readings_bronze.py
@@ -63,7 +63,7 @@ blocks:
   upstream_blocks:
   - extract_data_from_airnow
   uuid: export_to_airnow_readings_bronze
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: teal
   configuration:
     file_source:
@@ -105,6 +105,6 @@ tags:
 type: python
 uuid: etl_airnow_bronze
 variables:
-  execution_type: incremental
+  execution_type: backfill_year
 variables_dir: /home/vnbl/.mage_data/etl-pipeline
 widgets: []

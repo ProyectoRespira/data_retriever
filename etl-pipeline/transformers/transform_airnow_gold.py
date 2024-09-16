@@ -1,4 +1,6 @@
-from pytz import timezone
+from pytz import timezone, utc
+import pandas as pd
+import datetime
 
 if 'transformer' not in globals():
     from mage_ai.data_preparation.decorators import transformer
@@ -6,23 +8,26 @@ if 'test' not in globals():
     from mage_ai.data_preparation.decorators import test
 
 def convert_to_local_time(time_utc):
-    local_time = timezone('America/Asuncion')
-    utc_minus_0 = timezone('UTC')
-    time_utc = utc_minus_0.localize(time_utc)
-    time_utc_local = time_utc.astimezone(local_time)
-    return time_utc_local.replace(tzinfo=None)
+    local_time_zone = timezone('America/Asuncion')
+    # Convert to local time zone
+    time_utc_local = time_utc.astimezone(local_time_zone)
+    return time_utc_local
 
 def process_data(df):
+    # Ensure 'date_utc' is a datetime column and timezone-aware
+    df['date_utc'] = pd.to_datetime(df['date_utc'], utc=True)  # Parse dates with UTC timezone
     df['date_localtime'] = df['date_utc'].apply(convert_to_local_time)
-    df.rename(columns = {'station_id':'station'}, inplace = True)
-    df.drop(columns = ['date_utc'], inplace = True)
+    
+    df.drop(columns=['date_utc'], inplace=True)
+    # Sort the DataFrame by 'date_localtime'
+    df = df.sort_values(by='date_localtime')
     return df
 
 @transformer
 def transform(data, *args, **kwargs):
-    # Specify your transformation logic here
-    processed_data = data.groupby('station_id').apply(process_data).reset_index(drop=True)
-
+    # Apply process_data to each group and then sort by 'date_localtime'
+    processed_data = data.groupby('station').apply(process_data).reset_index(drop=True)
+    print(processed_data.info())
     return processed_data
 
 
