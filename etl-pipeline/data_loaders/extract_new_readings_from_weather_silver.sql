@@ -1,7 +1,15 @@
-SELECT silver.*
-FROM weather_readings_silver silver
-WHERE silver.date_utc > COALESCE((
-    SELECT MAX(gold.date_localtime AT TIME ZONE 'America/Asuncion' AT TIME ZONE 'UTC')
-    FROM weather_readings_gold gold
-    WHERE gold.weather_station = silver.weather_station
-), '1970-01-01 00:00:00'::TIMESTAMP);
+SELECT  
+    silver.id,
+    silver.date_utc, 
+    silver.weather_station, 
+    silver.temperature, 
+    silver.humidity, 
+    silver.pressure, 
+    silver.wind_speed, 
+    silver.wind_dir
+FROM    
+    weather_readings_silver silver
+LEFT JOIN
+    weather_readings_gold gold ON silver.id = gold.measurement_id
+WHERE 
+    gold.measurement_id IS NULL;

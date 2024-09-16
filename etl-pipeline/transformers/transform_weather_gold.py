@@ -9,10 +9,8 @@ if 'test' not in globals():
 
 def convert_to_local_time(time_utc):
     local_time = timezone('America/Asuncion')
-    utc_minus_0 = timezone('UTC')
-    time_utc = utc_minus_0.localize(time_utc)
     time_utc_local = time_utc.astimezone(local_time)
-    return time_utc_local.replace(tzinfo=None)
+    return time_utc_local
 
 def convert_angles_to_cos_sin(df):
     df['wind_dir_cos'] = np.cos(2 * np.pi * df.wind_dir / 360)
@@ -25,6 +23,9 @@ def process_data(df):
     df['date_localtime'] = df['date_utc'].apply(convert_to_local_time)
     df.drop(columns = ['date_utc'], inplace = True)
     df = convert_angles_to_cos_sin(df)
+    df = df.drop_duplicates(subset='date_localtime', keep='first')
+    df.sort_values(by=['date_localtime'], ascending = False, inplace=True)
+    df.rename(columns={'id':'measurement_id'}, inplace = True)
     
     return df
 
