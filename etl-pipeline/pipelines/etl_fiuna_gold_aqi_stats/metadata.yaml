@@ -1,0 +1,117 @@
+blocks:
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    dbt: {}
+    disable_query_preprocessing: false
+    dynamic: true
+    export_write_policy: append
+    file_source:
+      path: data_loaders/extract_station_ids.sql
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks:
+  - get_srg_readings_without_aqi
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: extract_station_ids
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks: []
+  uuid: extract_station_ids
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    dbt: {}
+    disable_query_preprocessing: false
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks:
+  - transform_fiuna_aqi_and_stats
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: get_srg_readings_without_aqi
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - extract_station_ids
+  uuid: get_srg_readings_without_aqi
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    export_write_policy: append
+    file_path: transformers/transform_fiuna_aqi_and_stats.py
+    file_source:
+      path: transformers/transform_fiuna_aqi_and_stats.py
+  downstream_blocks:
+  - load_srg_readings
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: transform_fiuna_aqi_and_stats
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - get_srg_readings_without_aqi
+  uuid: transform_fiuna_aqi_and_stats
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    file_source:
+      path: data_exporters/load_srg_readings.py
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: load_srg_readings
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - transform_fiuna_aqi_and_stats
+  uuid: load_srg_readings
+cache_block_output_in_memory: false
+callbacks: []
+concurrency_config: {}
+conditionals: []
+created_at: '2024-09-15 23:25:37.181225+00:00'
+data_integration: null
+description: null
+executor_config: {}
+executor_count: 1
+executor_type: null
+extensions: {}
+name: etl_fiuna_gold_aqi_stats
+notification_config: {}
+remote_variables_dir: null
+retry_config: {}
+run_pipeline_in_one_process: false
+settings:
+  triggers: null
+spark_config: {}
+tags:
+- fiuna
+type: python
+uuid: etl_fiuna_gold_aqi_stats
+variables_dir: /home/vnbl/.mage_data/etl-pipeline
+widgets: []
