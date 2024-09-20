@@ -10,13 +10,20 @@ if 'test' not in globals():
 
 
 @data_loader
-def load_data(data, *args, **kwargs):
+def load_data(data: pd.DataFrame, *args, **kwargs):
     """
     Template code for loading data from any source.
 
     Returns:
         Anything (e.g. data frame, dictionary, array, int, str, etc.)
     """
+    klogger = kwargs.get('logger')
+    klogger.info(f'data dtype = {type(data)}')
+    klogger.info(f'data = {data}')
+    
+    if not isinstance(data, pd.DataFrame):
+        data = pd.DataFrame(data)
+    
     execution_type = kwargs['execution_type']
     # Specify your data loading logic here
     if execution_type == 'incremental':
@@ -34,13 +41,14 @@ def load_data(data, *args, **kwargs):
         
     new_data = []
     
-    for i in data.index:
-        coordinates = Point(data['latitude'].iloc[i], 
-                            data['longitude'].iloc[i],
-                            101)
+    for i, row in data.iterrows(): 
+        coordinates = Point(lat = row['latitude'], 
+                            lon = row['longitude'])
         df_aux = Hourly(coordinates, start_date, end_date).fetch()
-        df_aux['station_id'] = data['station_id'].iloc[i]
+        
+        df_aux['station_id'] = row['station_id'].astype(int)
         new_data.append(df_aux)
+
 
     if len(new_data) == 1:
         df = new_data[0]

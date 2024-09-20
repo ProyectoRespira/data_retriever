@@ -70,7 +70,8 @@ blocks:
 - all_upstream_blocks_executed: true
   color: null
   configuration: {}
-  downstream_blocks: []
+  downstream_blocks:
+  - trigger_meteostat_gold
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -83,6 +84,22 @@ blocks:
   upstream_blocks:
   - transform_weather_silver
   uuid: load_weather_silver
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: trigger_meteostat_gold
+  retry_config: null
+  status: updated
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - load_weather_silver
+  uuid: trigger_meteostat_gold
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}

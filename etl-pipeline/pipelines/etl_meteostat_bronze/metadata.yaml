@@ -5,7 +5,7 @@ blocks:
     data_provider: postgres
     data_provider_profile: default
     dbt: {}
-    disable_query_preprocessing: true
+    disable_query_preprocessing: false
     dynamic: false
     export_write_policy: append
     limit: 1000
@@ -37,13 +37,13 @@ blocks:
   language: python
   name: extract_data_from_meteostat
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_loader
   upstream_blocks:
   - get_weather_station_coordinates
   uuid: extract_data_from_meteostat
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration: {}
   downstream_blocks:
@@ -60,7 +60,7 @@ blocks:
   upstream_blocks:
   - extract_data_from_meteostat
   uuid: load_meteostat_bronze
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     data_provider: postgres
