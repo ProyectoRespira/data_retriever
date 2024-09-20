@@ -100,7 +100,7 @@ blocks:
   language: python
   name: trigger_etl_fiuna_silver
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: custom
   upstream_blocks:
