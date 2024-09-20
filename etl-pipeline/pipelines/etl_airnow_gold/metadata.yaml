@@ -57,7 +57,7 @@ blocks:
   language: python
   name: load_airnow_to_station_readings
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_exporter
   upstream_blocks:
@@ -103,7 +103,7 @@ widgets:
   language: python
   name: feature profiles for transform_airnow_gold
   retry_config: null
-  status: failed
+  status: executed
   timeout: null
   type: chart
   upstream_blocks:

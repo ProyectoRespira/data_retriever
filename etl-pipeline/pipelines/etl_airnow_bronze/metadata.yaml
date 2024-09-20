@@ -5,7 +5,7 @@ blocks:
     data_provider: postgres
     data_provider_profile: default
     dbt: {}
-    disable_query_preprocessing: true
+    disable_query_preprocessing: false
     dynamic: false
     export_write_policy: replace
     file_path: custom/get_last_airnow_reading_silver_and_bbox.sql
@@ -37,7 +37,7 @@ blocks:
   language: python
   name: extract_data_from_airnow
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_loader
   upstream_blocks:
