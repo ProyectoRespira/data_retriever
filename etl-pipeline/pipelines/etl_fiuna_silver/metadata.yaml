@@ -5,7 +5,7 @@ blocks:
     data_provider: postgres
     data_provider_profile: default
     dbt: {}
-    disable_query_preprocessing: true
+    disable_query_preprocessing: false
     dynamic: true
     export_write_policy: append
     file_path: custom/get_last_fiuna_id.sql
@@ -41,6 +41,7 @@ blocks:
     use_raw_sql: true
   downstream_blocks:
   - transform_fiuna_silver_validation
+  - mark_bronze_as_processed
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -102,19 +103,74 @@ blocks:
     file_path: data_exporters/load_fiuna_silver.py
     file_source:
       path: data_exporters/load_fiuna_silver.py
-  downstream_blocks: []
+    reduce_output: true
+  downstream_blocks:
+  - trigger_fiuna_gold_measurements
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
   name: load_fiuna_silver
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_exporter
   upstream_blocks:
   - transform_fiuna_silver_fill
   uuid: load_fiuna_silver
+- all_upstream_blocks_executed: false
+  color: teal
+  configuration:
+    file_source:
+      path: custom/trigger_fiuna_gold_measurements.py
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: trigger_fiuna_gold_measurements
+  retry_config: null
+  status: updated
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - load_fiuna_silver
+  uuid: trigger_fiuna_gold_measurements
+- all_upstream_blocks_executed: true
+  color: teal
+  configuration:
+    file_source:
+      path: custom/mark_bronze_as_processed.py
+  downstream_blocks:
+  - glorious_mystic
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: mark_bronze_as_processed
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - extract_new_readings_fiuna_bronze
+  uuid: mark_bronze_as_processed
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: glorious mystic
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - mark_bronze_as_processed
+  uuid: glorious_mystic
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}

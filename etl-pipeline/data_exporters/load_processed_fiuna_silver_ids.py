@@ -14,7 +14,7 @@ def export_data_to_postgres(df: DataFrame, **kwargs) -> None:
     klogger = kwargs.get('logger')
 
     schema_name = 'public'  # Specify the name of the schema to export data to
-    table_name = 'station_readings_gold_to_silver'  # Specify the name of the table to export data to
+    table_name = 'station_readings_silver'  # Specify the name of the table to export data to
     config_path = path.join(get_repo_path(), 'io_config.yaml')
     config_profile = 'default'
 
@@ -28,7 +28,9 @@ def export_data_to_postgres(df: DataFrame, **kwargs) -> None:
                 schema_name,
                 table_name,
                 index=False,  # Specifies whether to include index in exported table
-                if_exists='append',  # Specify resolution policy if table name already exists
+                if_exists='append',  
+                unique_conflict_method = 'UPDATE',
+                unique_constraints = ['id']
             )
     except Exception as e:
         klogger.exception(e)

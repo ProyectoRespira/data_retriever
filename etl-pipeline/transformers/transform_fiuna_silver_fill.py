@@ -7,16 +7,16 @@ def add_date_column_as_index(df):
     Converts 'fecha' and 'hora' (VARCHAR) columns in dataframe to
     'date' datetime column.
     '''
-    df['date_localtime'] = df['date'] + ' ' + df['hour']
-    df['date_localtime'] = pd.to_datetime(df['date_localtime'], format='%d-%m-%Y %H:%M', errors='coerce')
+    df['date_utc'] = df['date'] + ' ' + df['hour']
+    df['date_utc'] = pd.to_datetime(df['date_utc'], format='%d-%m-%Y %H:%M', errors='coerce')
     
     local_time_zone = timezone('America/Asuncion')
-    df['date_localtime'] = df['date_localtime'].apply(
+    df['date_utc'] = df['date_utc'].apply(
         lambda x: x.tz_localize(local_time_zone, 
                                 ambiguous='NaT', 
                                 nonexistent='shift_forward') if pd.notnull(x) else x
         )
-    df.set_index('date_localtime', inplace=True)
+    df.set_index('date_utc', inplace=True)
     
     df.sort_index(inplace=True)
     return df.drop(columns=['date', 'hour'], axis=1)
@@ -36,6 +36,7 @@ def fill_missing_values(df, columns):
 
 def process_data(df):
     # add date and hour columns as index
+    df.drop(columns=['processed_to_silver'], axis = 1, inplace = True)
     df['data_source'] = 'raw'
     df = add_date_column_as_index(df)
     
@@ -50,16 +51,17 @@ def process_data(df):
     df['measurement_id'] = df['measurement_id'].astype('Int64')
     df['station_id'] = df['station_id'].astype(int)
     
-    # reset index and sort by 'date_localtime'
+    # reset index and sort by 'date_utc'
     df.reset_index(inplace=True)
-    df.sort_values(by=['date_localtime'], inplace=True)
+    df.sort_values(by=['date_utc'], inplace=True)
     
-    # drop duplicates based on 'date_localtime'
-    df.drop_duplicates(subset=['date_localtime'], keep='first', inplace=True)
+    # drop duplicates based on 'date_utc'
+    df.drop_duplicates(subset=['date_utc'], keep='first', inplace=True)
 
-    # drop rows where 'date_localtime' is NaT
-    df = df[df['date_localtime'] != pd.NaT]
-    df = df.sort_values(by=['date_localtime'], ascending = True)
+    # drop rows where 'date_utc' is NaT
+    df = df[df['date_utc'] != pd.NaT]
+    df = df.dropna(subset=['date_utc'])
+    df = df.sort_values(by=['date_utc'], ascending = True) 
     
     return df
 
