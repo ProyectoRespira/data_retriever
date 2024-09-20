@@ -16,16 +16,16 @@ def convert_to_local_time(time_utc):
 def process_data(df):
     # Ensure 'date_utc' is a datetime column and timezone-aware
     df['date_utc'] = pd.to_datetime(df['date_utc'], utc=True)  # Parse dates with UTC timezone
-    df['date_localtime'] = df['date_utc'].apply(convert_to_local_time)
+    df['date_utc'] = df['date_utc'].apply(convert_to_local_time)
     
-    df.drop(columns=['date_utc'], inplace=True)
-    # Sort the DataFrame by 'date_localtime'
-    df = df.sort_values(by='date_localtime')
+    #df.drop(columns=['date_utc'], inplace=True)
+    # Sort the DataFrame by 'date_utc'
+    df = df.sort_values(by='date_utc')
     return df
 
 @transformer
 def transform(data, *args, **kwargs):
-    # Apply process_data to each group and then sort by 'date_localtime'
+    # Apply process_data to each group and then sort by 'date_utc'
     processed_data = data.groupby('station').apply(process_data).reset_index(drop=True)
     print(processed_data.info())
     return processed_data

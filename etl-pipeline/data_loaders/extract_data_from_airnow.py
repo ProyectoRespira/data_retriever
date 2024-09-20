@@ -55,7 +55,7 @@ def load_data_from_api(data, *args, **kwargs) -> Dict[str, Any]:
     url = "https://airnowapi.org/aq/data/"
 
     try:
-        response = requests.get(url, params=params, timeout=300)
+        response = requests.get(url, params=params)
     except E:
         logging.error(f"An error occurred during API request: {E}")
         return None

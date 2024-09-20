@@ -20,8 +20,6 @@ def export_data_to_postgres(df: DataFrame, **kwargs) -> None:
     table_name = 'station_readings_gold'  # Specify the name of the table to export data to
     config_path = path.join(get_repo_path(), 'io_config.yaml')
     config_profile = 'default'
-    print(df.info())
-    print(df.head())
 
     with Postgres.with_config(ConfigFileLoader(config_path, config_profile)) as loader:
         loader.export(
@@ -31,5 +29,5 @@ def export_data_to_postgres(df: DataFrame, **kwargs) -> None:
             index=False,  # Specifies whether to include index in exported table
             if_exists='append',  # Specify resolution policy if table name already exists
             unique_conflict_method = 'UPDATE',
-            unique_constraints = ['station', 'date_localtime']
+            unique_constraints = ['station', 'date_utc']
         )
