@@ -12,7 +12,9 @@ def transform(data, *args, **kwargs) -> DataFrame:
     try:
         if data.empty:
             raise Exception('Dataframe is empty')
-        data = data[['silver_id', 'date_localtime']]
+        data = data[['silver_id', 'processed_to_gold']]
+        data.rename(columns = {'silver_id': 'id'}, inplace = True)
+        data['processed_to_gold'] = True
     except Exception as e:
         klogger.exception(e)
     

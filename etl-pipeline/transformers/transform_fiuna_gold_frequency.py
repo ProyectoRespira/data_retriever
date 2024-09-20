@@ -42,12 +42,10 @@ def calibrate_pm(df):
 
 def process_data(df):
     # add date column as index
-    df.set_index('date_localtime', inplace = True)
+    df.set_index('date_utc', inplace = True)
     df.index = df.index.floor('h')
     df = change_frequency(df)
-    print('change freq')
     df = calibrate_pm(df)
-    print('calibrate')
     df = df.dropna()
     return df
 

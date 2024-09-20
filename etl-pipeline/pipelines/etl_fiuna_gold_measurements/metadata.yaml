@@ -120,7 +120,9 @@ blocks:
     file_path: data_exporters/load_srg_readings.py
     file_source:
       path: data_exporters/load_srg_readings.py
-  downstream_blocks: []
+    reduce_output: true
+  downstream_blocks:
+  - trigger_fiuna_gold_aqi_stats
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -133,6 +135,22 @@ blocks:
   upstream_blocks:
   - transform_fiuna_gold_frequency
   uuid: load_srg_readings
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: trigger_fiuna_gold_aqi_stats
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - load_srg_readings
+  uuid: trigger_fiuna_gold_aqi_stats
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
