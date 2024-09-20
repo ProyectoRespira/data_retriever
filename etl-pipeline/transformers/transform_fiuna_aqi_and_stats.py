@@ -81,7 +81,7 @@ def process_data(data):
     # averages for AQI
     data['pm2_5_24h_mean'] = data['pm2_5'].rolling(window=24, min_periods=1).mean()
     data['pm10_24h_mean'] = data['pm10'].rolling(window=24, min_periods=1).mean()
-
+    
     # aqi pm2.5
     data[['aqi_pm2_5', 'aqi_level']] = data.apply(calculate_aqi_pm2_5, axis=1)
 
@@ -93,8 +93,10 @@ def process_data(data):
 
     data = data.drop(columns=['pm2_5_24h_mean', 'pm10_24h_mean'])
     # sort data
-    data.sort_values(by=['date_localtime'], ascending=False, inplace=True)
-    
+    data.sort_values(by=['date_utc'], ascending=False, inplace=True)
+    data = data[data['in_24h_interval'] != 1]
+    data = data.drop('in_24h_interval', axis=1)
+    data.dropna(inplace = True)
     return data
 
 @transformer

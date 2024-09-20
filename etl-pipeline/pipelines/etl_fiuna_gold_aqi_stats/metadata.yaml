@@ -43,13 +43,13 @@ blocks:
   language: sql
   name: get_srg_readings_without_aqi
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_loader
   upstream_blocks:
   - extract_station_ids
   uuid: get_srg_readings_without_aqi
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     data_provider: postgres
@@ -72,12 +72,14 @@ blocks:
   upstream_blocks:
   - get_srg_readings_without_aqi
   uuid: transform_fiuna_aqi_and_stats
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     file_source:
       path: data_exporters/load_srg_readings.py
-  downstream_blocks: []
+    reduce_output: true
+  downstream_blocks:
+  - trigger_region_readings_pipeline
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -90,6 +92,22 @@ blocks:
   upstream_blocks:
   - transform_fiuna_aqi_and_stats
   uuid: load_srg_readings
+- all_upstream_blocks_executed: false
+  color: teal
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: trigger_region_readings_pipeline
+  retry_config: null
+  status: updated
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - load_srg_readings
+  uuid: trigger_region_readings_pipeline
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
