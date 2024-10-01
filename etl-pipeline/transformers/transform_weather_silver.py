@@ -81,7 +81,6 @@ def transform(data, data_2, *args, **kwargs):
         processed_data = processed_data.merge(data_2_filtered, on=['weather_station', 'date_utc'], how='left', indicator=True)
         processed_data = processed_data[processed_data['_merge'] == 'left_only'].drop(columns=['_merge'])
     
-    print(processed_data.info())
     return processed_data
 
 @test
