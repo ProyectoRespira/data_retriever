@@ -77,7 +77,6 @@ def transform(data, *args, **kwargs):
         if klogger:
             klogger.exception(e)
         return None
-
     return data
 
 

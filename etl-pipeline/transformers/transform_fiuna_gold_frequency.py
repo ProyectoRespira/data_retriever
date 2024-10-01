@@ -61,6 +61,10 @@ def transform(data, *args, **kwargs):
         data = process_data(data)
     except Exception as e:
         klogger.exception(e)
+    station_id = data['station'].iloc[0]  # Get the station_id (only one value)
+    number_of_readings = len(data)  # Count the number of rows in the DataFrame
+
+    klogger.info(f"Number of new readings for station ID {station_id}: {number_of_readings}")
     
     return data
 

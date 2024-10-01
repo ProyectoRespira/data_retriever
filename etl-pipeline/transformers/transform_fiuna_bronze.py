@@ -6,23 +6,16 @@ if 'test' not in globals():
 
 @transformer
 def transform(data, *args, **kwargs):
-    """
-    Template code for a transformer block.
+    klogger = kwargs.get('logger')
 
-    Add more parameters to this function if this block has multiple parent blocks.
-    There should be one parameter for each output variable from each parent block.
-
-    Args:
-        data: The output from the upstream parent block
-        args: The output from any additional upstream blocks (if applicable)
-
-    Returns:
-        Anything (e.g. data frame, dictionary, array, int, str, etc.)
-    """
-    # Specify your transformation logic here
     data.columns = data.columns.str.lower()
     data.rename(columns={'id':'measurement_id'}, inplace = True)
+    
+    station_id = data['station_id'].iloc[0]  # Get the station_id (only one value)
+    number_of_readings = len(data)  # Count the number of rows in the DataFrame
 
+    klogger.info(f"Number of new readings for station ID {station_id}: {number_of_readings}")
+    
     return data
 
 
