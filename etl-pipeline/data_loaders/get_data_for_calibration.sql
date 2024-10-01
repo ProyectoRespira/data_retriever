@@ -3,28 +3,28 @@
 WITH station_data AS (
     -- Aggregate station_readings_silver data to hourly frequency
     SELECT 
-        DATE_TRUNC('hour', srs.date_localtime) AS date_localtime, 
+        DATE_TRUNC('hour', srs.date_utc) AS date_utc, 
         AVG(srs.pm2_5) AS pm2_5,
         srs.station_id AS station_id
     FROM station_readings_silver srs
     WHERE srs.station_id = '{{ block_output(parse=lambda data, vars: data[0]["station_id"]) }}'
-    AND srs.date_localtime BETWEEN 
+    AND srs.date_utc BETWEEN 
         (DATE_TRUNC('day', CAST('{{ execution_date }}' AS timestamp)) - INTERVAL '3 months') 
         AND DATE_TRUNC('day', CAST('{{ execution_date }}' AS timestamp))
-    GROUP BY DATE_TRUNC('hour', srs.date_localtime), srs.station_id
+    GROUP BY DATE_TRUNC('hour', srs.date_utc), srs.station_id
 ),
 pattern_data AS (
     -- Retrieve pattern station data from station_readings_gold
     SELECT 
-        DATE_TRUNC('hour', srg.date_localtime) AS date_localtime, 
+        DATE_TRUNC('hour', srg.date_utc) AS date_utc, 
         AVG(srg.pm2_5) AS pattern_pm2_5,
         srg.station AS pattern_station_id
     FROM station_readings_gold srg
     WHERE srg.station = '{{ block_output(parse=lambda data, vars: data[0]["pattern_station_id"]) }}'
-    AND srg.date_localtime BETWEEN 
+    AND srg.date_utc BETWEEN 
         (DATE_TRUNC('day', CAST('{{ execution_date }}' AS timestamp) ) - INTERVAL '3 months') 
         AND DATE_TRUNC('day', CAST('{{ execution_date }}' AS timestamp))
-    GROUP BY DATE_TRUNC('hour', srg.date_localtime), srg.station
+    GROUP BY DATE_TRUNC('hour', srg.date_utc), srg.station
 ),
 weather_data AS (
     -- Retrieve humidity data from weather_readings_gold
@@ -41,13 +41,13 @@ weather_data AS (
 )
 -- Combine all data using LEFT JOINs based on date_localtime
 SELECT 
-    sd.date_localtime,
+    sd.date_utc,
     sd.station_id,
     sd.pm2_5,
     wd.humidity,
     pd.pattern_pm2_5
 FROM station_data sd
 LEFT JOIN pattern_data pd
-    ON sd.date_localtime = pd.date_localtime -- Match pattern station data by date
+    ON sd.date_utc = pd.date_utc -- Match pattern station data by date
 LEFT JOIN weather_data wd
-    ON sd.date_localtime = wd.date_localtime; -- Match weather data by date
+    ON sd.date_utc = wd.date_localtime; -- Match weather data by date
