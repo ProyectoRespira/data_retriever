@@ -27,7 +27,6 @@ def process_data(df):
 def transform(data, *args, **kwargs):
     # Apply process_data to each group and then sort by 'date_utc'
     processed_data = data.groupby('station').apply(process_data).reset_index(drop=True)
-    print(processed_data.info())
     return processed_data
 
 
