@@ -43,13 +43,13 @@ blocks:
   language: sql
   name: get_srg_readings_without_aqi
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
   - extract_station_ids
   uuid: get_srg_readings_without_aqi
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     data_provider: postgres
@@ -66,7 +66,7 @@ blocks:
   language: python
   name: transform_fiuna_aqi_and_stats
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: transformer
   upstream_blocks:

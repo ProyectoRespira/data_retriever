@@ -47,13 +47,13 @@ blocks:
   language: sql
   name: get_data_for_calibration
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_loader
   upstream_blocks:
   - get_station_ids_for_calibration
   uuid: get_data_for_calibration
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     data_provider: postgres
@@ -76,7 +76,7 @@ blocks:
   upstream_blocks:
   - get_data_for_calibration
   uuid: transform_calibration_factors
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     file_path: data_exporters/load_calibration_factors.py

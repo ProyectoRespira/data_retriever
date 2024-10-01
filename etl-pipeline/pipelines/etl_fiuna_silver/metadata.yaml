@@ -112,13 +112,13 @@ blocks:
   language: python
   name: load_fiuna_silver
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
   - transform_fiuna_silver_fill
   uuid: load_fiuna_silver
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: teal
   configuration:
     file_source:
