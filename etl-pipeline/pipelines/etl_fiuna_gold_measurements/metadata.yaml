@@ -82,7 +82,7 @@ blocks:
     file_source:
       path: transformers/transform_fiuna_gold_frequency.py
   downstream_blocks:
-  - load_srg_readings
+  - load_station_readings_gold
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -113,14 +113,14 @@ blocks:
   type: data_exporter
   upstream_blocks:
   - select_processed_silver_ids
-  - load_srg_readings
+  - load_station_readings_gold
   uuid: load_processed_fiuna_silver_ids
 - all_upstream_blocks_executed: true
   color: null
   configuration:
-    file_path: data_exporters/load_srg_readings.py
+    file_path: data_exporters/load_station_readings_gold.py
     file_source:
-      path: data_exporters/load_srg_readings.py
+      path: data_exporters/load_station_readings_gold.py
     reduce_output: true
   downstream_blocks:
   - trigger_fiuna_gold_aqi_stats
@@ -129,14 +129,14 @@ blocks:
   executor_type: local_python
   has_callback: false
   language: python
-  name: load_srg_readings
+  name: load_station_readings_gold
   retry_config: null
   status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
   - transform_fiuna_gold_frequency
-  uuid: load_srg_readings
+  uuid: load_station_readings_gold
 - all_upstream_blocks_executed: true
   color: null
   configuration: {}
@@ -151,7 +151,7 @@ blocks:
   timeout: null
   type: custom
   upstream_blocks:
-  - load_srg_readings
+  - load_station_readings_gold
   uuid: trigger_fiuna_gold_aqi_stats
 cache_block_output_in_memory: false
 callbacks: []

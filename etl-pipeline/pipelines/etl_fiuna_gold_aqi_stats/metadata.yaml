@@ -59,7 +59,7 @@ blocks:
     file_source:
       path: transformers/transform_fiuna_aqi_and_stats.py
   downstream_blocks:
-  - load_srg_readings
+  - load_station_readings_gold
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -72,26 +72,6 @@ blocks:
   upstream_blocks:
   - get_srg_readings_without_aqi
   uuid: transform_fiuna_aqi_and_stats
-- all_upstream_blocks_executed: false
-  color: null
-  configuration:
-    file_source:
-      path: data_exporters/load_srg_readings.py
-    reduce_output: true
-  downstream_blocks:
-  - trigger_region_readings_pipeline
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: python
-  name: load_srg_readings
-  retry_config: null
-  status: executed
-  timeout: null
-  type: data_exporter
-  upstream_blocks:
-  - transform_fiuna_aqi_and_stats
-  uuid: load_srg_readings
 - all_upstream_blocks_executed: false
   color: teal
   configuration: {}
@@ -106,8 +86,27 @@ blocks:
   timeout: null
   type: custom
   upstream_blocks:
-  - load_srg_readings
+  - load_station_readings_gold
   uuid: trigger_region_readings_pipeline
+- all_upstream_blocks_executed: false
+  color: null
+  configuration:
+    file_source:
+      path: data_exporters/load_station_readings_gold.py
+  downstream_blocks:
+  - trigger_region_readings_pipeline
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: load_station_readings_gold
+  retry_config: null
+  status: not_executed
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - transform_fiuna_aqi_and_stats
+  uuid: load_station_readings_gold
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
