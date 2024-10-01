@@ -113,6 +113,7 @@ blocks:
   type: data_exporter
   upstream_blocks:
   - select_processed_silver_ids
+  - load_srg_readings
   uuid: load_processed_fiuna_silver_ids
 - all_upstream_blocks_executed: true
   color: null
@@ -123,6 +124,7 @@ blocks:
     reduce_output: true
   downstream_blocks:
   - trigger_fiuna_gold_aqi_stats
+  - load_processed_fiuna_silver_ids
   executor_config: null
   executor_type: local_python
   has_callback: false

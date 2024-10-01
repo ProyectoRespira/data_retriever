@@ -9,7 +9,7 @@ if 'data_exporter' not in globals():
 
 
 @data_exporter
-def export_data_to_postgres(df: DataFrame, **kwargs) -> None:
+def export_data_to_postgres(data: DataFrame, data_2, **kwargs) -> None:
 
     klogger = kwargs.get('logger')
 
@@ -19,12 +19,12 @@ def export_data_to_postgres(df: DataFrame, **kwargs) -> None:
     config_profile = 'default'
 
     try:
-        if df.empty:
+        if data.empty:
             raise Exception('Dataframe is empty')
 
         with Postgres.with_config(ConfigFileLoader(config_path, config_profile)) as loader:
             loader.export(
-                df,
+                data,
                 schema_name,
                 table_name,
                 index=False,  # Specifies whether to include index in exported table
