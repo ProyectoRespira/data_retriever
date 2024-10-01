@@ -73,11 +73,12 @@ Provide instructions on how to install and set up the project, including any dep
 
 Explain how to use the project, including any command-line interfaces or APIs available.
 in main folder:
+
+### Docker
 ```
-python -m venv venv
-venv/Scripts/Activate
-pip install -r requirements.txt
-python main.py
+docker build -t respira_mage .
+docker run -d -p 6789:6789 respira_mage
+
 ```
 
 ### Example .env file
@@ -103,3 +104,4 @@ Outline guidelines for contributing to the project, such as how to report issues
 ## License
 
 Specify the license under which the project is distributed.
+
