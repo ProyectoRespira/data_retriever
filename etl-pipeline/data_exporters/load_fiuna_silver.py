@@ -28,8 +28,6 @@ def export_data_to_postgres(df: DataFrame, **kwargs) -> None:
     try:
         if df.empty:
             raise Exception('Dataframe is empty')
-
-        #df_batches = np.array_split(df, len(df) // batch_size + 1)
         
         with Postgres.with_config(ConfigFileLoader(config_path, config_profile)) as loader:
             #for batch in df_batches:
