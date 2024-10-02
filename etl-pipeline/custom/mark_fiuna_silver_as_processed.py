@@ -1,12 +1,11 @@
-if 'transformer' not in globals():
-    from mage_ai.data_preparation.decorators import transformer
+if 'custom' not in globals():
+    from mage_ai.data_preparation.decorators import custom
 if 'test' not in globals():
     from mage_ai.data_preparation.decorators import test
 from pandas import DataFrame
 
-@transformer
-def transform(data, *args, **kwargs) -> DataFrame:
-    
+@custom
+def transform_custom(data, *args, **kwargs) -> DataFrame:
     klogger = kwargs.get('logger')
     
     try:
