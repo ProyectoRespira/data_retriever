@@ -9,7 +9,7 @@ if 'data_exporter' not in globals():
 
 
 @data_exporter
-def export_data_to_postgres(df: DataFrame, **kwargs) -> None:
+def export_data_to_postgres(data: DataFrame, **kwargs) -> None:
     """
     Template for exporting data to a PostgreSQL database.
     Specify your configuration settings in 'io_config.yaml'.
@@ -23,7 +23,7 @@ def export_data_to_postgres(df: DataFrame, **kwargs) -> None:
 
     with Postgres.with_config(ConfigFileLoader(config_path, config_profile)) as loader:
         loader.export(
-            df,
+            data,
             schema_name,
             table_name,
             index=False,  # Specifies whether to include index in exported table
