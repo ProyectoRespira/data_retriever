@@ -60,13 +60,13 @@ blocks:
   language: python
   name: transform_fiuna_bronze
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: transformer
   upstream_blocks:
   - extract_fiuna_data
   uuid: transform_fiuna_bronze
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_path: data_exporters/load_fiuna_bronze.py
@@ -87,7 +87,7 @@ blocks:
   upstream_blocks:
   - transform_fiuna_bronze
   uuid: load_fiuna_bronze
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_path: custom/trigger_etl_fiuna_silver.py
@@ -129,5 +129,5 @@ tags:
 - fiuna
 type: python
 uuid: etl_fiuna_bronze
-variables_dir: /home/vnbl/.mage_data/etl-pipeline
+variables_dir: /root/.mage_data/etl-pipeline
 widgets: []

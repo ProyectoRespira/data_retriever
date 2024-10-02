@@ -41,7 +41,7 @@ blocks:
     use_raw_sql: true
   downstream_blocks:
   - transform_fiuna_silver_validation
-  - mark_bronze_as_processed
+  - mark_fiuna_bronze_as_processed
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -106,13 +106,14 @@ blocks:
     reduce_output: true
   downstream_blocks:
   - trigger_fiuna_gold_measurements
+  - update_fiuna_bronze_processed_ids
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
   name: load_fiuna_silver
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_exporter
   upstream_blocks:
@@ -139,41 +140,43 @@ blocks:
 - all_upstream_blocks_executed: true
   color: teal
   configuration:
+    file_path: custom/mark_fiuna_bronze_as_processed.py
     file_source:
-      path: custom/mark_bronze_as_processed.py
+      path: custom/mark_fiuna_bronze_as_processed.py
   downstream_blocks:
-  - update_processed_bronze_ids
+  - update_fiuna_bronze_processed_ids
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: mark_bronze_as_processed
+  name: mark_fiuna_bronze_as_processed
   retry_config: null
-  status: executed
+  status: failed
   timeout: null
   type: custom
   upstream_blocks:
   - extract_new_readings_fiuna_bronze
-  uuid: mark_bronze_as_processed
-- all_upstream_blocks_executed: true
+  uuid: mark_fiuna_bronze_as_processed
+- all_upstream_blocks_executed: false
   color: null
   configuration:
-    file_path: data_exporters/update_processed_bronze_ids.py
+    file_path: data_exporters/update_fiuna_bronze_processed_ids.py
     file_source:
-      path: data_exporters/update_processed_bronze_ids.py
+      path: data_exporters/update_fiuna_bronze_processed_ids.py
   downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: update_processed_bronze_ids
+  name: update_fiuna_bronze_processed_ids
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_exporter
   upstream_blocks:
-  - mark_bronze_as_processed
-  uuid: update_processed_bronze_ids
+  - mark_fiuna_bronze_as_processed
+  - load_fiuna_silver
+  uuid: update_fiuna_bronze_processed_ids
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
@@ -197,5 +200,5 @@ tags:
 - fiuna
 type: python
 uuid: etl_fiuna_silver
-variables_dir: /home/vnbl/.mage_data/etl-pipeline
+variables_dir: /root/.mage_data/etl-pipeline
 widgets: []
