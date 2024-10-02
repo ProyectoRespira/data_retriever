@@ -118,7 +118,7 @@ def transform(data, data_2, *args, **kwargs):
         else:
             if klogger:
                 klogger.info('No existing data for interpolation. Using new data only.')
-            group = data.copy()
+            group = data
 
         processed_data = group.groupby('weather_station').apply(process_weather_silver, logger=klogger).reset_index(drop=True)
 
