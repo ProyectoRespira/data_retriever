@@ -6,13 +6,7 @@ if 'test' not in globals():
 
 @custom
 def transform_custom(data, *args, **kwargs):
-    """
-    args: The output from any upstream parent blocks (if applicable)
-
-    Returns:
-        Anything (e.g. data frame, dictionary, array, int, str, etc.)
-    """
-    # Specify your custom logic here
+    
     data = data[['id', 'processed_to_silver']]
     data['processed_to_silver'] = True
     return data

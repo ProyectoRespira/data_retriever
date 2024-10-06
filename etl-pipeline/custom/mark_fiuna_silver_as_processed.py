@@ -10,7 +10,7 @@ def transform_custom(data, *args, **kwargs) -> DataFrame:
     
     try:
         if data.empty:
-            raise Exception('Dataframe is empty')
+            klogger.exception('Dataframe is empty')
         data = data[['silver_id', 'processed_to_gold']]
         data.rename(columns = {'silver_id': 'id'}, inplace = True)
         data['processed_to_gold'] = True

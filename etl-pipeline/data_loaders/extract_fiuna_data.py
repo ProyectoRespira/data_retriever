@@ -31,6 +31,8 @@ def load_data_from_mysql(data,*args, **kwargs):
     with MySQL.with_config(ConfigFileLoader(config_path, config_profile)) as loader:
         return loader.load(query)
 
+        
+
 
 # @test 
 # def test_output(output, *args) -> None:

@@ -49,7 +49,7 @@ def load_data_from_api(data, *args, **kwargs) -> Dict[str, Any]:
         "bbox": data["bbox"],
         "datatype": "c",
         "format": "application/json",
-        "api_key": get_secret_value('AIRNOW_API_KEY'),
+        "api_key": get_secret_value('AIRNOW_API_KEY'), 
     }
 
     url = "https://airnowapi.org/aq/data/"
