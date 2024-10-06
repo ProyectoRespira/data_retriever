@@ -28,10 +28,10 @@ def drop_bad_readings(df, logger=None):
 def interpolate_missing_data(df, logger=None):
     try:
         # interpolation for numerical columns
-        df_interpolated = df.copy()
+        df_interpolated = df
         df_interpolated['pm2_5'] = df_interpolated['pm2_5'].interpolate(method='linear', limit_direction='both')
-        # Forward and backward fill for wind_dir
-        df_interpolated['station_id'] = df['station_id'].bfill().ffill()
+
+        df_interpolated['station_id'] = df_interpolated['station_id'].bfill().ffill()
         
         # Fill NaN values in data_source with 'interpolated'
         df_interpolated['data_source'].fillna('interpolated', inplace=True)

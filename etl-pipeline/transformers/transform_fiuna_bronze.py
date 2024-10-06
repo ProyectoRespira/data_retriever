@@ -7,17 +7,21 @@ if 'test' not in globals():
 @transformer
 def transform(data, *args, **kwargs):
     klogger = kwargs.get('logger')
-
-    data.columns = data.columns.str.lower()
-    data.rename(columns={'id':'measurement_id'}, inplace = True)
     
-    station_id = data['station_id'].iloc[0]  # Get the station_id (only one value)
-    number_of_readings = len(data)  # Count the number of rows in the DataFrame
+    try:
+        data.columns = data.columns.str.lower()
+        data.rename(columns={'id':'measurement_id'}, inplace = True)
+        
+        station_id = data['station_id'].iloc[0]  # Get the station_id (only one value)
+        number_of_readings = len(data)  # Count the number of rows in the DataFrame
 
-    klogger.info(f"Number of new readings for station ID {station_id}: {number_of_readings}")
+        klogger.info(f"Number of new readings for station ID {station_id}: {number_of_readings}")
+        return data
+    except Exception as e:
+        klogger.info(e)
+        return data
     
-    return data
-
+    
 
 @test
 def test_output(output, *args) -> None:

@@ -75,6 +75,12 @@ def calculate_statistics(df):
     df['aqi_pm2_5_skew_24h'] = df['aqi_pm2_5'].rolling(window=24, min_periods=1).skew()
     df['aqi_pm2_5_std_24h'] = df['aqi_pm2_5'].rolling(window=24, min_periods=1).std()
     
+    columns_to_backfill = [
+        'pm2_5_avg_6h', 'pm2_5_max_6h', 'pm2_5_skew_6h', 'pm2_5_std_6h', 
+        'aqi_pm2_5_max_24h', 'aqi_pm2_5_skew_24h', 'aqi_pm2_5_std_24h', 'aqi_pm2_5'
+    ]
+    
+    df[columns_to_backfill] = df[columns_to_backfill].bfill().ffill()
     return df
 
 def process_data(data):
@@ -104,6 +110,9 @@ def transform(data, *args, **kwargs):
     
     klogger = kwargs.get('logger')
     try:
+        if data.empty:
+            klogger.exception('Dataframe is empty')
+            return data
         data =  process_data(data)
     except Exception as e:
         klogger.exception(e)

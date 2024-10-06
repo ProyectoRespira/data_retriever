@@ -123,7 +123,7 @@ def transform(data, *args, **kwargs):
 
     try:
         if data.empty:
-            raise Exception('Dataframe is empty')
+            klogger.info('Dataframe is empty')
         data = process_data(data)
     except Exception as e:
         klogger.exception(e)

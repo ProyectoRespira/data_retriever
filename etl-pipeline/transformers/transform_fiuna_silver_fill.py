@@ -27,8 +27,8 @@ def resample_to_5min(df):
     return df_resampled
 
 def fill_missing_values(df, columns):
-    df_interpolated = df.copy()
-    df_interpolated[columns] = df[columns].interpolate(method='linear', limit=12)
+    df_interpolated = df
+    df_interpolated[columns] = df_interpolated[columns].interpolate(method='linear', limit=12)
     df_interpolated['data_source'] = df_interpolated['data_source'].fillna('interpolated')
     df_interpolated['station_id'] = df_interpolated['station_id'].bfill().ffill()
     df_interpolated.dropna(how='any', subset=['pm2_5', 'pm10', 'pm1'], inplace = True)
@@ -68,15 +68,14 @@ def process_data(df):
 @transformer
 def transform(data, *args, **kwargs):
     klogger = kwargs.get('logger')
-
     try:
         if data.empty:
-            raise Exception('Dataframe is empty')
+            klogger.exception('Dataframe is empty')
+            return data
         data = process_data(data)
     except Exception as e:
-        if klogger:
-            klogger.exception(e)
-        return None
+        klogger.exception(e)
+    
     return data
 
 

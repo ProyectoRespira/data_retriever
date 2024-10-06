@@ -7,7 +7,7 @@ if 'transformer' not in globals():
 if 'test' not in globals():
     from mage_ai.data_preparation.decorators import test
 
-def check_data_coverage(df, date_column = 'date_localtime', frequency = 'h', threshold=0.6):
+def check_data_coverage(df, date_column = 'date_utc', frequency = 'h', threshold=0.6):
     df[date_column] = pd.to_datetime(df[date_column])
 
     end_date = df[date_column].max()
@@ -34,8 +34,8 @@ def calculate_cal_factor(data):
 
 def get_cal_data(data):
     calibration_factor, station_average, pattern_average = calculate_cal_factor(data)
-    date_start_cal = min(data['date_localtime'])
-    date_end_cal = max(data['date_localtime'])
+    date_start_cal = min(data['date_utc'])
+    date_end_cal = max(data['date_utc'])
     date_start_use = date_end_cal + relativedelta(hours = 1)
     date_end_use = date_start_use + relativedelta(months = 1)
     cal_data = pd.DataFrame(
