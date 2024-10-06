@@ -1,4 +1,3 @@
--- Docs: https://docs.mage.ai/guides/sql-blocks
 WITH unprocessed_readings AS (
     -- Select new data that hasn't been processed yet and exclude pattern stations
     SELECT
