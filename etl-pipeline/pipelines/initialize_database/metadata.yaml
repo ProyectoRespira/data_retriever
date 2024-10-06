@@ -276,5 +276,5 @@ tags:
 - init
 type: python
 uuid: initialize_database
-variables_dir: /home/vnbl/.mage_data/etl-pipeline
+variables_dir: /app/.mage_data/
 widgets: []

@@ -60,7 +60,7 @@ blocks:
   language: python
   name: transform_fiuna_bronze
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: transformer
   upstream_blocks:
@@ -129,5 +129,5 @@ tags:
 - fiuna
 type: python
 uuid: etl_fiuna_bronze
-variables_dir: /root/.mage_data/etl-pipeline
+variables_dir: /app/.mage_data
 widgets: []

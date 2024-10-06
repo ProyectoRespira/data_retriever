@@ -106,5 +106,5 @@ type: python
 uuid: etl_airnow_bronze
 variables:
   execution_type: incremental
-variables_dir: /home/vnbl/.mage_data/etl-pipeline
+variables_dir: /app/.mage_data
 widgets: []

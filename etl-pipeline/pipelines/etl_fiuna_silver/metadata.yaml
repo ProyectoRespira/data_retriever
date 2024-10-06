@@ -113,7 +113,7 @@ blocks:
   language: python
   name: load_fiuna_silver
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
@@ -151,13 +151,13 @@ blocks:
   language: python
   name: mark_fiuna_bronze_as_processed
   retry_config: null
-  status: failed
+  status: executed
   timeout: null
   type: custom
   upstream_blocks:
   - extract_new_readings_fiuna_bronze
   uuid: mark_fiuna_bronze_as_processed
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_path: data_exporters/update_fiuna_bronze_processed_ids.py
@@ -170,7 +170,7 @@ blocks:
   language: python
   name: update_fiuna_bronze_processed_ids
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
@@ -200,5 +200,5 @@ tags:
 - fiuna
 type: python
 uuid: etl_fiuna_silver
-variables_dir: /root/.mage_data/etl-pipeline
+variables_dir: /app/.mage_data
 widgets: []

@@ -67,7 +67,7 @@ blocks:
   - extract_new_readings_weather_bronze
   - extract_weather_silver_for_interpolation
   uuid: transform_weather_silver
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration: {}
   downstream_blocks:
@@ -84,7 +84,7 @@ blocks:
   upstream_blocks:
   - transform_weather_silver
   uuid: load_weather_silver
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration: {}
   downstream_blocks: []
@@ -123,5 +123,5 @@ tags:
 - weather
 type: python
 uuid: etl_meteostat_silver
-variables_dir: /home/vnbl/.mage_data/etl-pipeline
+variables_dir: /app/.mage_data/
 widgets: []

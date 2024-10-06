@@ -66,13 +66,33 @@ blocks:
   language: python
   name: transform_fiuna_aqi_and_stats
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: transformer
   upstream_blocks:
   - get_srg_readings_without_aqi
   uuid: transform_fiuna_aqi_and_stats
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    file_source:
+      path: data_exporters/load_station_readings_gold.py
+    reduce_output: true
+  downstream_blocks:
+  - trigger_region_readings_pipeline
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: load_station_readings_gold
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - transform_fiuna_aqi_and_stats
+  uuid: load_station_readings_gold
+- all_upstream_blocks_executed: true
   color: teal
   configuration: {}
   downstream_blocks: []
@@ -88,25 +108,6 @@ blocks:
   upstream_blocks:
   - load_station_readings_gold
   uuid: trigger_region_readings_pipeline
-- all_upstream_blocks_executed: false
-  color: null
-  configuration:
-    file_source:
-      path: data_exporters/load_station_readings_gold.py
-  downstream_blocks:
-  - trigger_region_readings_pipeline
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: python
-  name: load_station_readings_gold
-  retry_config: null
-  status: not_executed
-  timeout: null
-  type: data_exporter
-  upstream_blocks:
-  - transform_fiuna_aqi_and_stats
-  uuid: load_station_readings_gold
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
@@ -130,5 +131,5 @@ tags:
 - fiuna
 type: python
 uuid: etl_fiuna_gold_aqi_stats
-variables_dir: /home/vnbl/.mage_data/etl-pipeline
+variables_dir: /app/.mage_data
 widgets: []
