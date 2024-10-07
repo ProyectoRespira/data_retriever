@@ -18,10 +18,10 @@ def load_data_from_api(data, *args, **kwargs) -> Dict[str, Any]:
     """
     Template for loading data from API
     """
-    kwarg_logger = kwargs.get('logger')
+    klogger = kwargs.get('logger')
     execution_type = kwargs['execution_type']
 
-    kwarg_logger.info(type(data))
+    klogger.info(type(data))
 
     if execution_type == 'incremental':
         end_date_utc = kwargs['execution_date']
@@ -56,8 +56,8 @@ def load_data_from_api(data, *args, **kwargs) -> Dict[str, Any]:
 
     try:
         response = requests.get(url, params=params)
-    except E:
-        logging.error(f"An error occurred during API request: {E}")
+    except Exception as e:
+        logging.error(f"An error occurred during API request: {e}")
         return None
 
     responses = response.json()

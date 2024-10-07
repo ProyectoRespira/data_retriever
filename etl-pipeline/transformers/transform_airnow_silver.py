@@ -6,22 +6,22 @@ if 'transformer' not in globals():
 if 'test' not in globals():
     from mage_ai.data_preparation.decorators import test
 
-def combine_existing_and_new_readings(df1, df2, logger=None):
+def combine_existing_and_new_readings(df1, df2, klogger=None):
     try:
         df_combined = pd.concat([df1, df2], ignore_index=True)
         df_combined['date_utc'] = pd.to_datetime(df_combined['date_utc'], errors='coerce')
         return df_combined
     except Exception as e:
-        logger.error(f"Error combining readings: {e}")
+        klogger.error(f"Error combining readings: {e}")
 
-def drop_bad_readings(df, logger=None):
+def drop_bad_readings(df, klogger=None):
     try:
         df['pm2_5'] = df['pm2_5'].replace(-999, np.nan)
         return df
     except Exception as e:
-        logger.error(f"Error dropping bad readings: {e}")
+        klogger.error(f"Error dropping bad readings: {e}")
 
-def interpolate_missing_data(df, logger=None):
+def interpolate_missing_data(df, klogger=None):
     try:
         # interpolation for numerical columns
         df_interpolated = df
@@ -37,9 +37,9 @@ def interpolate_missing_data(df, logger=None):
         
         return df_interpolated
     except Exception as e:
-        logger.error(f"Error interpolating missing data: {e}")
+        klogger.error(f"Error interpolating missing data: {e}")
 
-def set_variable_dtypes(df, logger=None):
+def set_variable_dtypes(df, klogger=None):
     try:
         df = df.astype({
             'measurement_id': 'Int64',  # Use 'Int64' for nullable integers
@@ -49,25 +49,25 @@ def set_variable_dtypes(df, logger=None):
         df['date_utc'] = pd.to_datetime(df['date_utc'])
         return df
     except Exception as e:
-        logger.error(f"Error in setting variable types: {e}")
+        klogger.error(f"Error in setting variable types: {e}")
 
-def process_weather_silver(group, logger=None):
+def process_weather_silver(group, klogger=None):
     try:
         group.drop_duplicates(subset=['date_utc'], keep='first', inplace=True)
-        group = drop_bad_readings(group, logger=logger)
+        group = drop_bad_readings(group, klogger=klogger)
         group.set_index('date_utc', inplace=True)
         group['data_source'] = 'raw' 
 
         group = group.resample('h').asfreq()
 
-        group = interpolate_missing_data(group, logger=logger)
+        group = interpolate_missing_data(group, klogger=klogger)
 
-        group = set_variable_dtypes(group, logger=logger)
+        group = set_variable_dtypes(group, klogger=klogger)
         group.sort_values(by=['date_utc'], ascending=True, inplace=True)
 
         return group
     except Exception as e:
-        logger.error(f"Error processing weather silver group: {e}")
+        klogger.error(f"Error processing weather silver group: {e}")
 
 @transformer
 def transform(data, data_2, *args, **kwargs):
@@ -75,11 +75,11 @@ def transform(data, data_2, *args, **kwargs):
 
     try:
         if not data_2.empty:
-            group = combine_existing_and_new_readings(data, data_2, logger=klogger)
+            group = combine_existing_and_new_readings(data, data_2, klogger=klogger)
         else:
             group = data
 
-        processed_data = group.groupby('station_id').apply(lambda x: process_weather_silver(x, logger=klogger)).reset_index(drop=True)
+        processed_data = group.groupby('station_id').apply(lambda x: process_weather_silver(x, klogger=klogger)).reset_index(drop=True)
 
         if not data_2.empty:
             data_2_filtered = data_2[['station_id', 'date_utc']]
