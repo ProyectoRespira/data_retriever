@@ -14,7 +14,7 @@ def combine_existing_and_new_readings(df1, df2, klogger):
         klogger.info(f"Combined DataFrame has {len(df_combined)} rows.")
         return df_combined
     except Exception as e:
-        klogger.error(f"Error in combining existing and new readings: {e}")
+        klogger.exception(f"Error in combining existing and new readings: {e}")
 
 def drop_bad_readings(df, klogger):
     try:
@@ -27,7 +27,7 @@ def drop_bad_readings(df, klogger):
         klogger.info('Completed dropping bad readings.')
         return df
     except Exception as e:
-        klogger.error(f"Error in dropping bad readings: {e}")
+        klogger.exception(f"Error in dropping bad readings: {e}")
 
 def interpolate_missing_data(df, klogger):
     try:
@@ -41,7 +41,7 @@ def interpolate_missing_data(df, klogger):
         klogger.info('Interpolation completed.')
         return df_interpolated
     except Exception as e:
-        klogger.error(f"Error in interpolating missing data: {e}")
+        klogger.exception(f"Error in interpolating missing data: {e}")
 
 def set_variable_dtypes(df, klogger):
     try:
@@ -58,7 +58,7 @@ def set_variable_dtypes(df, klogger):
         df['date_utc'] = pd.to_datetime(df['date_utc'])
         return df
     except Exception as e:
-        klogger.error(f"Error in setting variable types: {e}")
+        klogger.exception(f"Error in setting variable types: {e}")
     
 
 def process_weather_silver(group, klogger):
@@ -79,7 +79,7 @@ def process_weather_silver(group, klogger):
         
         return group
     except Exception as e:
-        klogger.error(f"Error in processing weather silver: {e}")
+        klogger.exception(f"Error in processing weather silver: {e}")
 
 @transformer
 def transform(data, data_2, *args, **kwargs):
@@ -107,8 +107,7 @@ def transform(data, data_2, *args, **kwargs):
         
         return processed_data
     except Exception as e:
-        klogger.error(f"Error in transformation process: {e}")
-        raise
+        klogger.exception(f"Error in transformation process: {e}")
 
 @test
 def test_output(output, *args) -> None:

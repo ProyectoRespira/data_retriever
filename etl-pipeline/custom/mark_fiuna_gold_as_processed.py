@@ -18,7 +18,7 @@ def transform_custom(data, *args, **kwargs):
     
     try:
         if data.empty:
-            raise Exception('Dataframe is empty')
+            klogger.exception('Dataframe is empty')
         data['processed_to_region'] = True
         data = data[['id', 'processed_to_region']]
     except Exception as e:

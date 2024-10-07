@@ -25,7 +25,7 @@ def export_data_to_postgres(df: DataFrame, **kwargs) -> None:
 
     try:
         if df.empty:
-            raise Exception('Dataframe is empty')
+            klogger.exception('Dataframe is empty')
         
         with Postgres.with_config(ConfigFileLoader(config_path, config_profile)) as loader:
             loader.export(
