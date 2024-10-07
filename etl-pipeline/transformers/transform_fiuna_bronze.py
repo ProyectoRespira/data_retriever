@@ -18,7 +18,7 @@ def transform(data, *args, **kwargs):
         klogger.info(f"Number of new readings for station ID {station_id}: {number_of_readings}")
         return data
     except Exception as e:
-        klogger.info(e)
+        klogger.exception(e)
         return data
     
     
