@@ -12,18 +12,14 @@ def combine_existing_and_new_readings(df1, df2, logger=None):
         df_combined['date_utc'] = pd.to_datetime(df_combined['date_utc'], errors='coerce')
         return df_combined
     except Exception as e:
-        if logger:
-            logger.error(f"Error combining readings: {e}")
-        raise
+        logger.error(f"Error combining readings: {e}")
 
 def drop_bad_readings(df, logger=None):
     try:
         df['pm2_5'] = df['pm2_5'].replace(-999, np.nan)
         return df
     except Exception as e:
-        if logger:
-            logger.error(f"Error dropping bad readings: {e}")
-        raise
+        logger.error(f"Error dropping bad readings: {e}")
 
 def interpolate_missing_data(df, logger=None):
     try:
@@ -41,9 +37,7 @@ def interpolate_missing_data(df, logger=None):
         
         return df_interpolated
     except Exception as e:
-        if logger:
-            logger.error(f"Error interpolating missing data: {e}")
-        raise
+        logger.error(f"Error interpolating missing data: {e}")
 
 def set_variable_dtypes(df, logger=None):
     try:
@@ -55,9 +49,7 @@ def set_variable_dtypes(df, logger=None):
         df['date_utc'] = pd.to_datetime(df['date_utc'])
         return df
     except Exception as e:
-        if logger:
-            logger.error(f"Error in setting variable types: {e}")
-        raise
+        logger.error(f"Error in setting variable types: {e}")
 
 def process_weather_silver(group, logger=None):
     try:
@@ -75,9 +67,7 @@ def process_weather_silver(group, logger=None):
 
         return group
     except Exception as e:
-        if logger:
-            logger.error(f"Error processing weather silver group: {e}")
-        raise
+        logger.error(f"Error processing weather silver group: {e}")
 
 @transformer
 def transform(data, data_2, *args, **kwargs):
