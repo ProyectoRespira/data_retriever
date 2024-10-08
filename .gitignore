@@ -24,3 +24,6 @@ tmp*
 
 # mage drafts
 etl-pipeline/drafts/
+
+#mage
+.mage_data/

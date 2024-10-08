@@ -1,6 +1,6 @@
 project_type: standalone
 
-variables_dir: ~/.mage_data
+variables_dir: /app/.mage_data/
 # remote_variables_dir: s3://bucket/path_prefix
 
 variables_retention_period: '90d'
