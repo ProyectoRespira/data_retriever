@@ -18,17 +18,23 @@ def load_data_from_api(data, *args, **kwargs) -> Dict[str, Any]:
     """
     Template for loading data from API
     """
-    kwarg_logger = kwargs.get('logger')
+    klogger = kwargs.get('logger')
     execution_type = kwargs['execution_type']
 
-    kwarg_logger.info(type(data))
+    klogger.info(type(data))
 
     if execution_type == 'incremental':
-        end_date_utc = kwargs['execution_date'] # now
+        end_date_utc = kwargs['execution_date']
         start_date_utc = end_date_utc 
     elif execution_type == 'backfill_year':
-        start_date_utc = kwargs['execution_date']
-        end_date_utc = start_date_utc + relativedelta(years=1)
+        end_date_utc = kwargs['execution_date']
+        start_date_utc = end_date_utc - relativedelta(years = 1) + relativedelta(hours = 1)
+    elif execution_type == 'backfill_day':
+        end_date_utc = kwargs['execution_date']
+        start_date_utc = end_date_utc - relativedelta(days = 1) + relativedelta(hours = 1)
+    elif execution_type == 'backfill_month':
+        end_date_utc = kwargs['execution_date']
+        start_date_utc = end_date_utc - relativedelta(months = 1) + relativedelta(hours = 1)
 
     start_date = start_date_utc.strftime('%Y-%m-%d')
     start_hour = start_date_utc.strftime('%H')
@@ -43,15 +49,15 @@ def load_data_from_api(data, *args, **kwargs) -> Dict[str, Any]:
         "bbox": data["bbox"],
         "datatype": "c",
         "format": "application/json",
-        "api_key": get_secret_value('AIRNOW_API_KEY'),
+        "api_key": get_secret_value('AIRNOW_API_KEY'), 
     }
 
     url = "https://airnowapi.org/aq/data/"
 
     try:
-        response = requests.get(url, params=params, timeout=120)
-    except E:
-        logging.error(f"An error occurred during API request: {E}")
+        response = requests.get(url, params=params)
+    except Exception as e:
+        logging.error(f"An error occurred during API request: {e}")
         return None
 
     responses = response.json()
@@ -64,6 +70,11 @@ def load_data_from_api(data, *args, **kwargs) -> Dict[str, Any]:
     df.rename(columns = {'UTC': 'date_utc', 'Value': 'pm2_5'}, inplace = True)
     df.drop(columns = ['Latitude', 'Longitude', 'Parameter', 'Unit'], axis = 1, inplace = True)
 
+    df['date_utc'] = pd.to_datetime(df['date_utc'])
+    
+    if df['date_utc'].dt.tz is pd.NaT:
+        df['date_utc'] = df['date_utc'].dt.tz_localize('UTC')
+    
     return df
 
 

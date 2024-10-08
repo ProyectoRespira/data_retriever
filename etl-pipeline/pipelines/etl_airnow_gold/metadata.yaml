@@ -5,10 +5,10 @@ blocks:
     data_provider: postgres
     data_provider_profile: default
     dbt: {}
-    disable_query_preprocessing: true
+    disable_query_preprocessing: false
     export_write_policy: append
     limit: 1000
-    use_raw_sql: false
+    use_raw_sql: true
   downstream_blocks:
   - transform_airnow_gold
   executor_config: null
@@ -34,19 +34,20 @@ blocks:
       path: transformers/transform_airnow_gold.py
   downstream_blocks:
   - load_airnow_to_station_readings
+  - feature_profiles_for_transform_airnow_gold
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
   name: transform_airnow_gold
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: transformer
   upstream_blocks:
   - extract_new_readings_from_airnow_silver
   uuid: transform_airnow_gold
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks: []
@@ -56,7 +57,7 @@ blocks:
   language: python
   name: load_airnow_to_station_readings
   retry_config: null
-  status: executed
+  status: failed
   timeout: null
   type: data_exporter
   upstream_blocks:
@@ -85,5 +86,26 @@ tags:
 - pattern station
 type: python
 uuid: etl_airnow_gold
-variables_dir: /home/vnbl/.mage_data/etl-pipeline
-widgets: []
+variables_dir: /app/.mage_data/
+widgets:
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    chart_type: table
+    height: 3000
+    index: stats
+    x: columns
+    y: rows
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: feature profiles for transform_airnow_gold
+  retry_config: null
+  status: executed
+  timeout: null
+  type: chart
+  upstream_blocks:
+  - transform_airnow_gold
+  uuid: feature_profiles_for_transform_airnow_gold

@@ -1,0 +1,112 @@
+blocks:
+- all_upstream_blocks_executed: true
+  color: teal
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    dbt: {}
+    disable_query_preprocessing: false
+    dynamic: false
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks:
+  - extract_data_from_meteostat
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: get_weather_station_coordinates
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks: []
+  uuid: get_weather_station_coordinates
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    export_write_policy: append
+  downstream_blocks:
+  - load_meteostat_bronze
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: extract_data_from_meteostat
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - get_weather_station_coordinates
+  uuid: extract_data_from_meteostat
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks:
+  - trigger_meteostat_silver_pipeline
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: load_meteostat_bronze
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - extract_data_from_meteostat
+  uuid: load_meteostat_bronze
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    data_provider_schema: public
+    export_write_policy: append
+    file_path: custom/trigger_meteostat_silver_pipeline.py
+    file_source:
+      path: custom/trigger_meteostat_silver_pipeline.py
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: trigger_meteostat_silver_pipeline
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - load_meteostat_bronze
+  uuid: trigger_meteostat_silver_pipeline
+cache_block_output_in_memory: false
+callbacks: []
+concurrency_config: {}
+conditionals: []
+created_at: '2024-07-26 19:28:06.912424+00:00'
+data_integration: null
+description: Extracts data from meteostat, weather readings
+executor_config: {}
+executor_count: 1
+executor_type: null
+extensions: {}
+name: etl_meteostat_bronze
+notification_config: {}
+remote_variables_dir: null
+retry_config: {}
+run_pipeline_in_one_process: false
+settings:
+  triggers: null
+spark_config: {}
+tags:
+- weather
+type: python
+uuid: etl_meteostat_bronze
+variables:
+  execution_type: backfill_month
+variables_dir: /app/.mage_data/
+widgets: []

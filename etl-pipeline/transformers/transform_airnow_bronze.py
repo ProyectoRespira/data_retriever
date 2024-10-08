@@ -32,8 +32,6 @@ def transform(data, *args, **kwargs):
 
     processed_data.reset_index(drop=True, inplace = True)
 
-    print(processed_data.head())
-
     return processed_data
 
 

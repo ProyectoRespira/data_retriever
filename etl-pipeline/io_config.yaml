@@ -67,11 +67,11 @@ default:
   MSSQL_PORT: 1433
   MSSQL_USER: SA
   # MySQL
-  MYSQL_DATABASE: "{{ env_var(MYSQL_DATABASE) }}"
-  MYSQL_HOST: "{{ env_var(MYSQL_HOST) }}"
-  MYSQL_PASSWORD: "{{ env_var(MYSQL_PASSWORD) }}"
-  MYSQL_PORT: "{{ env_var(MYSQL_PORT) }}"
-  MYSQL_USER: "{{ env_var(MYSQL_USER) }}"
+  MYSQL_DATABASE: "{{ env_var('PIPELINE_MYSQL_DB') }}"
+  MYSQL_HOST: "{{ env_var('PIPELINE_MYSQL_HOST') }}"
+  MYSQL_PASSWORD: "{{ env_var('PIPELINE_MYSQL_PASSWORD') }}"
+  MYSQL_PORT: "{{ env_var('PIPELINE_MYSQL_PORT') }}"
+  MYSQL_USER: "{{ env_var('PIPELINE_MYSQL_USER') }}"
   # Pinot
   PINOT_HOST: hostname
   PINOT_PASSWORD: password
@@ -81,12 +81,12 @@ default:
   PINOT_USER: user
   # PostgresSQL
   POSTGRES_CONNECT_TIMEOUT: 10
-  POSTGRES_DBNAME: "{{ env_var(POSTGRES_DATABASE) }}"
+  POSTGRES_DBNAME: "{{ env_var('PIPELINE_POSTGRES_DB') }}"
   POSTGRES_SCHEMA: public # Optional
-  POSTGRES_USER: "{{ env_var(POSTGRES_USER) }}"
-  POSTGRES_PASSWORD: "{{ env_var(POSTGRES_PASSWORD) }}"
-  POSTGRES_HOST: "{{ env_var(POSTGRES_HOST) }}"
-  POSTGRES_PORT: "{{ env_var(POSTGRES_PORT) }}"
+  POSTGRES_USER: "{{ env_var('PIPELINE_POSTGRES_USER') }}"
+  POSTGRES_PASSWORD: "{{ env_var('PIPELINE_POSTGRES_PASSWORD') }}"
+  POSTGRES_HOST: "{{ env_var('PIPELINE_POSTGRES_HOST') }}"
+  POSTGRES_PORT: "{{ env_var('PIPELINE_POSTGRES_PORT') }}"
   # Qdrant
   QDRANT_COLLECTION: collection
   QDRANT_PATH: path

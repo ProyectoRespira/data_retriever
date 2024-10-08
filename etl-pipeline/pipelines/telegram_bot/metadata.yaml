@@ -1,0 +1,26 @@
+blocks: []
+cache_block_output_in_memory: false
+callbacks: []
+concurrency_config: {}
+conditionals: []
+created_at: '2024-09-20 04:59:55.509274+00:00'
+data_integration: null
+description: null
+executor_config: {}
+executor_count: 1
+executor_type: null
+extensions: {}
+name: telegram_bot
+notification_config: {}
+remote_variables_dir: null
+retry_config: {}
+run_pipeline_in_one_process: false
+settings:
+  triggers: null
+spark_config: {}
+tags:
+- bots
+type: python
+uuid: telegram_bot
+variables_dir: /app/.mage_data/
+widgets: []

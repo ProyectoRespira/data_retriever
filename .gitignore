@@ -21,3 +21,6 @@ database.ini
 
 .DS_Store
 tmp*
+
+# mage drafts
+etl-pipeline/drafts/

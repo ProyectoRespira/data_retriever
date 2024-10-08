@@ -12,7 +12,7 @@ blocks:
     file_source:
       path: custom/get_last_airnow_reading_silver_and_bbox.sql
     limit: 1000
-    use_raw_sql: false
+    use_raw_sql: true
   downstream_blocks:
   - extract_data_from_airnow
   executor_config: null
@@ -37,7 +37,7 @@ blocks:
   language: python
   name: extract_data_from_airnow
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -106,5 +106,5 @@ type: python
 uuid: etl_airnow_bronze
 variables:
   execution_type: incremental
-variables_dir: /home/vnbl/.mage_data/etl-pipeline
+variables_dir: /app/.mage_data
 widgets: []

@@ -1,0 +1,156 @@
+blocks:
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    dbt: {}
+    disable_query_preprocessing: false
+    export_write_policy: append
+    file_path: data_loaders/extract_data_for_regional_stats.sql
+    file_source:
+      path: data_loaders/extract_data_for_regional_stats.sql
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks:
+  - transform_region_readings
+  - mark_fiuna_gold_as_processed
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: extract_data_for_regional_stats
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks: []
+  uuid: extract_data_for_regional_stats
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    export_write_policy: append
+    file_path: transformers/transform_region_readings.py
+    file_source:
+      path: transformers/transform_region_readings.py
+  downstream_blocks:
+  - load_region_readings
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: transform_region_readings
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - extract_data_for_regional_stats
+  uuid: transform_region_readings
+- all_upstream_blocks_executed: true
+  color: purple
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    export_write_policy: append
+    file_path: custom/mark_fiuna_gold_as_processed.py
+    file_source:
+      path: custom/mark_fiuna_gold_as_processed.py
+  downstream_blocks:
+  - update_fiuna_gold_processed_ids
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: mark_fiuna_gold_as_processed
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - extract_data_for_regional_stats
+  uuid: mark_fiuna_gold_as_processed
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    file_path: data_exporters/load_region_readings.py
+    file_source:
+      path: data_exporters/load_region_readings.py
+  downstream_blocks:
+  - update_fiuna_gold_processed_ids
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: load_region_readings
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - transform_region_readings
+  uuid: load_region_readings
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    file_path: data_exporters/update_fiuna_gold_processed_ids.py
+    file_source:
+      path: data_exporters/update_fiuna_gold_processed_ids.py
+  downstream_blocks:
+  - trigger_inference
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: update_fiuna_gold_processed_ids
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - mark_fiuna_gold_as_processed
+  - load_region_readings
+  uuid: update_fiuna_gold_processed_ids
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: trigger_inference
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - update_fiuna_gold_processed_ids
+  uuid: trigger_inference
+cache_block_output_in_memory: false
+callbacks: []
+concurrency_config: {}
+conditionals: []
+created_at: '2024-09-15 23:13:52.040966+00:00'
+data_integration: null
+description: null
+executor_config: {}
+executor_count: 1
+executor_type: null
+extensions: {}
+name: etl_fiuna_regional_stats
+notification_config: {}
+remote_variables_dir: null
+retry_config: {}
+run_pipeline_in_one_process: false
+settings:
+  triggers: null
+spark_config: {}
+tags:
+- fiuna
+type: python
+uuid: etl_fiuna_regional_stats
+variables_dir: /app/.mage_data
+widgets: []

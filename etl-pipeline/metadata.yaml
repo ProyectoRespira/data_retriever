@@ -57,4 +57,5 @@ features:
   add_new_block_v2: true
   automatic_kernel_cleanup: true
   display_local_timezone: false
+  command_center: true
 pipelines:

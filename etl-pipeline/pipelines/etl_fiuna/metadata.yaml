@@ -17,12 +17,12 @@ blocks:
   language: sql
   name: extract_station_ids
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: data_loader
   upstream_blocks: []
   uuid: extract_station_ids
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     data_provider: postgres
@@ -46,7 +46,7 @@ blocks:
   upstream_blocks:
   - extract_station_ids
   uuid: extract_station_readings
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     data_provider: postgres
@@ -101,7 +101,7 @@ concurrency_config: {}
 conditionals: []
 created_at: '2024-07-26 19:27:38.938668+00:00'
 data_integration: null
-description: Extracts data from sensors
+description: (draft - not used) Extracts data from sensors
 executor_config: {}
 executor_count: 1
 executor_type: null

@@ -66,7 +66,7 @@ blocks:
     limit: 1000
     use_raw_sql: true
   downstream_blocks:
-  - create_table_station_readings
+  - create_table_airnow_readings
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -79,6 +79,30 @@ blocks:
   upstream_blocks:
   - create_table_stations
   uuid: create_table_weather_stations
+- all_upstream_blocks_executed: false
+  color: teal
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks:
+  - create_table_station_readings
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: create_table_airnow_readings
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - create_table_weather_stations
+  uuid: create_table_airnow_readings
 - all_upstream_blocks_executed: false
   color: teal
   configuration:
@@ -104,7 +128,7 @@ blocks:
   timeout: null
   type: custom
   upstream_blocks:
-  - create_table_weather_stations
+  - create_table_airnow_readings
   uuid: create_table_station_readings
 - all_upstream_blocks_executed: false
   color: teal
@@ -120,7 +144,7 @@ blocks:
     limit: 1000
     use_raw_sql: true
   downstream_blocks:
-  - create_table_airnow_readings
+  - create_table_region_readings
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -144,30 +168,6 @@ blocks:
     limit: 1000
     use_raw_sql: true
   downstream_blocks:
-  - create_table_region_readings
-  executor_config: null
-  executor_type: local_python
-  has_callback: false
-  language: sql
-  name: create_table_airnow_readings
-  retry_config: null
-  status: executed
-  timeout: null
-  type: custom
-  upstream_blocks:
-  - create_table_weather_readings
-  uuid: create_table_airnow_readings
-- all_upstream_blocks_executed: false
-  color: teal
-  configuration:
-    data_provider: postgres
-    data_provider_profile: default
-    dbt: {}
-    disable_query_preprocessing: true
-    export_write_policy: append
-    limit: 1000
-    use_raw_sql: true
-  downstream_blocks:
   - create_table_calibration_factors
   executor_config: null
   executor_type: local_python
@@ -179,8 +179,56 @@ blocks:
   timeout: null
   type: custom
   upstream_blocks:
-  - create_table_airnow_readings
+  - create_table_weather_readings
   uuid: create_table_region_readings
+- all_upstream_blocks_executed: false
+  color: teal
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks:
+  - create_tables_inference
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: create_table_calibration_factors
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - create_table_region_readings
+  uuid: create_table_calibration_factors
+- all_upstream_blocks_executed: false
+  color: teal
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    dbt: {}
+    disable_query_preprocessing: true
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks:
+  - create_table_health_checks
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: create_tables_inference
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - create_table_calibration_factors
+  uuid: create_tables_inference
 - all_upstream_blocks_executed: false
   color: teal
   configuration:
@@ -196,14 +244,14 @@ blocks:
   executor_type: local_python
   has_callback: false
   language: sql
-  name: create_table_calibration_factors
+  name: create_table_health_checks
   retry_config: null
   status: executed
   timeout: null
   type: custom
   upstream_blocks:
-  - create_table_region_readings
-  uuid: create_table_calibration_factors
+  - create_tables_inference
+  uuid: create_table_health_checks
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
@@ -228,5 +276,5 @@ tags:
 - init
 type: python
 uuid: initialize_database
-variables_dir: /home/vnbl/.mage_data/etl-pipeline
+variables_dir: /app/.mage_data/
 widgets: []

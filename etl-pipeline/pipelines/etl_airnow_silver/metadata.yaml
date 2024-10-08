@@ -11,44 +11,42 @@ blocks:
     use_raw_sql: true
   downstream_blocks:
   - transform_airnow_silver
+  - extract_airnow_silver_for_interpolation
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: sql
   name: extract_new_readings_airnow_bronze
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_loader
   upstream_blocks: []
   uuid: extract_new_readings_airnow_bronze
 - all_upstream_blocks_executed: true
-  color: teal
+  color: null
   configuration:
     data_provider: postgres
     data_provider_profile: default
-    dbt: {}
-    disable_query_preprocessing: false
-    export_write_policy: append
-    file_path: custom/select_last_reading_from_airnow_silver.sql
+    export_write_policy: replace
+    file_path: data_loaders/extract_airnow_silver_for_interpolation.py
     file_source:
-      path: custom/select_last_reading_from_airnow_silver.sql
-    limit: 1000
-    use_raw_sql: false
+      path: data_loaders/extract_airnow_silver_for_interpolation.py
   downstream_blocks:
   - transform_airnow_silver
   executor_config: null
   executor_type: local_python
   has_callback: false
-  language: sql
-  name: select_last_reading_from_airnow_silver
+  language: python
+  name: extract_airnow_silver_for_interpolation
   retry_config: null
   status: executed
   timeout: null
-  type: custom
-  upstream_blocks: []
-  uuid: select_last_reading_from_airnow_silver
-- all_upstream_blocks_executed: false
+  type: data_loader
+  upstream_blocks:
+  - extract_new_readings_airnow_bronze
+  uuid: extract_airnow_silver_for_interpolation
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     data_provider: postgres
@@ -67,10 +65,10 @@ blocks:
   timeout: null
   type: transformer
   upstream_blocks:
-  - select_last_reading_from_airnow_silver
   - extract_new_readings_airnow_bronze
+  - extract_airnow_silver_for_interpolation
   uuid: transform_airnow_silver
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks:
@@ -81,13 +79,13 @@ blocks:
   language: python
   name: load_airnow_silver_python
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
   - transform_airnow_silver
   uuid: load_airnow_silver_python
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: teal
   configuration:
     file_source:
@@ -99,7 +97,7 @@ blocks:
   language: python
   name: trigger_airnow_gold_pipeline
   retry_config: null
-  status: not_executed
+  status: executed
   timeout: null
   type: custom
   upstream_blocks:
@@ -128,9 +126,9 @@ tags:
 - pattern station
 type: python
 uuid: etl_airnow_silver
-variables_dir: /home/vnbl/.mage_data/etl-pipeline
+variables_dir: /app/.mage_data/
 widgets:
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     chart_type: time series line chart
