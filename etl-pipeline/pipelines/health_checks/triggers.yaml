@@ -1,7 +1,7 @@
 triggers:
 - description: null
   envs: []
-  last_enabled_at: 2024-10-08 19:31:46.599860
+  last_enabled_at: 2024-10-08 23:36:17.124767
   name: hourly_health_check
   pipeline_uuid: health_checks
   schedule_interval: '30 * * * * '

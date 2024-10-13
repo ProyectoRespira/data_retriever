@@ -90,13 +90,13 @@ blocks:
   language: python
   name: predict_aqi_6_12_hours
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: custom
   upstream_blocks:
   - extract_data_for_inference
   uuid: predict_aqi_6_12_hours
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks: []
@@ -106,7 +106,7 @@ blocks:
   language: python
   name: insert_inference_result
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:

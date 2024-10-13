@@ -1,7 +1,7 @@
 triggers:
 - description: null
   envs: []
-  last_enabled_at: 2024-10-02 03:17:24.474816
+  last_enabled_at: 2024-10-08 23:36:26.078433
   name: hourly fiuna data
   pipeline_uuid: etl_fiuna_bronze
   schedule_interval: '@hourly'
@@ -9,6 +9,6 @@ triggers:
   settings: null
   sla: null
   start_time: 2024-10-02 03:17:00
-  status: active
+  status: inactive
   token: 2a8157b8ee7a4b5ab22ccbafcb06fe27
   variables: {}

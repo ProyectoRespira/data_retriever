@@ -1,7 +1,7 @@
 triggers:
 - description: null
   envs: []
-  last_enabled_at: 2024-10-02 03:26:29.651538+00:00
+  last_enabled_at: 2024-10-08 23:36:25.567385
   name: monthly calibration
   pipeline_uuid: calibration_factors
   schedule_interval: '@monthly'
@@ -9,6 +9,6 @@ triggers:
   settings: null
   sla: null
   start_time: 2024-11-01 00:00:00
-  status: active
+  status: inactive
   token: 58e8e979ba6a4adab2a1e9bcd134e1cc
   variables: {}
