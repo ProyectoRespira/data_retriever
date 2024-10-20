@@ -50,6 +50,7 @@ def get_latest_model_path(model_dir, model_name, klogger):
                     if all(num.isdigit() for num in version_numbers):
                         model_files.append(file_name)
             except (ValueError, IndexError):
+                klogger.warning(f'Unvalid filename: {file_name}')
                 continue
 
         if not model_files:
