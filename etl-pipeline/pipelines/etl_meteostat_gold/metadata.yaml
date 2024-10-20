@@ -29,7 +29,7 @@ blocks:
     data_provider_profile: default
     export_write_policy: append
   downstream_blocks:
-  - export_weather_gold
+  - load_meteostat_gold
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -44,20 +44,23 @@ blocks:
   uuid: transform_weather_gold
 - all_upstream_blocks_executed: true
   color: null
-  configuration: {}
+  configuration:
+    file_path: data_exporters/load_meteostat_gold.py
+    file_source:
+      path: data_exporters/load_meteostat_gold.py
   downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: export_weather_gold
+  name: load_meteostat_gold
   retry_config: null
   status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
   - transform_weather_gold
-  uuid: export_weather_gold
+  uuid: load_meteostat_gold
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
@@ -81,5 +84,5 @@ tags:
 - weather
 type: python
 uuid: etl_meteostat_gold
-variables_dir: /app/.mage_data/
+variables_dir: /app/.mage_data
 widgets: []

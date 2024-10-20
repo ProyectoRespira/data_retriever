@@ -30,7 +30,7 @@ blocks:
   color: null
   configuration: {}
   downstream_blocks:
-  - export_to_airnow_readings_bronze
+  - load_airnow_readings_bronze
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -43,27 +43,27 @@ blocks:
   upstream_blocks:
   - get_last_airnow_reading_silver_and_bbox
   uuid: extract_data_from_airnow
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
-    file_path: data_exporters/export_to_airnow_readings_bronze.py
+    file_path: data_exporters/load_airnow_readings_bronze.py
     file_source:
-      path: data_exporters/export_to_airnow_readings_bronze.py
+      path: data_exporters/load_airnow_readings_bronze.py
   downstream_blocks:
   - trigger_airnow_silver_pipeline
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: export_to_airnow_readings_bronze
+  name: load_airnow_readings_bronze
   retry_config: null
   status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
   - extract_data_from_airnow
-  uuid: export_to_airnow_readings_bronze
-- all_upstream_blocks_executed: false
+  uuid: load_airnow_readings_bronze
+- all_upstream_blocks_executed: true
   color: teal
   configuration:
     file_source:
@@ -79,7 +79,7 @@ blocks:
   timeout: null
   type: custom
   upstream_blocks:
-  - export_to_airnow_readings_bronze
+  - load_airnow_readings_bronze
   uuid: trigger_airnow_silver_pipeline
 cache_block_output_in_memory: false
 callbacks: []

@@ -14,7 +14,7 @@ blocks:
     limit: 1000
     use_raw_sql: true
   downstream_blocks:
-  - get_data_for_calibration
+  - extract_data_for_calibration
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -34,9 +34,9 @@ blocks:
     dbt: {}
     disable_query_preprocessing: false
     export_write_policy: append
-    file_path: data_loaders/get_data_for_calibration.sql
+    file_path: data_loaders/extract_data_for_calibration.sql
     file_source:
-      path: data_loaders/get_data_for_calibration.sql
+      path: data_loaders/extract_data_for_calibration.sql
     limit: 1000
     use_raw_sql: true
   downstream_blocks:
@@ -45,14 +45,14 @@ blocks:
   executor_type: local_python
   has_callback: false
   language: sql
-  name: get_data_for_calibration
+  name: extract_data_for_calibration
   retry_config: null
   status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
   - get_station_ids_for_calibration
-  uuid: get_data_for_calibration
+  uuid: extract_data_for_calibration
 - all_upstream_blocks_executed: true
   color: null
   configuration:
@@ -74,7 +74,7 @@ blocks:
   timeout: null
   type: transformer
   upstream_blocks:
-  - get_data_for_calibration
+  - extract_data_for_calibration
   uuid: transform_calibration_factors
 - all_upstream_blocks_executed: true
   color: null

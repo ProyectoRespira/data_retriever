@@ -53,7 +53,7 @@ blocks:
     data_provider_profile: default
     export_write_policy: append
   downstream_blocks:
-  - load_weather_silver
+  - load_meteostat_silver
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -67,24 +67,27 @@ blocks:
   - extract_new_readings_weather_bronze
   - extract_weather_silver_for_interpolation
   uuid: transform_weather_silver
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
-  configuration: {}
+  configuration:
+    file_path: data_exporters/load_meteostat_silver.py
+    file_source:
+      path: data_exporters/load_meteostat_silver.py
   downstream_blocks:
   - trigger_meteostat_gold
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: load_weather_silver
+  name: load_meteostat_silver
   retry_config: null
   status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
   - transform_weather_silver
-  uuid: load_weather_silver
-- all_upstream_blocks_executed: false
+  uuid: load_meteostat_silver
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks: []
@@ -98,7 +101,7 @@ blocks:
   timeout: null
   type: custom
   upstream_blocks:
-  - load_weather_silver
+  - load_meteostat_silver
   uuid: trigger_meteostat_gold
 cache_block_output_in_memory: false
 callbacks: []
@@ -123,5 +126,5 @@ tags:
 - weather
 type: python
 uuid: etl_meteostat_silver
-variables_dir: /app/.mage_data/
+variables_dir: /app/.mage_data
 widgets: []

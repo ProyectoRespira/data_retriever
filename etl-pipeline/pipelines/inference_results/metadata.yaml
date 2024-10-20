@@ -83,7 +83,7 @@ blocks:
     data_provider_profile: default
     export_write_policy: append
   downstream_blocks:
-  - insert_inference_result
+  - load_inference_result
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -98,20 +98,23 @@ blocks:
   uuid: predict_aqi_6_12_hours
 - all_upstream_blocks_executed: true
   color: null
-  configuration: {}
+  configuration:
+    file_path: data_exporters/load_inference_result.py
+    file_source:
+      path: data_exporters/load_inference_result.py
   downstream_blocks: []
   executor_config: null
   executor_type: local_python
   has_callback: false
   language: python
-  name: insert_inference_result
+  name: load_inference_result
   retry_config: null
   status: executed
   timeout: null
   type: data_exporter
   upstream_blocks:
   - predict_aqi_6_12_hours
-  uuid: insert_inference_result
+  uuid: load_inference_result
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}

@@ -13,7 +13,7 @@ blocks:
     limit: 1000
     use_raw_sql: true
   downstream_blocks:
-  - get_srg_readings_without_aqi
+  - extract_station_readings_without_aqi
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -33,6 +33,9 @@ blocks:
     dbt: {}
     disable_query_preprocessing: false
     export_write_policy: append
+    file_path: data_loaders/extract_station_readings_without_aqi.sql
+    file_source:
+      path: data_loaders/extract_station_readings_without_aqi.sql
     limit: 1000
     use_raw_sql: true
   downstream_blocks:
@@ -41,14 +44,14 @@ blocks:
   executor_type: local_python
   has_callback: false
   language: sql
-  name: get_srg_readings_without_aqi
+  name: extract_station_readings_without_aqi
   retry_config: null
   status: executed
   timeout: null
   type: data_loader
   upstream_blocks:
   - extract_station_ids
-  uuid: get_srg_readings_without_aqi
+  uuid: extract_station_readings_without_aqi
 - all_upstream_blocks_executed: true
   color: null
   configuration:
@@ -70,7 +73,7 @@ blocks:
   timeout: null
   type: transformer
   upstream_blocks:
-  - get_srg_readings_without_aqi
+  - extract_station_readings_without_aqi
   uuid: transform_fiuna_aqi_and_stats
 - all_upstream_blocks_executed: true
   color: null
