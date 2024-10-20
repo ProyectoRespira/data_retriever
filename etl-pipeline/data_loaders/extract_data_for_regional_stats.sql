@@ -12,7 +12,7 @@ WITH unprocessed_readings AS (
     JOIN stations s ON gold.station = s.id
     WHERE 
         gold.processed_to_region = FALSE
-        AND s.region = 'GRAN_ASUNCION'
+        AND s.region = 1--'GRAN_ASUNCION'
         AND s.is_pattern_station = FALSE
 ),
 existing_readings AS (
@@ -29,7 +29,7 @@ existing_readings AS (
     JOIN stations s ON gold.station = s.id
     WHERE 
         gold.processed_to_region = TRUE
-        AND s.region = 'GRAN_ASUNCION'
+        AND s.region = 1--'GRAN_ASUNCION'
         AND s.is_pattern_station = FALSE
         AND gold.date_utc IN (
             SELECT DISTINCT unprocessed.date_utc

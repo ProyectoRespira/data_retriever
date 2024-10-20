@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS weather_stations (
     name VARCHAR,
     latitude FLOAT,
     longitude FLOAT,
-    region VARCHAR REFERENCES regions(region_code)
+    region INTEGER REFERENCES regions(id)
 );
 
 INSERT INTO weather_stations (
@@ -13,5 +13,5 @@ INSERT INTO weather_stations (
     longitude, 
     region
 ) VALUES
-    (1, 'Silvio Pettirossi Airport', '-25.2667', '-57.6333', 'GRAN_ASUNCION')
+    (1, 'Silvio Pettirossi Airport', '-25.2667', '-57.6333', 1)
 ;

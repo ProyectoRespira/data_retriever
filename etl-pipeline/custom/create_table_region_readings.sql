@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS region_readings(
     id SERIAL PRIMARY KEY,
     date_utc TIMESTAMP WITH TIME ZONE,
-    region VARCHAR REFERENCES regions(region_code),
+    region INTEGER REFERENCES regions(id),
     pm2_5_region_avg FLOAT,
     pm2_5_region_max FLOAT,
     pm2_5_region_skew FLOAT,
