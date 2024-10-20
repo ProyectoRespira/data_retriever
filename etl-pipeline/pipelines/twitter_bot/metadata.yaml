@@ -54,7 +54,7 @@ blocks:
   language: python
   name: construct_send_twitter_message
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: custom
   upstream_blocks:

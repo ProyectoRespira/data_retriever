@@ -53,16 +53,18 @@ def send_message(msg=''):
                             access_token=access_token,
                             access_token_secret=access_token_secret)
     response = client.create_tweet(text=msg)
-    
-    return 
+    return response
 
 @custom
 def transform_custom(data, *args, **kwargs):
+    klogger = kwargs.get('logger')
+    try:
+        aqi_summary = get_latest_aqi_summary(data)
+        if aqi_summary:
+            avg_aqi, max_aqi, min_aqi = aqi_summary
+        message = construct_message(avg_aqi, max_aqi, min_aqi)
+        response = send_message(msg=message)
+        klogger.info(f'Twitter response: {response}')
+    except Exception as e:
+        klogger.exception(f'An error occurred: {e}')
 
-
-    aqi_summary = get_latest_aqi_summary(data)
-    if aqi_summary:
-        avg_aqi, max_aqi, min_aqi = aqi_summary
-    message = construct_message(avg_aqi, max_aqi, min_aqi)
-    send_message(msg=message)
-    return data

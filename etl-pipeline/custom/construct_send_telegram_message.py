@@ -66,19 +66,15 @@ def send_message(token, chat_id, msg=''):
 
 @custom
 def transform_custom(data, *args, **kwargs):
-    telegram_token = get_secret_value('TELEGRAM_BOT_TOKEN')
-    telegram_chat_id = get_secret_value('TELEGRAM_CHAT_ID')
-    aqi_summary = get_latest_aqi_summary(data)
-    if aqi_summary:
-        avg_aqi, max_aqi, min_aqi = aqi_summary
-    message = construct_message(avg_aqi, max_aqi, min_aqi)
-    send_message(token=telegram_token, chat_id=telegram_chat_id, msg=message)
-    return data
-
-
-@test
-def test_output(output, *args) -> None:
-    """
-    Template code for testing the output of the block.
-    """
-    assert output is not None, 'The output is undefined'
+    klogger = kwargs.get('logger')
+    try:
+        telegram_token = get_secret_value('TELEGRAM_BOT_TOKEN')
+        telegram_chat_id = get_secret_value('TELEGRAM_CHAT_ID')
+        aqi_summary = get_latest_aqi_summary(data)
+        if aqi_summary:
+            avg_aqi, max_aqi, min_aqi = aqi_summary
+        message = construct_message(avg_aqi, max_aqi, min_aqi)
+        response = send_message(token=telegram_token, chat_id=telegram_chat_id, msg=message)
+        klogger.info(f'Telegram response: {response}')
+    except Exception as e:
+        klogger.exception(f'An error occurred: {e}')
