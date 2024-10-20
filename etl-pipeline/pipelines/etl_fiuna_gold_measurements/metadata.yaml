@@ -156,7 +156,8 @@ concurrency_config: {}
 conditionals: []
 created_at: '2024-09-13 04:18:40.756637+00:00'
 data_integration: null
-description: null
+description: rename columns, adapt data frequency to 1 hour, mark silver readings
+  as processed
 executor_config: {}
 executor_count: 1
 executor_type: null
