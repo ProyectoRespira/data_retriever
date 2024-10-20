@@ -18,13 +18,13 @@ pattern_data AS (
     SELECT 
         DATE_TRUNC('hour', srg.date_utc) AS date_utc, 
         AVG(srg.pm2_5) AS pattern_pm2_5,
-        srg.station AS pattern_station_id
+        srg.station_id AS pattern_station_id
     FROM station_readings_gold srg
-    WHERE srg.station = '{{ block_output(parse=lambda data, vars: data[0]["pattern_station_id"]) }}'
+    WHERE srg.station_id = '{{ block_output(parse=lambda data, vars: data[0]["pattern_station_id"]) }}'
     AND srg.date_utc BETWEEN 
         (DATE_TRUNC('day', CAST('{{ execution_date }}' AS timestamp) ) - INTERVAL '3 months') 
         AND DATE_TRUNC('day', CAST('{{ execution_date }}' AS timestamp))
-    GROUP BY DATE_TRUNC('hour', srg.date_utc), srg.station
+    GROUP BY DATE_TRUNC('hour', srg.date_utc), srg.station_id
 ),
 weather_data AS (
     -- Retrieve humidity data from weather_readings_gold

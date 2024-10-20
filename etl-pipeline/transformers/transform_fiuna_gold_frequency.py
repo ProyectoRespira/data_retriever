@@ -7,7 +7,7 @@ if 'test' not in globals():
 
 def change_frequency(df):
     df.index = df.index.floor('h')
-    df = df.groupby([df.index, 'station']).agg({
+    df = df.groupby([df.index, 'station_id']).agg({
         'pm1': 'mean',
         'pm2_5': 'mean',
         'pm10': 'mean',
@@ -61,7 +61,7 @@ def transform(data, *args, **kwargs):
         data = process_data(data)
     except Exception as e:
         klogger.exception(e)
-    station_id = data['station'].iloc[0]  # Get the station_id (only one value)
+    station_id = data['station_id'].iloc[0]  # Get the station_id (only one value)
     number_of_readings = len(data)  # Count the number of rows in the DataFrame
 
     klogger.info(f"Number of new readings for station ID {station_id}: {number_of_readings}")

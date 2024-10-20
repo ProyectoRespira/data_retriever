@@ -13,10 +13,10 @@ WITH calibration_check AS (
         END AS has_valid_calibration_factor  
     FROM stations s  
     JOIN stations ps 
-    ON s.region = ps.region  -- Join to pattern station in the same region.
+    ON s.region_id = ps.region_id  -- Join to pattern station in the same region.
     AND ps.is_pattern_station = true  
     JOIN weather_stations ws 
-    ON s.region = ws.region  -- Join to weather station in the same region.
+    ON s.region_id = ws.region  -- Join to weather station in the same region.
     LEFT JOIN calibration_factors cf  -- Left join to 'calibration_factors' to check if calibration exists.
     ON s.id = cf.station_id  
     WHERE s.is_pattern_station = false  AND s.is_station_on = true-- Filter to include only non-pattern stations.

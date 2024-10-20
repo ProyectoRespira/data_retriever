@@ -10,7 +10,7 @@ def calc_metrics(group):
 
     metrics = {
         'date_utc': group['date_utc'].iloc[0],
-        'region': group['region'].iloc[0],
+        'region_id': group['region_id'].iloc[0],
         'pm2_5_region_avg': group['pm2_5'].mean(),
         'pm2_5_region_max': group['pm2_5'].max(),
         'pm2_5_region_skew': group['pm2_5'].skew(),
@@ -25,7 +25,7 @@ def calc_metrics(group):
 
 # Helper function to calculate metrics for each region and date_utc group
 def calculate_region_metrics(df):
-    grouped = df.groupby(['date_utc', 'region'])
+    grouped = df.groupby(['date_utc', 'region_id'])
     region_metrics = grouped.apply(calc_metrics).reset_index(drop=True)
     region_metrics.dropna(inplace=True)
     return region_metrics

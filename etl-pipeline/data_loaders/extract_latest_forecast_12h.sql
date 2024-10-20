@@ -7,6 +7,6 @@ WITH inference_run_id AS (
     ORDER BY run_date DESC
     LIMIT 1
 )
-SELECT inference_run, station, forecasts_12h
+SELECT inference_run_id, station_id, forecasts_12h
 FROM inference_results
-WHERE inference_run = (SELECT id FROM inference_run_id);
+WHERE inference_run_id = (SELECT id FROM inference_run_id);

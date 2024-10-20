@@ -7,7 +7,7 @@ WITH execution_date AS (
 
 SELECT
     srg.date_utc,
-    srg.station,  
+    srg.station_id,  
     srg.pm1,
     srg.pm2_5, 
     srg.pm10,
@@ -36,7 +36,7 @@ SELECT
     wr.wind_speed,
     wr.wind_dir_cos,
     wr.wind_dir_sin,
-    execution_date.id AS inference_run,
+    execution_date.id AS inference_run_id,
     execution_date.run_date AS run_date
 FROM
     station_readings_gold srg
@@ -48,7 +48,7 @@ INNER JOIN
     ON srg.date_utc = wr.date_localtime
 CROSS JOIN execution_date
 WHERE
-    srg.station = {{ block_output(parse=lambda data, vars: data[0]["id"]) }}
+    srg.station_id = {{ block_output(parse=lambda data, vars: data[0]["id"]) }}
     AND srg.date_utc BETWEEN execution_date.run_date - INTERVAL '25 HOURS' 
                           AND execution_date.run_date - INTERVAL '1 HOURS'
     AND rr.date_utc BETWEEN execution_date.run_date - INTERVAL '25 HOURS' 
