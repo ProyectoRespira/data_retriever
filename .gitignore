@@ -27,3 +27,6 @@ etl-pipeline/drafts/
 
 #mage
 .mage_data/
+
+#db backups
+db_dumps
