@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS stations (
     name VARCHAR,
     latitude FLOAT,
     longitude FLOAT,
-    region INTEGER REFERENCES regions(id),
+    region_id INTEGER REFERENCES regions(id),
     is_station_on BOOLEAN,
     is_pattern_station BOOLEAN
 );
@@ -15,7 +15,7 @@ INSERT INTO stations (
     name, 
     latitude, 
     longitude, 
-    region, 
+    region_id, 
     is_station_on, 
     is_pattern_station
 ) VALUES
@@ -38,7 +38,7 @@ INSERT INTO stations (
     name, 
     latitude, 
     longitude, 
-    region, 
+    region_id, 
     is_station_on, 
     is_pattern_station
 ) VALUES
