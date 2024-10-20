@@ -7,9 +7,8 @@ blocks:
     dbt: {}
     disable_query_preprocessing: false
     export_write_policy: append
-    file_path: data_loaders/get_latest_forecast_12h.sql
     file_source:
-      path: data_loaders/get_latest_forecast_12h.sql
+      path: data_loaders/extract_latest_forecast_12h.sql
     limit: 1000
     use_raw_sql: true
   downstream_blocks:
@@ -18,13 +17,13 @@ blocks:
   executor_type: local_python
   has_callback: false
   language: sql
-  name: get_latest_forecast_12h
+  name: extract_latest_forecast_12h
   retry_config: null
   status: executed
   timeout: null
   type: data_loader
   upstream_blocks: []
-  uuid: get_latest_forecast_12h
+  uuid: extract_latest_forecast_12h
 - all_upstream_blocks_executed: true
   color: null
   configuration:
@@ -43,7 +42,7 @@ blocks:
   timeout: null
   type: transformer
   upstream_blocks:
-  - get_latest_forecast_12h
+  - extract_latest_forecast_12h
   uuid: calculate_regional_forecast
 - all_upstream_blocks_executed: true
   color: null
