@@ -177,6 +177,7 @@ nvidia-cusparse-cu12==12.1.0.106
 nvidia-nccl-cu12==2.20.5
 nvidia-nvjitlink-cu12==12.6.77
 nvidia-nvtx-cu12==12.1.105
+oauthlib==3.2.2
 packaging==24.1
 pandas==2.2.3
 pandocfilters==1.5.1
@@ -215,6 +216,7 @@ pyod==2.0.2
 pyodbc==5.0.1
 pyOpenSSL==24.2.1
 pyparsing==3.1.4
+pyTelegramBotAPI==4.23.0
 python-dateutil==2.8.2
 python-dotenv==1.0.1
 python-Levenshtein==0.26.0
@@ -229,6 +231,7 @@ redis==5.0.8
 redshift-connector==2.0.915
 referencing==0.35.1
 requests==2.31.0
+requests-oauthlib==1.3.1
 rfc3986==1.5.0
 rich==13.9.2
 rpds-py==0.20.0
@@ -278,11 +281,12 @@ traitlets==5.14.3
 triad==0.9.8
 trino==0.330.0
 triton==3.0.0
+tweepy==4.14.0
 typer==0.9.0
 typing_extensions==4.10.0
 tzdata==2024.2
 tzlocal==5.2
-urllib3==1.26.20
+urllib3==2.2.3
 utilsforecast==0.2.5
 watchdog==4.0.0
 wcwidth==0.2.13
@@ -295,4 +299,3 @@ xgboost==2.1.1
 yarl==1.13.1
 zipp==3.20.2
 zstandard==0.23.0
-
