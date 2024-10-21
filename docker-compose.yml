@@ -1,0 +1,56 @@
+services:
+  db:
+    image: postgres:16.4-alpine3.20
+    restart: always
+    container_name: db_aire
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pipeline:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      MAGE_DATA_DIR: ${MAGE_DATA_DIR}
+      PIPELINE_POSTGRES_USER: ${POSTGRES_USER}
+      PIPELINE_POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PIPELINE_POSTGRES_DB: ${POSTGRES_DB}
+      PIPELINE_POSTGRES_HOST: db
+      PIPELINE_POSTGRES_PORT: 5432
+      PIPELINE_MYSQL_USER: ${MYSQL_USER}
+      PIPELINE_MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      PIPELINE_MYSQL_DB: ${MYSQL_DB}
+      PIPELINE_MYSQL_HOST: ${MYSQL_HOST}
+      PIPELINE_MYSQL_PORT: ${MYSQL_PORT}
+    ports:
+      - "${PIPELINE_PORT}:6789"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:${PIPELINE_PORT} | grep -q 200"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - ./:/app
+      # manually transfer .mage_data with already created secrets to server or store secrets in server's mage UI during deployment
+      - ../.mage_data:/root/.mage_data 
+      
+volumes:
+  postgres_data:

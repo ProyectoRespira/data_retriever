@@ -1,0 +1,143 @@
+blocks:
+- all_upstream_blocks_executed: true
+  color: teal
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    dbt: {}
+    disable_query_preprocessing: false
+    export_write_policy: append
+    file_source:
+      path: custom/create_insert_inference_run.sql
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks:
+  - get_healthy_station_ids
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: create_insert_inference_run
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks: []
+  uuid: create_insert_inference_run
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    dbt: {}
+    disable_query_preprocessing: false
+    dynamic: true
+    export_write_policy: append
+    file_path: custom/get_healthy_station_ids.sql
+    file_source:
+      path: custom/get_healthy_station_ids.sql
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks:
+  - extract_data_for_inference
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: get_healthy_station_ids
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - create_insert_inference_run
+  uuid: get_healthy_station_ids
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    dbt: {}
+    disable_query_preprocessing: false
+    export_write_policy: append
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks:
+  - predict_aqi_6_12_hours
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: extract_data_for_inference
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks:
+  - get_healthy_station_ids
+  uuid: extract_data_for_inference
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    export_write_policy: append
+  downstream_blocks:
+  - load_inference_result
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: predict_aqi_6_12_hours
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - extract_data_for_inference
+  uuid: predict_aqi_6_12_hours
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    file_path: data_exporters/load_inference_result.py
+    file_source:
+      path: data_exporters/load_inference_result.py
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: load_inference_result
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_exporter
+  upstream_blocks:
+  - predict_aqi_6_12_hours
+  uuid: load_inference_result
+cache_block_output_in_memory: false
+callbacks: []
+concurrency_config: {}
+conditionals: []
+created_at: '2024-09-20 04:57:33.730003+00:00'
+data_integration: null
+description: null
+executor_config: {}
+executor_count: 1
+executor_type: null
+extensions: {}
+name: inference_results
+notification_config: {}
+remote_variables_dir: null
+retry_config: {}
+run_pipeline_in_one_process: false
+settings:
+  triggers: null
+spark_config: {}
+tags:
+- inference
+- fiuna
+type: python
+uuid: inference_results
+variables_dir: /root/.mage_data/etl-pipeline
+widgets: []

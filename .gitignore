@@ -16,4 +16,17 @@ venv.bak/
 database.ini
 *.ini
 
+# testing files
+*.ipynb
 
+.DS_Store
+tmp*
+
+# mage drafts
+etl-pipeline/drafts/
+
+#mage
+.mage_data/
+
+#db backups
+db_dumps

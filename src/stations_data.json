@@ -1,0 +1,10 @@
+[{"id": 1, "name": "Campus de la UNA", "latitude": "-25.33360102213910", "longitude": "-57.5139365997165", "region": "GRAN_ASUNCION", "is_station_on": false, "is_pattern_station": false}, 
+{"id": 2, "name": "Zona Multiplaza", "latitude": "-25.32014521770180", "longitude": "-57.56050041876730", "region": "GRAN_ASUNCION", "is_station_on": false, "is_pattern_station": false}, 
+{"id": 3, "name": "Acceso Sur", "latitude": "-25.34024024382230", "longitude": "-57.58431466296320", "region": "GRAN_ASUNCION", "is_station_on": false, "is_pattern_station": false}, 
+{"id": 4, "name": "Primero de Marzo y Per\u00f3n", "latitude": "-25.32836979255080", "longitude": "-57.62706899084150", "region": "GRAN_ASUNCION", "is_station_on": false, "is_pattern_station": false}, 
+{"id": 5, "name": "Villa Morra", "latitude": "-25.29511316679420", "longitude": "-57.57708610966800", "region": "GRAN_ASUNCION", "is_station_on": false, "is_pattern_station": false}, 
+{"id": 6, "name": "Barrio Jara", "latitude": "-25.28833455406130", "longitude": "-57.60329900309440", "region": "GRAN_ASUNCION", "is_station_on": false, "is_pattern_station": false}, 
+{"id": 7, "name": "San Roque", "latitude": "-25.28936695307490", "longitude": "-57.62515967711810", "region": "GRAN_ASUNCION", "is_station_on": false, "is_pattern_station": false}, 
+{"id": 8, "name": "Centro de Asunci\u00f3n", "latitude": "-25.28640403412280", "longitude": "-57.64701121486720", "region": "GRAN_ASUNCION", "is_station_on": false, "is_pattern_station": false}, 
+{"id": 9, "name": "\u00d1u Guasu", "latitude": "-25.26458493433890", "longitude": "-57.54793468862770", "region": "GRAN_ASUNCION", "is_station_on": false, "is_pattern_station": false}, 
+{"id": 10, "name": "Bot\u00e1nico", "latitude": "-25.24647398851810", "longitude": "-57.54928501322870", "region": "GRAN_ASUNCION", "is_station_on": false, "is_pattern_station": false}]

@@ -1,34 +1,112 @@
-from sqlalchemy import create_engine, MetaData, Table
-from src.database import config
-####### NOT WORKING - CAN'T CONNECT TO REMOTE SERVER 4 TESTING ########
+from src.models import BasePostgres, Stations, Regions, WeatherStations
+from sqlalchemy.exc import IntegrityError
+from src.database import create_postgres_session, create_postgres
+import json
+import logging
 
-def create_missing_tables():
-    # Load database configuration
-    postgres_config = config(section='postgresql')
-    mysql_config = config(section='mysql')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-    # Create SQLAlchemy engines for PostgreSQL and MySQL
-    postgres_engine = create_engine(f"postgresql+psycopg2://{postgres_config['user']}:{postgres_config['password']}@{postgres_config['host']}/{postgres_config['database']}")
-    mysql_engine = create_engine(f"mysql+mysqlconnector://{mysql_config['user']}:{mysql_config['password']}@{mysql_config['host']}/{mysql_config['database']}")
+with open('src/stations_data.json', 'r') as f:
+    stations_data = json.load(f)
 
-    # Reflect existing tables in PostgreSQL
-    meta = MetaData()
-    meta.reflect(bind=postgres_engine)
+with open('src/region_data.json', 'r') as f:
+    region_data = json.load(f)
 
-    existing_postgres_tables = meta.tables.keys()
+with open('src/weather_data.json', 'r') as f:
+    weather_data = json.load(f)
 
-    # Get table names from MySQL
-    postgres_table_names = postgres_config['tables']
+with open('src/pattern_data.json', 'r') as f:
+    pattern_data = json.load(f)
 
-    # Check for missing tables and create them in PostgreSQL
-    for table_name in postgres_table_names:
-        if table_name not in existing_postgres_tables:
-            # Reflect the table structure from MySQL
-            table = Table(table_name, meta, autoload_with=mysql_engine)
-            # Create the table in PostgreSQL
-            table.create(bind=postgres_engine)
 
-    
+def create_stations(postgres_session, station_data = stations_data, pattern_data = pattern_data):
+    all_stations = station_data + [station for station in pattern_data]
+    existing_station_ids = {station.id for station in postgres_session.query(Stations).all()}
+    for station_info in all_stations:
+        station_id = station_info.get('id')
+        if station_id not in existing_station_ids:
+            try:
+                new_station = Stations(
+                    id=station_id,
+                    name=station_info['name'],
+                    latitude=station_info['latitude'],
+                    longitude=station_info['longitude'],
+                    region=station_info['region'],
+                    is_station_on = station_info['is_station_on'],
+                    is_pattern_station = station_info['is_pattern_station']
+                )
+                postgres_session.add(new_station)
+                postgres_session.commit()
+                print(f"Station '{new_station.name}' created successfully.")
+            except KeyError as e:
+                print(f"Skipping station '{station_id}'creation due to missing or invalid data: {e}")
+            except IntegrityError as e:
+                postgres_session.rollback()
+                print(f"Failed to create station '{station_id}'. It may already exist.")
+                logging.error(f'error: {e}')
+        else:
+            print(f"Station '{station_id}' already exists. Skipping creation.")
 
-if __name__ == "__main__":
-    create_missing_tables()
+def create_region(postgres_session, region_data = region_data):
+    existing_region_ids = {region.id for region in postgres_session.query(Regions).all()}
+    for region_info in region_data:
+        region_id = region_info.get('id')
+        if region_id not in existing_region_ids:
+            try:
+                new_region = Regions(
+                    id = region_id,
+                    name = region_info['name'],
+                    region_code = region_info['region_code'],
+                    bbox = region_info['bbox'],
+                    has_weather_data = region_info['has_weather_data'],
+                    has_pattern_station = region_info['has_pattern_station']
+                )
+                postgres_session.add(new_region)
+                postgres_session.commit()
+                print(f"Region '{new_region.name}' created successfully.")
+            except KeyError as e:
+                print(f"Skipping region with ID = '{region_id}' creation due to missing or invalid data: {e}")
+            except IntegrityError:
+                postgres_session.rollback()
+                print(f"Failed to create region with ID '{region_id}'. It may already exist.")
+        else:
+            print(f"Region with ID '{region_id}' already exists. Skipping creation.")
+
+def create_weather_stations(postgres_session, weather_data = weather_data):
+    existing_weather_ids = {weather.id for weather in postgres_session.query(WeatherStations).all()}
+    for weather_info in weather_data:
+        weather_id = weather_info.get('id')
+        if weather_id not in existing_weather_ids:
+            try:
+                new_weather_station = WeatherStations(
+                    id = weather_id,
+                    name = weather_info['name'],
+                    latitude = weather_info['latitude'],
+                    longitude = weather_info['longitude'],
+                    region = weather_info['region']
+                )
+                postgres_session.add(new_weather_station)
+                postgres_session.commit()
+                print(f"Weather Station '{new_weather_station.name}' created successfully.")
+            except KeyError as e:
+                print(f"Skipping Weather Station with ID = '{weather_id}' creation due to missing or invalid data: {e}")
+            except IntegrityError:
+                postgres_session.rollback()
+                print(f"Failed to create Weather Station with ID = '{weather_id}'. It may already exist.")
+        else:
+            print(f"Weather Station with ID '{weather_id}' already exists. Skipping creation.")
+
+
+
+def create_postgres_tables():
+    try:
+        postgres_engine = create_postgres()
+        BasePostgres.metadata.create_all(postgres_engine)
+        with create_postgres_session(postgres_engine) as session:
+            create_region(postgres_session=session)
+            create_weather_stations(postgres_session=session)
+            create_stations(postgres_session=session)
+    except Exception as e:
+        logging.error(f'An error occurred in create_postgres_tables: {e}')
+    finally:
+        session.close()
