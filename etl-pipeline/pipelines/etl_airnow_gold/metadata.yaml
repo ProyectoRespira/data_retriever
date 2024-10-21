@@ -57,7 +57,7 @@ blocks:
   language: python
   name: load_airnow_to_station_readings
   retry_config: null
-  status: failed
+  status: updated
   timeout: null
   type: data_exporter
   upstream_blocks:
@@ -86,7 +86,7 @@ tags:
 - pattern station
 type: python
 uuid: etl_airnow_gold
-variables_dir: /app/.mage_data/
+variables_dir: /app/.mage_data
 widgets:
 - all_upstream_blocks_executed: true
   color: null

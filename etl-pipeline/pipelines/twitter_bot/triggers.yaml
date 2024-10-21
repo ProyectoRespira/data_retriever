@@ -1,0 +1,27 @@
+triggers:
+- description: null
+  envs: []
+  last_enabled_at: 2024-10-21 20:22:54.559665
+  name: tweet_at_8am
+  pipeline_uuid: twitter_bot
+  schedule_interval: '0 11 * * * '
+  schedule_type: time
+  settings: null
+  sla: null
+  start_time: 2024-10-21 20:21:00
+  status: active
+  token: ec63dbf57a98438c839da94b22c470b1
+  variables: {}
+- description: null
+  envs: []
+  last_enabled_at: 2024-10-21 20:25:02.744471
+  name: tweet_at_5pm
+  pipeline_uuid: twitter_bot
+  schedule_interval: 0 20 * * *
+  schedule_type: time
+  settings: null
+  sla: null
+  start_time: 2024-10-21 20:23:00
+  status: active
+  token: 8c98ce6fe5ff4e0185ed142e696df5aa
+  variables: {}

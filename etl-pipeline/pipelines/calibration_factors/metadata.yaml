@@ -21,7 +21,7 @@ blocks:
   language: sql
   name: get_station_ids_for_calibration
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: custom
   upstream_blocks: []

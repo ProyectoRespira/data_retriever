@@ -97,7 +97,7 @@ blocks:
   language: sql
   name: create_table_airnow_readings
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: custom
   upstream_blocks:
@@ -124,7 +124,7 @@ blocks:
   language: sql
   name: create_table_station_readings
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: custom
   upstream_blocks:
@@ -151,7 +151,7 @@ blocks:
   language: sql
   name: create_table_weather_readings
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: custom
   upstream_blocks:
@@ -175,7 +175,7 @@ blocks:
   language: sql
   name: create_table_region_readings
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: custom
   upstream_blocks:
@@ -223,7 +223,7 @@ blocks:
   language: sql
   name: create_tables_inference
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: custom
   upstream_blocks:
