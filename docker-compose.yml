@@ -25,7 +25,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     environment:
-      MAGE_DATA_DIR: ../.mage_data
+      MAGE_DATA_DIR: ${MAGE_DATA_DIR}
       PIPELINE_POSTGRES_USER: ${POSTGRES_USER}
       PIPELINE_POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       PIPELINE_POSTGRES_DB: ${POSTGRES_DB}
@@ -48,7 +48,9 @@ services:
       retries: 5
       start_period: 10s
     volumes:
-      - /home/vnbl/data_retriever:/app
-
+      - ./:/app
+      # manually transfer .mage_data with already created secrets to server or store secrets in server's mage UI during deployment
+      - ../.mage_data:/root/.mage_data 
+      
 volumes:
   postgres_data:
