@@ -1,4 +1,4 @@
--- Docs: https://docs.mage.ai/guides/sql-blocks
+
 CREATE TABLE IF NOT EXISTS airnow_readings_bronze(
     id SERIAL PRIMARY KEY,
     station_id INTEGER REFERENCES stations(id), -- constrain: is_pattern_station == True

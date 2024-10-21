@@ -1,4 +1,66 @@
-blocks: []
+blocks:
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    dbt: {}
+    disable_query_preprocessing: false
+    export_write_policy: append
+    file_path: data_loaders/extract_latest_forecast_12h.sql
+    file_source:
+      path: data_loaders/extract_latest_forecast_12h.sql
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks:
+  - calculate_regional_forecast
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: extract_latest_forecast_12h
+  retry_config: null
+  status: executed
+  timeout: null
+  type: data_loader
+  upstream_blocks: []
+  uuid: extract_latest_forecast_12h
+- all_upstream_blocks_executed: true
+  color: null
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    export_write_policy: append
+  downstream_blocks:
+  - construct_send_telegram_message
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: calculate_regional_forecast
+  retry_config: null
+  status: executed
+  timeout: null
+  type: transformer
+  upstream_blocks:
+  - extract_latest_forecast_12h
+  uuid: calculate_regional_forecast
+- all_upstream_blocks_executed: true
+  color: null
+  configuration: {}
+  downstream_blocks: []
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: python
+  name: construct_send_telegram_message
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - calculate_regional_forecast
+  uuid: construct_send_telegram_message
 cache_block_output_in_memory: false
 callbacks: []
 concurrency_config: {}
@@ -22,5 +84,5 @@ tags:
 - bots
 type: python
 uuid: telegram_bot
-variables_dir: /app/.mage_data/
+variables_dir: /root/.mage_data/etl-pipeline
 widgets: []

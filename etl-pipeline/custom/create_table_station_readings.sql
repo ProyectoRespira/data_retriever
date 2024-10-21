@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS station_readings_silver (
 
 CREATE TABLE IF NOT EXISTS station_readings_gold (
     id SERIAL PRIMARY KEY,
-    station INTEGER REFERENCES stations(id),
+    station_id INTEGER REFERENCES stations(id),
     airnow_id INTEGER REFERENCES airnow_readings_silver(id) NULL,
     date_utc TIMESTAMP WITH TIME ZONE,
     pm_calibrated BOOLEAN,
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS station_readings_gold (
     aqi_pm2_5_skew_24h FLOAT,
     aqi_pm2_5_std_24h FLOAT,
     processed_to_region BOOLEAN DEFAULT FALSE,
-    UNIQUE (station, date_utc)
+    UNIQUE (station_id, date_utc)
 );
 
 -- CREATE TABLE IF NOT EXISTS station_readings_gold_to_silver (

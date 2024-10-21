@@ -27,7 +27,8 @@ concurrency_config: {}
 conditionals: []
 created_at: '2024-09-20 04:53:51.419422+00:00'
 data_integration: null
-description: null
+description: checks if stations have had new readings in the past 6 hours - used for
+  inference
 executor_config: {}
 executor_count: 1
 executor_type: null
@@ -44,5 +45,5 @@ tags:
 - fiuna
 type: python
 uuid: health_checks
-variables_dir: /app/.mage_data
+variables_dir: /root/.mage_data/etl-pipeline
 widgets: []

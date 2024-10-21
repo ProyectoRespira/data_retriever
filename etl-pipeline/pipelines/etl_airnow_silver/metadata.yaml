@@ -126,7 +126,7 @@ tags:
 - pattern station
 type: python
 uuid: etl_airnow_silver
-variables_dir: /app/.mage_data/
+variables_dir: /app/.mage_data
 widgets:
 - all_upstream_blocks_executed: true
   color: null

@@ -12,7 +12,7 @@ FROM
 LEFT JOIN LATERAL (
     SELECT sr.id, sr.date_utc
     FROM station_readings_gold sr
-    WHERE sr.station = s.id
+    WHERE sr.station_id = s.id
     ORDER BY sr.date_utc DESC
     LIMIT 1
 ) sr ON TRUE

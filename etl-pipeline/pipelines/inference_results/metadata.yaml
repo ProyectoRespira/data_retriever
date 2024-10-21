@@ -139,5 +139,5 @@ tags:
 - fiuna
 type: python
 uuid: inference_results
-variables_dir: /app/.mage_data
+variables_dir: /root/.mage_data/etl-pipeline
 widgets: []

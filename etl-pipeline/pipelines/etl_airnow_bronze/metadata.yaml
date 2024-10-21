@@ -26,7 +26,7 @@ blocks:
   type: custom
   upstream_blocks: []
   uuid: get_last_airnow_reading_silver_and_bbox
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration: {}
   downstream_blocks:
@@ -43,7 +43,7 @@ blocks:
   upstream_blocks:
   - get_last_airnow_reading_silver_and_bbox
   uuid: extract_data_from_airnow
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     file_path: data_exporters/load_airnow_readings_bronze.py
@@ -63,7 +63,7 @@ blocks:
   upstream_blocks:
   - extract_data_from_airnow
   uuid: load_airnow_readings_bronze
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: teal
   configuration:
     file_source:

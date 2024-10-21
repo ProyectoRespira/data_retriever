@@ -1,7 +1,7 @@
 SELECT  
     silver.id AS airnow_id,
     silver.date_utc, 
-    silver.station_id AS station, 
+    silver.station_id, 
     silver.pm2_5
 FROM    
     airnow_readings_silver silver

@@ -10,13 +10,13 @@ new_silver_readings AS (
     -- Retrieve all data from the minimum unprocessed hour onwards
     SELECT
         silver.id AS silver_id,
-        silver.station_id AS station,
+        silver.station_id,
         silver.date_utc,
         silver.pm2_5,
         silver.pm1,
         silver.pm10,
         silver.processed_to_gold,
-        s.region AS station_region
+        s.region_id AS station_region
     FROM
         station_readings_silver silver
     JOIN
@@ -61,7 +61,7 @@ final_data AS (
         COALESCE(
             (SELECT c.calibration_factor 
              FROM calibration_data c
-             WHERE ns.station = c.station_id
+             WHERE ns.station_id = c.station_id
                AND ns.date_utc BETWEEN c.date_start_use AND c.date_end_use
              ORDER BY c.date_start_use DESC
              LIMIT 1),

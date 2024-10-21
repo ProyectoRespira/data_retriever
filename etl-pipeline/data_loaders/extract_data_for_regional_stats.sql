@@ -3,16 +3,16 @@ WITH unprocessed_readings AS (
     SELECT
         gold.id,
         gold.date_utc,
-        gold.station,
+        gold.station_id,
         gold.pm2_5,
         gold.aqi_pm2_5,
         gold.aqi_level,
-        s.region
+        s.region_id
     FROM station_readings_gold gold
-    JOIN stations s ON gold.station = s.id
+    JOIN stations s ON gold.station_id = s.id
     WHERE 
         gold.processed_to_region = FALSE
-        AND s.region = 1--'GRAN_ASUNCION'
+        AND s.region_id = 1--'GRAN_ASUNCION'
         AND s.is_pattern_station = FALSE
 ),
 existing_readings AS (
@@ -20,16 +20,16 @@ existing_readings AS (
     SELECT
         gold.id,
         gold.date_utc,
-        gold.station,
+        gold.station_id,
         gold.pm2_5,
         gold.aqi_pm2_5,
         gold.aqi_level,
-        s.region
+        s.region_id
     FROM station_readings_gold gold
-    JOIN stations s ON gold.station = s.id
+    JOIN stations s ON gold.station_id = s.id
     WHERE 
         gold.processed_to_region = TRUE
-        AND s.region = 1--'GRAN_ASUNCION'
+        AND s.region_id = 1--'GRAN_ASUNCION'
         AND s.is_pattern_station = FALSE
         AND gold.date_utc IN (
             SELECT DISTINCT unprocessed.date_utc

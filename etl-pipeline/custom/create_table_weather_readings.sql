@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS weather_readings_gold (
     weather_station INTEGER REFERENCES weather_stations(id),
     date_localtime TIMESTAMP WITH TIME ZONE,
     temperature FLOAT,
-    humidity FLOAT,
+    humidity FLOAT, 
     pressure FLOAT,
     wind_speed FLOAT,
     wind_dir_cos FLOAT,

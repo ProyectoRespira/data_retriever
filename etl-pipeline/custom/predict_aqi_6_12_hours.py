@@ -12,7 +12,7 @@ if 'test' not in globals():
     from mage_ai.data_preparation.decorators import test
 
 def prepare_data(data):
-    data.drop(columns=['station', 'inference_run'], inplace=True)
+    data.drop(columns=['station_id', 'inference_run_id'], inplace=True)
     run_date = pd.to_datetime(data['run_date'].iloc[0], utc=True).tz_convert(None)
     data['date_utc'] = pd.to_datetime(data['date_utc'], utc=True).dt.tz_convert(None)
     data = data.drop_duplicates(subset='date_utc').sort_values(by='date_utc')
@@ -102,8 +102,8 @@ def predict_aqi(data, model, output_length, klogger):
 def transform_custom(data, *args, **kwargs):
     klogger = kwargs.get('logger')
     try:
-        station = data['station'].iloc[0]
-        inference_run = data['inference_run'].iloc[0]
+        station_id = data['station_id'].iloc[0]
+        inference_run_id = data['inference_run_id'].iloc[0]
 
         pred_data = prepare_data(data)
 
@@ -117,8 +117,8 @@ def transform_custom(data, *args, **kwargs):
         forecast_6h = predict_aqi(pred_data, model_6h, 
                                     output_length=6, klogger=klogger)
         result_df = pd.DataFrame({
-            'inference_run': [inference_run],
-            'station': [station],
+            'inference_run_id': [inference_run_id],
+            'station_id': [station_id],
             'aqi_input': [aqi_json],
             'forecasts_6h': [forecast_6h],
             'forecasts_12h': [forecast_12h]

@@ -1,12 +1,12 @@
 WITH min_date_utc AS (
     SELECT MIN(date_utc) AS min_date
     FROM station_readings_gold
-    WHERE station = {{ block_output(parse=lambda data, vars: data[0]["id"]) }}
+    WHERE station_id = {{ block_output(parse=lambda data, vars: data[0]["id"]) }}
     AND aqi_pm2_5 IS NULL
 )
 SELECT
     sr.id,
-    sr.station,
+    sr.station_id,
     sr.date_utc,
     sr.pm2_5,
     sr.pm10,
@@ -24,8 +24,8 @@ FROM
 CROSS JOIN
     min_date_utc md
 WHERE
-    sr.station = {{ block_output(parse=lambda data, vars: data[0]["id"]) }}
+    sr.station_id = {{ block_output(parse=lambda data, vars: data[0]["id"]) }}
 AND
     sr.date_utc >= (md.min_date - INTERVAL '24 hour')  -- Only get records within the 24-hour window
 ORDER BY
-    sr.station, sr.date_utc;
+    sr.station_id, sr.date_utc;

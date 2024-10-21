@@ -26,7 +26,7 @@ def process_data(df):
 @transformer
 def transform(data, *args, **kwargs):
     # Apply process_data to each group and then sort by 'date_utc'
-    processed_data = data.groupby('station').apply(process_data).reset_index(drop=True)
+    processed_data = data.groupby('station_id').apply(process_data).reset_index(drop=True)
     return processed_data
 
 

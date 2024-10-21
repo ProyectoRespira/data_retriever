@@ -1,7 +1,7 @@
 triggers:
 - description: null
   envs: []
-  last_enabled_at: 2024-10-08 23:36:24.949476
+  last_enabled_at: 2024-10-21 20:20:25.006589
   name: hourly airnow data
   pipeline_uuid: etl_airnow_bronze
   schedule_interval: '30 * * * * '
