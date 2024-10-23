@@ -30,3 +30,9 @@ etl-pipeline/drafts/
 
 #db backups
 db_dumps
+
+#prototype
+data_retriever_prototype/
+
+# helper scripts
+sql-helper-scripts/
