@@ -1,4 +1,4 @@
-# ignore src/
-src/
+# ignore prototype folder
+data_retriever_prototype/
 # ignore venv/
 venv/

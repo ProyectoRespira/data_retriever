@@ -1,9 +1,0 @@
-mage-ai==0.9.73
-mage-ai[dbt]
-psycopg2-binary==2.9.9
-darts==0.30.0
-lightgbm==4.5.0
-meteostat==1.6.8
-sshtunnel==0.4.0
-python-dotenv==1.0.1
-mysql-connector-python==8.3.0
