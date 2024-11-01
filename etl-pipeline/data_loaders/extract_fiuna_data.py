@@ -16,20 +16,24 @@ def load_data_from_mysql(data,*args, **kwargs):
 
     Docs: https://docs.mage.ai/design/data-loading#mysql
     """
+    klogger = kwargs.get('logger')
+    
+    try:
+        station_id = data['station_id']
+        table_name = f'Estacion{ station_id }'
+        last_measurement_id = data['last_measurement_id']
 
-    station_id = data['station_id']
-    table_name = f'Estacion{ station_id }'
-    last_measurement_id = data['last_measurement_id']
+        query = f''' SELECT *, {station_id} AS station_id
+                    FROM {table_name} 
+                    WHERE ID > {last_measurement_id}'''  
 
-    query = f''' SELECT *, {station_id} AS station_id
-                FROM {table_name} 
-                WHERE ID > {last_measurement_id}'''  
+        config_path = path.join(get_repo_path(), 'io_config.yaml') 
+        config_profile = 'default' 
 
-    config_path = path.join(get_repo_path(), 'io_config.yaml') 
-    config_profile = 'default' 
-
-    with MySQL.with_config(ConfigFileLoader(config_path, config_profile)) as loader:
-        return loader.load(query)
+        with MySQL.with_config(ConfigFileLoader(config_path, config_profile)) as loader:
+            return loader.load(query)
+    except Exception as e:
+        klogger.exception(f'An error occurred: {e}')
 
         
 

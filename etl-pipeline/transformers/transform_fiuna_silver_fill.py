@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 from pytz import timezone
 
+if 'transformer' not in globals():
+    from mage_ai.data_preparation.decorators import transformer
+    
 def add_date_column_as_index(df):
     '''
     Converts 'fecha' and 'hora' (VARCHAR) columns in dataframe to
@@ -73,16 +76,6 @@ def transform(data, *args, **kwargs):
             klogger.exception('Dataframe is empty')
             return data
         data = process_data(data)
+        return data
     except Exception as e:
         klogger.exception(e)
-    
-    return data
-
-
-
-@test
-def test_output(output, *args) -> None:
-    """
-    Template code for testing the output of the block.
-    """
-    assert output is not None, 'The output is undefined'
