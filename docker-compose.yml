@@ -50,7 +50,7 @@ services:
     volumes:
       - ./:/app
       # manually transfer .mage_data with already created secrets to server or store secrets in server's mage UI during deployment
-      - ../.mage_data:/root/.mage_data 
+      - ${LOCAL_MAGE_DATA_DIR}:${MAGE_DATA_DIR} 
       
 volumes:
   postgres_data:
