@@ -9,7 +9,7 @@ triggers:
   settings: null
   sla: null
   start_time: 2024-10-21 20:21:00
-  status: active
+  status: inactive
   token: ec63dbf57a98438c839da94b22c470b1
   variables: {}
 - description: null
@@ -22,6 +22,6 @@ triggers:
   settings: null
   sla: null
   start_time: 2024-10-21 20:23:00
-  status: active
+  status: inactive
   token: 8c98ce6fe5ff4e0185ed142e696df5aa
   variables: {}
