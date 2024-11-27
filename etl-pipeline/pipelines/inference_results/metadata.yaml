@@ -12,7 +12,7 @@ blocks:
     limit: 1000
     use_raw_sql: true
   downstream_blocks:
-  - get_healthy_station_ids
+  - check_station_status
   executor_config: null
   executor_type: local_python
   has_callback: false
@@ -24,6 +24,32 @@ blocks:
   type: custom
   upstream_blocks: []
   uuid: create_insert_inference_run
+- all_upstream_blocks_executed: true
+  color: teal
+  configuration:
+    data_provider: postgres
+    data_provider_profile: default
+    dbt: {}
+    disable_query_preprocessing: false
+    export_write_policy: append
+    file_source:
+      path: custom/check_station_status.sql
+    limit: 1000
+    use_raw_sql: true
+  downstream_blocks:
+  - get_healthy_station_ids
+  executor_config: null
+  executor_type: local_python
+  has_callback: false
+  language: sql
+  name: check_station_status
+  retry_config: null
+  status: executed
+  timeout: null
+  type: custom
+  upstream_blocks:
+  - create_insert_inference_run
+  uuid: check_station_status
 - all_upstream_blocks_executed: true
   color: null
   configuration:
@@ -50,7 +76,7 @@ blocks:
   timeout: null
   type: custom
   upstream_blocks:
-  - create_insert_inference_run
+  - check_station_status
   uuid: get_healthy_station_ids
 - all_upstream_blocks_executed: true
   color: null
@@ -61,6 +87,7 @@ blocks:
     disable_query_preprocessing: false
     export_write_policy: append
     limit: 1000
+    reduce_output: true
     use_raw_sql: true
   downstream_blocks:
   - predict_aqi_6_12_hours
@@ -96,7 +123,7 @@ blocks:
   upstream_blocks:
   - extract_data_for_inference
   uuid: predict_aqi_6_12_hours
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     file_path: data_exporters/load_inference_result.py

@@ -102,30 +102,51 @@ def predict_aqi(data, model, output_length, klogger):
 def transform_custom(data, *args, **kwargs):
     klogger = kwargs.get('logger')
     try:
-        station_id = data['station_id'].iloc[0]
-        inference_run_id = data['inference_run_id'].iloc[0]
-
-        pred_data = prepare_data(data)
-
-        aqi_df = pred_data[['date_utc','aqi_pm2_5']] 
-        aqi_json_list = aqi_df.apply(lambda row: {"timestamp": row['date_utc'].isoformat(), "value": int(row['aqi_pm2_5'])}, axis=1).tolist()
-        aqi_json = json.dumps(aqi_json_list, indent=4)
-
+        # Load models once
         model_6h, model_12h = load_models(klogger=klogger)
-        forecast_12h = predict_aqi(pred_data, model_12h, 
-                                    output_length=12, klogger=klogger)
-        forecast_6h = predict_aqi(pred_data, model_6h, 
-                                    output_length=6, klogger=klogger)
-        result_df = pd.DataFrame({
-            'inference_run_id': [inference_run_id],
-            'station_id': [station_id],
-            'aqi_input': [aqi_json],
-            'forecasts_6h': [forecast_6h],
-            'forecasts_12h': [forecast_12h]
-        })
-        return result_df
+        if not model_6h or not model_12h:
+            klogger.error("Failed to load models. Aborting transformation.")
+            return None
+
+        results = []
+
+        for station_data in data:
+            try:
+                station_id = station_data['station_id'].iloc[0]
+                inference_run_id = station_data['inference_run_id'].iloc[0]
+
+                klogger.info(f"Processing station_id: {station_id}")
+
+                pred_data = prepare_data(station_data)
+
+                aqi_df = pred_data[['date_utc', 'aqi_pm2_5']]
+                aqi_json_list = aqi_df.apply(
+                    lambda row: {"timestamp": row['date_utc'].isoformat(), "value": int(row['aqi_pm2_5'])},
+                    axis=1
+                ).tolist()
+                aqi_json = json.dumps(aqi_json_list, indent=4)
+
+                forecast_12h = predict_aqi(pred_data, model_12h, output_length=12, klogger=klogger)
+                forecast_6h = predict_aqi(pred_data, model_6h, output_length=6, klogger=klogger)
+
+                results.append(pd.DataFrame({
+                    'inference_run_id': [inference_run_id],
+                    'station_id': [station_id],
+                    'aqi_input': [aqi_json],
+                    'forecasts_6h': [forecast_6h],
+                    'forecasts_12h': [forecast_12h]
+                }))
+            except Exception as station_error:
+                klogger.warning(f"An error occurred while processing station_id {station_id}: {station_error}")
+
+        # Concatenate all results into a single DataFrame
+        final_result = pd.concat(results, ignore_index=True)
+        return final_result
+
     except Exception as e:
-        klogger.exception(e)
+        klogger.exception(f"An error occurred during transformation: {e}")
+        return None
+
 
 @test
 def test_output(output, *args) -> None:
