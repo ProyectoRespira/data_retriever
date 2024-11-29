@@ -93,19 +93,22 @@ Before running the project, configure environment variables in a .env file. Rena
 Example configuration:
 ```
 # PostgreSQL Configuration
-POSTGRES_USER='fer'
-POSTGRES_PASSWORD='nanda'
-POSTGRES_HOST='localhost'
-POSTGRES_DATABASE='estaciones'
+POSTGRES_USER='<your-postgres-user>'
+POSTGRES_PASSWORD='<your-postgres-pass>'
+POSTGRES_HOST=<your-postgres-host>'
+POSTGRES_DATABASE='<your-postgres-db>'
 
 # MySQL Configuration (for remote database)
-MYSQL_USER='fer'
-MYSQL_PASSWORD='nanda'
-MYSQL_HOST='localhost'
-MYSQL_DATABASE='estaciones_remote'
+MYSQL_USER='<your-mysql-user>'
+MYSQL_PASSWORD='<your-mysql-pass>'
+MYSQL_HOST='<your-mysql-host>'
+MYSQL_DATABASE='<your-mysql-db>'
 
-# AirNow API Key for calibration
-AIRNOW_API_KEY='your_secret_airnow_api_key'
+# Mage.ai pipeline configuration
+MAGE_DATA_DIR= 'path/in/container' 
+LOCAL_MAGE_DATA_DIR='local/path'
+PIPELINE_HOST='localhost'
+PIPELINE_PORT='6789'
 ```
 ### Contributing
 
