@@ -58,6 +58,8 @@ The `data_retriever` project is divided into the following components:
 - **Bots**: Provides real-time air quality updates to users via Twitter and Telegram.
 - **Calibration**: Ensures sensor accuracy through regular calibration with AirNow API data.
 
+![image](https://github.com/user-attachments/assets/9dd5240c-b033-42b7-900b-9098ecb9690c)
+
 ## Current Database Structure
 
 The system follows a Medallion Architecture, organized into three layers:
