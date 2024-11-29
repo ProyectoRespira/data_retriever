@@ -9,6 +9,6 @@ triggers:
   settings: null
   sla: null
   start_time: 2024-10-02 03:17:00
-  status: active
+  status: inactive
   token: 2a8157b8ee7a4b5ab22ccbafcb06fe27
   variables: {}

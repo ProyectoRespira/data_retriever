@@ -9,7 +9,7 @@ triggers:
   settings: null
   sla: null
   start_time: 2024-10-02 03:16:00
-  status: active
+  status: inactive
   token: ff66cb154b0843b183ca8b145f7cd82c
   variables:
     execution_type: incremental

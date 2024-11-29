@@ -23,7 +23,7 @@ blocks:
   type: custom
   upstream_blocks: []
   uuid: get_last_measurement_ids_fiuna
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     data_provider: postgres
@@ -46,7 +46,7 @@ blocks:
   upstream_blocks:
   - get_last_measurement_ids_fiuna
   uuid: extract_fiuna_data
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     file_path: transformers/transform_fiuna_bronze.py
@@ -66,7 +66,7 @@ blocks:
   upstream_blocks:
   - extract_fiuna_data
   uuid: transform_fiuna_bronze
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     file_path: data_exporters/load_fiuna_bronze.py
@@ -87,7 +87,7 @@ blocks:
   upstream_blocks:
   - transform_fiuna_bronze
   uuid: load_fiuna_bronze
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     file_path: custom/trigger_etl_fiuna_silver.py
