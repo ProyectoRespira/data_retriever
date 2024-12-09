@@ -1,68 +1,135 @@
-# data_retriever
- * ETL for FIUNA, Meteostat and Airnow
- * Feature engineering for inference
- * Inference
- 
- ## Table of Contents
+# `data_retriever`
 
-    Introduction
-    Project Structure
-    Installation
-    Usage
-    Contributing
-    License
+## Overview
+
+The `data_retriever` project is an end-to-end ETL (Extract, Transform, Load) pipeline for air quality forecasting in Asunción, Paraguay. It processes data from various sources such as FIUNA air pollution sensors, Meteostat weather data, and the AirNow API for sensor calibration. The processed data is used to predict air quality through machine learning models (LightGBM), and forecasts are delivered to users via Twitter and Telegram bots.
+
+### Key Features
+
+- **ETL for Air Quality Data**: 
+  - *Bronze Layer*: Data retrieval from sensors and APIs.
+  - *Silver Layer*: Data cleaning and validation.
+  - *Gold Layer*: Data unification, calibration, and feature engineering for modeling.
+
+- **Inference**:
+  - Machine learning models built with Darts and LightGBM to predict air quality.
+
+- **Bots**:
+  - Daily air quality forecasts via Twitter and Telegram bots.
+
+- **Calibration**:
+  - Monthly calibration using the US Embassy’s sensor in Asunción via the AirNow API.
+
+## Table of Contents
+
+1. [Introduction](#introduction)
+2. [Project Structure](#project-structure)
+3. [Current Database Structure](#current-database-structure)
+4. [Usage](#usage)
+   - [Docker Setup](#docker-setup)
+   - [Example .env File](#example-env-file)
+5. [Contributing](#contributing)
+6. [License](#license)
 
 ## Introduction
 
-Provide a brief overview of the project, its purpose, and its main features.
+The `data_retriever` project processes air quality data, provides daily forecasts through social media, and ensures sensor calibration using data from multiple sources. It follows an ETL process and utilizes machine learning for accurate forecasting.
 
-## Current Project Structure
+### Core Processes
 
-## Current DB Structure
-![data_retriever_v4(1)](https://github.com/user-attachments/assets/f938c756-7d82-4f90-9ce4-19b47fa8a64b)
+- **ETL for Air Pollution Data**: 
+  - Retrieves, cleans, and transforms raw data into a structured format for analysis.
+  
+- **Inference**: 
+  - Utilizes historical data to predict air quality levels with LightGBM models.
 
-# Current Flow Diagram 
-Available for editing [here](https://lucid.app/lucidchart/9458c9c0-a69d-435e-8e2a-c308dd53ffb3/edit?viewport_loc=-1888%2C-751%2C3755%2C1602%2C0_0&invitationId=inv_9832203a-f57d-4c0e-8088-e32f409d3b45) 
+- **Bots**:
+  - Delivers air quality forecasts through automated social media bots.
 
-![data_retriever_flow](https://github.com/vnbl/data_retriever/assets/21232496/6eb560c1-e2f5-4c2b-86d6-0563c217f280)
+- **Calibration**:
+  - Uses AirNow data to calibrate local pollution sensors.
 
-## Installation
+## Project Structure
 
-Provide instructions on how to install and set up the project, including any dependencies or prerequisites.
+The `data_retriever` project is divided into the following components:
+
+- **ETL Pipeline**: Handles data collection, cleaning, and transformation.
+- **Inference System**: Predicts air quality based on past data using machine learning.
+- **Bots**: Provides real-time air quality updates to users via Twitter and Telegram.
+- **Calibration**: Ensures sensor accuracy through regular calibration with AirNow API data.
+
+![image](https://github.com/user-attachments/assets/9dd5240c-b033-42b7-900b-9098ecb9690c)
+
+## Current Database Structure
+
+The system follows a Medallion Architecture, organized into three layers:
+
+- **Bronze Layer**: Raw data from sensors and external APIs.
+- **Silver Layer**: Cleaned and validated data ready for analysis.
+- **Gold Layer**: Feature-engineered data used for training models and making predictions.
+
+![data_retriever_v4](https://github.com/user-attachments/assets/f938c756-7d82-4f90-9ce4-19b47fa8a64b)
 
 ## Usage
 
-Explain how to use the project, including any command-line interfaces or APIs available.
-in main folder:
+### Docker Setup
 
-### Docker
+To quickly set up and run the `data_retriever` project in an isolated environment, use Docker.
+
+- **Build the Docker image**:
+ ```
+  docker build -t <container-name> .
+ ```
+- **Run the Docker container**:
+ ```
+  docker run -d -p 6789:6789 <container-name>
+ ```
+This will map port 6789 from the container to your local machine.
+
+### Example .env File
+
+Before running the project, configure environment variables in a .env file. Rename .env.example to .env and populate with your credentials.
+
+Example configuration:
 ```
-docker build -t respira_mage .
-docker run -d -p 6789:6789 respira_mage
+# PostgreSQL Configuration
+POSTGRES_USER='<your-postgres-user>'
+POSTGRES_PASSWORD='<your-postgres-pass>'
+POSTGRES_HOST=<your-postgres-host>'
+POSTGRES_DATABASE='<your-postgres-db>'
 
+# MySQL Configuration (for remote database)
+MYSQL_USER='<your-mysql-user>'
+MYSQL_PASSWORD='<your-mysql-pass>'
+MYSQL_HOST='<your-mysql-host>'
+MYSQL_DATABASE='<your-mysql-db>'
+
+# Mage.ai pipeline configuration
+MAGE_DATA_DIR= 'path/in/container' 
+LOCAL_MAGE_DATA_DIR='local/path'
+PIPELINE_HOST='localhost'
+PIPELINE_PORT='6789'
 ```
+### Contributing
 
-### Example .env file
-Rename `.env.example` to `.env` and complete with credentials
+We welcome contributions! To contribute, follow these steps:
+
+- Fork the repository.
+- Create a new branch:
 ```
-POSTGRES_USER='fer'
-POSTGRES_PASSWORD='nanda'
-POSTGRES_HOST='localhost'
-POSTGRES_DATABASE='estaciones'
-
-MYSQL_USER='fer'
-MYSQL_PASSWORD='nanda'
-MYSQL_HOST='localhost'
-MYSQL_DATABASE='estaciones_remote'
-
-AIRNOW_API_KEY='your_secret_airnow_api_key'
+git checkout -b feature-branch
 ```
+- Make your changes and commit:
+```
+git commit -am 'Add new feature'
+```
+- Push your changes:
+```
+ git push origin feature-branch
+```
+- Open a pull request with a description of your changes.
 
-## Contributing
+### License
 
-Outline guidelines for contributing to the project, such as how to report issues, suggest improvements, or submit pull requests.
-
-## License
-
-Specify the license under which the project is distributed.
+This project is licensed under the AGPL (Affero General Public License). See the LICENSE file for more details.
 
