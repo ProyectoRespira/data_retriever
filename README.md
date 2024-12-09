@@ -129,6 +129,8 @@ git commit -am 'Add new feature'
 ```
 - Open a pull request with a description of your changes.
 
+You may find more details on each pipeline [reading these docs](https://github.com/ProyectoRespira/data_retriever/blob/documentation/etl-pipeline/README.md).
+
 ### License
 
 This project is licensed under the AGPL (Affero General Public License). See the LICENSE file for more details.
