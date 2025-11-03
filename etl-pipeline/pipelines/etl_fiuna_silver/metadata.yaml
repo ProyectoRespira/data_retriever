@@ -131,7 +131,7 @@ blocks:
   language: python
   name: trigger_fiuna_gold_measurements
   retry_config: null
-  status: updated
+  status: executed
   timeout: null
   type: custom
   upstream_blocks:

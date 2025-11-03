@@ -1,7 +1,7 @@
 triggers:
 - description: null
   envs: []
-  last_enabled_at: 2024-10-21 20:22:54.559665
+  last_enabled_at: 2024-11-27 21:39:55.735243
   name: tweet_at_8am
   pipeline_uuid: twitter_bot
   schedule_interval: '0 11 * * * '
@@ -14,7 +14,7 @@ triggers:
   variables: {}
 - description: null
   envs: []
-  last_enabled_at: 2024-10-21 20:25:02.744471
+  last_enabled_at: 2024-11-27 21:39:57.914479
   name: tweet_at_5pm
   pipeline_uuid: twitter_bot
   schedule_interval: 0 20 * * *

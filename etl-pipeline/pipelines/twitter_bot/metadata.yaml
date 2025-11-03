@@ -54,7 +54,7 @@ blocks:
   language: python
   name: construct_send_twitter_message
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: custom
   upstream_blocks:
@@ -83,5 +83,5 @@ tags:
 - bots
 type: python
 uuid: twitter_bot
-variables_dir: /app/.mage_data
+variables_dir: /root/.mage_data/etl-pipeline
 widgets: []

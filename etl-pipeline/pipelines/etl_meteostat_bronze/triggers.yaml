@@ -1,7 +1,7 @@
 triggers:
 - description: null
   envs: []
-  last_enabled_at: 2024-10-21 20:20:23.816850
+  last_enabled_at: 2024-11-27 21:40:05.610202
   name: hourly meteostat updates
   pipeline_uuid: etl_meteostat_bronze
   schedule_interval: '@hourly'

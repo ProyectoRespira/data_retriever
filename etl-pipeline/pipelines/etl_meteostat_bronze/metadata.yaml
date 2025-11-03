@@ -108,5 +108,5 @@ type: python
 uuid: etl_meteostat_bronze
 variables:
   execution_type: backfill_month
-variables_dir: /app/.mage_data/
+variables_dir: /root/.mage_data/etl-pipeline
 widgets: []

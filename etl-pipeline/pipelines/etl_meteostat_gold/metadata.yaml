@@ -84,5 +84,5 @@ tags:
 - weather
 type: python
 uuid: etl_meteostat_gold
-variables_dir: /app/.mage_data
+variables_dir: /root/.mage_data/etl-pipeline
 widgets: []

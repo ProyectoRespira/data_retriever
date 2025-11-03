@@ -26,7 +26,7 @@ blocks:
   type: custom
   upstream_blocks: []
   uuid: get_last_airnow_reading_silver_and_bbox
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration: {}
   downstream_blocks:
@@ -37,7 +37,7 @@ blocks:
   language: python
   name: extract_data_from_airnow
   retry_config: null
-  status: executed
+  status: failed
   timeout: null
   type: data_loader
   upstream_blocks:
@@ -106,5 +106,5 @@ type: python
 uuid: etl_airnow_bronze
 variables:
   execution_type: incremental
-variables_dir: /app/.mage_data
+variables_dir: /root/.mage_data/etl-pipeline
 widgets: []

@@ -5,6 +5,13 @@ if 'test' not in globals():
 
 import pandas as pd
 
+def fill_missing_data(df):
+    df = df.sort_values(by=['station_id', 'date_utc'])  # Ensure data is sorted for filling
+    df['pm2_5'] = df.groupby('station_id')['pm2_5'].fillna(method='ffill').fillna(method='bfill')  # Forward fill
+    df['aqi_pm2_5'] = df.groupby('station_id')['aqi_pm2_5'].fillna(method='ffill').fillna(method='bfill')  # Forward fill
+    df['aqi_level'] = df.groupby('station_id')['aqi_level'].fillna(method='ffill').fillna(method='bfill')  # Forward fill
+    return df
+
 # Helper function to calculate the metrics for each region group
 def calc_metrics(group):
 
@@ -25,6 +32,7 @@ def calc_metrics(group):
 
 # Helper function to calculate metrics for each region and date_utc group
 def calculate_region_metrics(df):
+    df = fill_missing_data(df)
     grouped = df.groupby(['date_utc', 'region_id'])
     region_metrics = grouped.apply(calc_metrics).reset_index(drop=True)
     region_metrics.dropna(inplace=True)
