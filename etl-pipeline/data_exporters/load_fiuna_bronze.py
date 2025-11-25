@@ -11,21 +11,25 @@ if 'data_exporter' not in globals():
 @data_exporter
 def export_data_to_postgres(df: DataFrame, **kwargs) -> None:
     """
-    Template for exporting data to a PostgreSQL database.
-    Specify your configuration settings in 'io_config.yaml'.
-
-    Docs: https://docs.mage.ai/design/data-loading#postgresql
+    Export data to PostgreSQL only if DataFrame has data.
     """
-    schema_name = 'public'  # Specify the name of the schema to export data to
-    table_name = 'station_readings_bronze'  # Specify the name of the table to export data to
+    klogger = kwargs.get('logger')
+    schema_name = 'public'
+    table_name = 'station_readings_bronze'
     config_path = path.join(get_repo_path(), 'io_config.yaml')
     config_profile = 'default'
 
+    if df is None or df.empty or df.columns.size == 0:
+        klogger.warning("⚠️ Skipping export: DataFrame is empty or missing columns.")
+        return
+
     with Postgres.with_config(ConfigFileLoader(config_path, config_profile)) as loader:
+        klogger.info(f"✅ Exporting {len(df)} rows to {schema_name}.{table_name} ...")
         loader.export(
             df,
             schema_name,
             table_name,
-            index=False,  # Specifies whether to include index in exported table
-            if_exists='append',  # Specify resolution policy if table name already exists
+            index=False,
+            if_exists='append',
         )
+        klogger.info("✅ Export completed successfully.")
