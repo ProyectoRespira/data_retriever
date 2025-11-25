@@ -43,7 +43,7 @@ blocks:
   language: python
   name: transform_region_readings
   retry_config: null
-  status: executed
+  status: updated
   timeout: null
   type: transformer
   upstream_blocks:
@@ -72,7 +72,7 @@ blocks:
   upstream_blocks:
   - extract_data_for_regional_stats
   uuid: mark_fiuna_gold_as_processed
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     file_path: data_exporters/load_region_readings.py
@@ -92,7 +92,7 @@ blocks:
   upstream_blocks:
   - transform_region_readings
   uuid: load_region_readings
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration:
     file_path: data_exporters/update_fiuna_gold_processed_ids.py
@@ -113,7 +113,7 @@ blocks:
   - mark_fiuna_gold_as_processed
   - load_region_readings
   uuid: update_fiuna_gold_processed_ids
-- all_upstream_blocks_executed: true
+- all_upstream_blocks_executed: false
   color: null
   configuration: {}
   downstream_blocks: []

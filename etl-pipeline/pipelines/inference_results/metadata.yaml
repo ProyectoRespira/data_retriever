@@ -123,7 +123,7 @@ blocks:
   upstream_blocks:
   - extract_data_for_inference
   uuid: predict_aqi_6_12_hours
-- all_upstream_blocks_executed: false
+- all_upstream_blocks_executed: true
   color: null
   configuration:
     file_path: data_exporters/load_inference_result.py

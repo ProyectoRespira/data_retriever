@@ -36,3 +36,4 @@ data_retriever_prototype/
 
 # helper scripts
 sql-helper-scripts/
+etl-pipeline/charts/

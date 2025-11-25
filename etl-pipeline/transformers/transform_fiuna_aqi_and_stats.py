@@ -9,6 +9,9 @@ def calculate_aqi_2_5_and_level(x):
     """
     Calculate AQI and level for PM2.5 based on the provided value.
     """
+    if x < 1:
+        x = 1
+        
     if x <= 12:
         return round(x * 50 / 12, 0), 1  # Good
     elif x <= 35.4:
@@ -28,6 +31,9 @@ def calculate_aqi_10(x):
     """
     Calculate AQI for PM10 based on the provided value.
     """
+    if x < 1:
+        x = 1
+
     if x <= 54:
         return round(x * 50 / 54, 0)
     elif x <= 154:

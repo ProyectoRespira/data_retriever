@@ -1,15 +1,19 @@
 -- Docs: https://docs.mage.ai/guides/sql-blocks
 
 WITH execution_date AS (
-    SELECT run_date
+    SELECT date_trunc('hour', run_date) AS truncated_run_date
     FROM inference_runs
     ORDER BY id DESC
     LIMIT 1
 )
-SELECT
-    station_id AS id
-FROM health_checks
+SELECT DISTINCT
+    hc.station_id AS id
+FROM health_checks hc
 WHERE 
-    run_date = (SELECT date_trunc('hour', run_date) FROM execution_date)
-    AND is_on = TRUE
-    AND station_id NOT IN (SELECT id FROM stations WHERE is_pattern_station = TRUE);
+    hc.run_date = (SELECT ed.truncated_run_date FROM execution_date ed)
+    AND hc.is_on = TRUE
+    AND hc.station_id NOT IN (
+        SELECT s.id
+        FROM stations s
+        WHERE s.is_pattern_station = TRUE
+    );

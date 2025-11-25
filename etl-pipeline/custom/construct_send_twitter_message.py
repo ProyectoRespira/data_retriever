@@ -38,7 +38,7 @@ def construct_message(avg_aqi, max_aqi, min_aqi):
         f"🔹 AQI Promedio: {avg_aqi} ({avg_label})\n"
         f"🔺 AQI Máximo: {max_aqi} ({max_label})\n"
         f"🔻 AQI Mínimo: {min_aqi} ({min_label})\n\n"
-        "🔗 ¡Pronto podrás acceder al pronóstico en tu zona! www.proyectorespira.net"
+        "🔗 Podés ingresar al pronóstico en tu zona en www.proyectorespira.net"
     )
     return message
 
