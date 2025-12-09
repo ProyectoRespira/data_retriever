@@ -18,7 +18,7 @@ def load_data_from_mysql(data, *args, **kwargs):
     Adds debug info to log query results (row count, columns, sample rows).
     """
     klogger = kwargs.get('logger')
-    timeout_seconds = 10  # Set the timeout duration
+    timeout_seconds = 20  # Set the timeout duration
     start_time = time.time()
 
     try:
